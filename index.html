@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f4f4">
+<title>Nega Nagô — Protótipo de agendamento</title>
+<style>
+  :root {
+    --bg: #f4f4f4;
+    --card: #ffffff;
+    --line: #dcdcdc;
+    --ph: #c7c7c7;
+    --text: #1a1a1a;
+    --muted: #7a7a7a;
+  }
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+  }
+
+  body {
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    /* iOS: evita o "pulo" da barra de endereço e o scroll elástico horizontal */
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+
+  /* iOS aplica estilo nativo em <button>: texto azul, centralizado e cantos
+     próprios. Sem este reset o card "Agende rápido pelo Zap" sai azul. */
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    text-align: inherit;
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 400px;
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  /* dvh evita que a barra do Safari corte o rodapé */
+  @supports (min-height: 100dvh) {
+    .shell { min-height: 100dvh; }
+  }
+
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* ---- Home ---- */
+  .brandbar { padding: 14px 16px 0; font-weight: 700; font-size: 15px; letter-spacing: .02em; }
+  .hero { margin: 12px 16px 0; height: 120px; border-radius: 10px; background: var(--ph); }
+  .promo-row { display: flex; gap: 10px; margin: 12px 16px 0; }
+  .promo-card {
+    flex: 1 1 0;
+    min-width: 0;
+    background: #eee;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    border: 1px solid var(--line);
+    color: var(--text);
+    text-align: left;
+  }
+  .promo-card .ph { width: 26px; height: 26px; border-radius: 6px; background: var(--ph); margin-bottom: 8px; }
+
+  .section-title { margin: 20px 16px 10px; font-size: 15px; font-weight: 700; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 16px 24px; }
+  .style-card { text-align: center; }
+  /* Fallback para iOS < 15, que não suporta aspect-ratio */
+  .style-card .ph {
+    width: 100%;
+    height: 0;
+    padding-top: 100%;
+    border-radius: 8px;
+    background: var(--ph);
+    margin-bottom: 6px;
+  }
+  @supports (aspect-ratio: 1 / 1) {
+    .style-card .ph { height: auto; padding-top: 0; aspect-ratio: 1 / 1; }
+  }
+  .style-card span { font-size: 11.5px; font-weight: 600; line-height: 1.25; display: block; }
+
+  /* ---- compartilhado ---- */
+  .topbar { display: flex; align-items: center; padding: 14px 16px 0; }
+  .back { font-size: 13px; color: var(--muted); }
+  .product-hero { margin: 10px 16px 0; height: 140px; border-radius: 10px; background: var(--ph); }
+  .h2 { margin: 16px 16px 4px; font-size: 17px; font-weight: 700; }
+  .unit-label { margin: 0 16px 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .option-list { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+  .option-row {
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 10px; width: 100%; text-align: left;
+  }
+  .option-row.selected { border-color: var(--text); background: #fafafa; }
+  .option-row .ph { width: 40px; height: 40px; border-radius: 6px; background: var(--ph); flex-shrink: 0; }
+  .option-row .name { flex: 1 1 0; min-width: 0; font-size: 13.5px; font-weight: 600; }
+  .option-row .price { font-size: 13.5px; font-weight: 700; }
+
+  .addon-row {
+    display: flex; align-items: center; gap: 10px;
+    margin: 14px 16px 0; padding: 10px;
+    border: 1.5px solid var(--line); border-radius: 10px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .addon-row.selected { border-color: var(--text); background: #fafafa; }
+  /* Mantém o checkbox nativo visível no iOS */
+  .addon-row input[type="checkbox"] {
+    -webkit-appearance: checkbox;
+    appearance: checkbox;
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    accent-color: var(--text);
+    margin: 0;
+  }
+  .addon-row .name { flex: 1 1 0; min-width: 0; font-size: 13px; font-weight: 600; }
+  .addon-row .price { font-size: 13px; font-weight: 700; }
+
+  .cta-wrap { margin-top: auto; padding: 16px; }
+  .cta {
+    width: 100%; padding: 14px; border-radius: 100px;
+    background: var(--text); color: #fff;
+    font-weight: 700; font-size: 14px; text-align: center;
+  }
+  .cta[disabled] { background: #c9c9c9; color: #8a8a8a; cursor: not-allowed; }
+  .cta-note { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  /* ---- agendamento ---- */
+  .local-row { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; margin-top: 6px; }
+  .local-card { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; text-align: left; width: 100%; }
+  .local-card.selected { border-color: var(--text); background: #fafafa; }
+  .local-card .name { font-size: 13.5px; font-weight: 700; }
+  .local-card .sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+  .calendar { margin: 16px 16px 0; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .cal-head button { font-size: 18px; padding: 4px 10px; color: var(--text); }
+  .cal-head .label { font-size: 13.5px; font-weight: 700; text-transform: capitalize; }
+  .cal-weekdays, .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+  .cal-weekdays span { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+  .cal-days .day { font-size: 12.5px; padding: 9px 0; border-radius: 8px; width: 100%; text-align: center; }
+  .cal-days .day[disabled] { color: #ccc; }
+  .cal-days .day.selected { background: var(--text); color: #fff; font-weight: 700; }
+  .cal-days .spacer { padding: 9px 0; }
+
+  .periodo-row { display: flex; gap: 8px; padding: 0 16px; margin-top: 14px; }
+  .periodo-btn {
+    flex: 1 1 0; min-width: 0; padding: 11px;
+    border-radius: 10px; border: 1.5px solid var(--line);
+    background: #fff; font-size: 12.5px; font-weight: 600; text-align: center;
+  }
+  .periodo-btn.selected { border-color: var(--text); background: var(--text); color: #fff; }
+
+  .summary { margin: 18px 16px 0; padding: 12px 14px; border-radius: 10px; background: #f0f0f0; display: flex; justify-content: space-between; align-items: baseline; }
+  .summary .label { font-size: 11.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+  .summary .value { font-size: 17px; font-weight: 700; }
+  .summary-note { margin: 6px 16px 0; font-size: 11px; color: var(--muted); min-height: 14px; }
+
+  button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============ HOME ============ -->
+  <section id="screen-home" class="screen active">
+    <div class="brandbar">NEGA NAGÔ</div>
+    <div class="hero"></div>
+    <div class="promo-row">
+      <button type="button" class="promo-card" id="promo-zap">
+        <span class="ph"></span>
+        Agende rápido<br>pelo Zap
+      </button>
+      <div class="promo-card">
+        <span class="ph"></span>
+        Trança na sua casa<br>ou no nosso Estúdio
+      </div>
+    </div>
+    <div class="section-title">Qual vai ser a coroa da vez?</div>
+    <div class="grid" id="style-grid"></div>
+  </section>
+
+  <!-- ============ PRODUTO ============ -->
+  <section id="screen-product" class="screen">
+    <div class="topbar"><button type="button" class="back" data-nav="home">‹ Voltar</button></div>
+    <div class="product-hero"></div>
+    <div class="h2" id="product-title"></div>
+    <div class="unit-label" id="product-unit"></div>
+    <div class="option-list" id="product-options"></div>
+    <label class="addon-row" id="addon-row" for="addon-check">
+      <input type="checkbox" id="addon-check">
+      <span class="name">Adicional de cachos</span>
+      <span class="price">+ R$ 50,00</span>
+    </label>
+    <div class="cta-wrap">
+      <button type="button" class="cta" id="btn-continuar" disabled>Continuar</button>
+    </div>
+  </section>
+
+  <!-- ============ AGENDAMENTO ============ -->
+  <section id="screen-booking" class="screen">
+    <div class="topbar"><button type="button" class="back" data-nav="product">‹ Voltar</button></div>
+    <div class="h2" style="margin-top:14px;">Onde vai ser?</div>
+    <div class="local-row">
+      <button type="button" class="local-card" data-local="estudio">
+        <span class="name">Estúdio</span>
+        <span class="sub">Bairro Americanópolis</span>
+      </button>
+      <button type="button" class="local-card" data-local="domicilio">
+        <span class="name">A domicílio</span>
+        <span class="sub">Taxa de deslocamento a combinar</span>
+      </button>
+    </div>
+
+    <div class="h2">Escolha o dia</div>
+    <div class="calendar">
+      <div class="cal-head">
+        <button type="button" id="cal-prev" aria-label="Mês anterior">‹</button>
+        <span class="label" id="cal-label"></span>
+        <button type="button" id="cal-next" aria-label="Próximo mês">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+      </div>
+      <div class="cal-days" id="cal-days"></div>
+    </div>
+
+    <div class="h2">Período</div>
+    <div class="periodo-row">
+      <button type="button" class="periodo-btn" data-periodo="Manhã">Manhã</button>
+      <button type="button" class="periodo-btn" data-periodo="Tarde">Tarde</button>
+      <button type="button" class="periodo-btn" data-periodo="Noite">Noite</button>
+    </div>
+
+    <div class="summary">
+      <span class="label">Total estimado</span>
+      <span class="value" id="summary-total">R$ 0,00</span>
+    </div>
+    <div class="summary-note" id="summary-note"></div>
+
+    <div class="cta-wrap">
+      <button type="button" class="cta" id="btn-finalizar" disabled>Finalizar Agendamento no Zap</button>
+      <div class="cta-note">Escolha o local, o dia e o período para continuar.</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ==========================================================
+  // Troque pelo número real da Nega Nagô antes de publicar.
+  // Formato: país + DDD + número, só dígitos.
+  // ==========================================================
+  var WHATSAPP_NUMBER = '55XXXXXXXXXXX';
+  var ADICIONAL_CACHOS = 50;
+
+  var STYLES = [
+    { id: 'box-braids', name: 'Box Braids', unit: 'Tamanho', options: [
+      { label: 'Chanel', price: 300 }, { label: 'Long Bob', price: 340 }, { label: 'Meio das costas', price: 380 },
+      { label: 'Quadril', price: 400 }, { label: 'Abaixo do quadril', price: 480 } ] },
+    { id: 'fulani', name: 'Fulani', unit: 'Tamanho', options: [
+      { label: 'Chanel', price: 340 }, { label: 'Meio das costas', price: 380 },
+      { label: 'Quadril', price: 420 }, { label: 'Abaixo do quadril', price: 460 } ] },
+    { id: 'knotless', name: 'Knotles', unit: 'Tamanho', options: [
+      { label: 'Chanel', price: 350 }, { label: 'Long Bob', price: 370 }, { label: 'Meio das costas', price: 400 },
+      { label: 'Até o quadril', price: 450 }, { label: 'Abaixo do quadril', price: 500 } ] },
+    { id: 'nago-desenhada', name: 'Nagô Desenhada', unit: 'Tamanhos', options: [
+      { label: 'Chanel', price: 190 }, { label: 'Meio das costas', price: 210 },
+      { label: 'Cintura', price: 230 }, { label: 'Abaixo do quadril', price: 230 } ] },
+    { id: 'nago-tiara', name: 'Nagô Tiara', unit: 'Modelos', options: [
+      { label: 'Tiara', price: 80 }, { label: 'Lateral', price: 45 } ] },
+    { id: 'rabo-de-cavalo', name: 'Rabo de Cavalo', unit: 'Tamanhos', options: [
+      { label: 'Meio das costas', price: 210 }, { label: 'Cintura', price: 250 }, { label: 'Abaixo do quadril', price: 280 } ] },
+    { id: 'ghanna', name: 'Ghanna', unit: 'Tamanhos', options: [
+      { label: 'Chanel', price: 160 }, { label: 'Meio das costas', price: 190 }, { label: 'Cintura', price: 220 } ] },
+    { id: 'boxeadora', name: 'Boxeadora', unit: 'Modelos', options: [
+      { label: 'Boxeadora simples', price: 130 }, { label: 'Boxeadora com detalhe', price: 150 } ] },
+    { id: 'twist-braids', name: 'Twist Braids', unit: 'Tamanho', options: [
+      { label: 'Chanel', price: 450 }, { label: 'Long Bob', price: 480 }, { label: 'Meio das costas', price: 520 },
+      { label: 'Quadril', price: 560 }, { label: 'Abaixo do quadril', price: 600 } ] },
+    { id: 'masculino', name: 'Masculino', unit: 'Modelo', options: [
+      { label: 'Nagô', price: 180 }, { label: 'Twist', price: 250 }, { label: 'Barrel twist', price: 300 } ] },
+    { id: 'crochet-braids', name: 'Método Crochet Braids', unit: 'Modelo', options: [
+      { label: 'Tranças', price: 480 }, { label: 'Dreads', price: 480 }, { label: 'Twist', price: 480 }, { label: 'Cabelo orgânico', price: 480 } ] },
+    { id: 'remocao', name: 'Remoção', unit: 'Serviço', options: [
+      { label: 'Remoção Nagô', price: 80 }, { label: 'Remoção Box Braids', price: 120 } ] }
+  ];
+
+  var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  var state = {
+    styleId: null, optionIndex: null, cachos: false,
+    local: null, date: null, periodo: null, calView: new Date()
+  };
+
+  // Helpers tolerantes: um elemento ausente nunca derruba o resto do script
+  function $(id) { return document.getElementById(id); }
+  function on(el, ev, fn) { if (el) el.addEventListener(ev, fn); }
+  function each(sel, fn) {
+    var list = document.querySelectorAll(sel);
+    for (var i = 0; i < list.length; i++) fn(list[i], i);
+  }
+
+  function formatBRL(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
+  function currentStyle() {
+    for (var i = 0; i < STYLES.length; i++) if (STYLES[i].id === state.styleId) return STYLES[i];
+    return null;
+  }
+  function currentOption() {
+    var st = currentStyle();
+    return st && state.optionIndex !== null ? st.options[state.optionIndex] : null;
+  }
+  function total() {
+    var opt = currentOption();
+    return opt ? opt.price + (state.cachos ? ADICIONAL_CACHOS : 0) : 0;
+  }
+  function showScreen(id) {
+    each('.screen', function (s) { s.classList.remove('active'); });
+    var t = $(id);
+    if (t) t.classList.add('active');
+    if (window.scrollTo) window.scrollTo(0, 0);
+  }
+
+  // ---------- HOME ----------
+  function renderHome() {
+    var grid = $('style-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    STYLES.forEach(function (st) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'style-card';
+      var ph = document.createElement('span');
+      ph.className = 'ph';
+      var label = document.createElement('span');
+      label.textContent = st.name;
+      card.appendChild(ph);
+      card.appendChild(label);
+      card.addEventListener('click', function () { openProduct(st.id); });
+      grid.appendChild(card);
+    });
+  }
+
+  function openProduct(styleId) {
+    state.styleId = styleId;
+    state.optionIndex = null;
+    state.cachos = false;
+    renderProduct();
+    showScreen('screen-product');
+  }
+
+  // ---------- PRODUTO ----------
+  function renderProduct() {
+    var st = currentStyle();
+    if (!st) return;
+    var title = $('product-title'); if (title) title.textContent = st.name;
+    var unit = $('product-unit'); if (unit) unit.textContent = st.unit;
+
+    var list = $('product-options');
+    if (list) {
+      list.innerHTML = '';
+      st.options.forEach(function (opt, i) {
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'option-row' + (state.optionIndex === i ? ' selected' : '');
+        var ph = document.createElement('span'); ph.className = 'ph';
+        var name = document.createElement('span'); name.className = 'name'; name.textContent = opt.label;
+        var price = document.createElement('span'); price.className = 'price'; price.textContent = formatBRL(opt.price);
+        row.appendChild(ph); row.appendChild(name); row.appendChild(price);
+        row.addEventListener('click', function () { state.optionIndex = i; renderProduct(); });
+        list.appendChild(row);
+      });
+    }
+
+    var addonRow = $('addon-row');
+    var addonCheck = $('addon-check');
+    if (addonRow) addonRow.className = 'addon-row' + (state.cachos ? ' selected' : '');
+    if (addonCheck) addonCheck.checked = state.cachos;
+
+    var btn = $('btn-continuar');
+    if (btn) btn.disabled = state.optionIndex === null;
+  }
+
+  // ---------- AGENDAMENTO ----------
+  function renderBooking() {
+    each('.local-card', function (c) {
+      c.className = 'local-card' + (c.getAttribute('data-local') === state.local ? ' selected' : '');
+    });
+    var note = $('summary-note');
+    if (note) note.textContent = state.local === 'domicilio' ? 'Taxa de deslocamento será combinada no WhatsApp.' : '';
+
+    each('.periodo-btn', function (b) {
+      b.className = 'periodo-btn' + (b.getAttribute('data-periodo') === state.periodo ? ' selected' : '');
+    });
+
+    renderCalendar();
+    updateSummary();
+  }
+
+  function renderCalendar() {
+    var view = state.calView;
+    var label = $('cal-label');
+    if (label) label.textContent = MESES[view.getMonth()] + ' ' + view.getFullYear();
+
+    var daysGrid = $('cal-days');
+    if (!daysGrid) return;
+    daysGrid.innerHTML = '';
+
+    var startWeekday = new Date(view.getFullYear(), view.getMonth(), 1).getDay();
+    var daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (var i = 0; i < startWeekday; i++) {
+      var spacer = document.createElement('span');
+      spacer.className = 'spacer';
+      daysGrid.appendChild(spacer);
+    }
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      (function (day) {
+        var cellDate = new Date(view.getFullYear(), view.getMonth(), day);
+        var cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'day';
+        cell.textContent = String(day);
+
+        var isPast = cellDate.getTime() < today.getTime();
+        var isSelected = state.date && cellDate.getTime() === state.date.getTime();
+
+        if (isPast) {
+          cell.disabled = true;
+        } else {
+          if (isSelected) cell.className = 'day selected';
+          cell.addEventListener('click', function () { state.date = cellDate; renderBooking(); });
+        }
+        daysGrid.appendChild(cell);
+      })(d);
+    }
+  }
+
+  function updateSummary() {
+    var totalEl = $('summary-total');
+    if (totalEl) totalEl.textContent = formatBRL(total());
+    var btn = $('btn-finalizar');
+    if (btn) btn.disabled = !(state.local && state.date && state.periodo);
+  }
+
+  function formatDate(d) {
+    var dd = String(d.getDate()); if (dd.length < 2) dd = '0' + dd;
+    var mm = String(d.getMonth() + 1); if (mm.length < 2) mm = '0' + mm;
+    return dd + '/' + mm + '/' + d.getFullYear();
+  }
+
+  function openWhatsApp(msg) {
+    var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+    // iOS bloqueia window.open fora do gesto direto; âncora é mais confiável
+    var a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  // ---------- Ligações ----------
+  // O grid é desenhado ANTES dos listeners: mesmo que algum elemento
+  // falte, a home nunca fica em branco.
+  renderHome();
+
+  on($('addon-row'), 'change', function (e) {
+    state.cachos = !!(e.target && e.target.checked);
+    renderProduct();
+  });
+
+  on($('btn-continuar'), 'click', function () {
+    if (state.optionIndex === null) return;
+    renderBooking();
+    showScreen('screen-booking');
+  });
+
+  each('.local-card', function (card) {
+    card.addEventListener('click', function () {
+      state.local = card.getAttribute('data-local');
+      renderBooking();
+    });
+  });
+
+  each('.periodo-btn', function (btn) {
+    btn.addEventListener('click', function () {
+      state.periodo = btn.getAttribute('data-periodo');
+      renderBooking();
+    });
+  });
+
+  on($('cal-prev'), 'click', function () {
+    state.calView = new Date(state.calView.getFullYear(), state.calView.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  on($('cal-next'), 'click', function () {
+    state.calView = new Date(state.calView.getFullYear(), state.calView.getMonth() + 1, 1);
+    renderCalendar();
+  });
+
+  each('.back', function (b) {
+    b.addEventListener('click', function () { showScreen('screen-' + b.getAttribute('data-nav')); });
+  });
+
+  on($('promo-zap'), 'click', function () {
+    openWhatsApp('Olá! Gostaria de agendar um horário na Nega Nagô.');
+  });
+
+  on($('btn-finalizar'), 'click', function () {
+    var st = currentStyle();
+    var opt = currentOption();
+    if (!st || !opt || !state.local || !state.date || !state.periodo) return;
+
+    var localLabel = state.local === 'estudio'
+      ? 'Estúdio (Bairro Americanópolis)'
+      : 'A domicílio (taxa a combinar)';
+
+    var msg = 'Olá! Gostaria de agendar:\n';
+    msg += 'Serviço: ' + st.name + ' — ' + opt.label + '\n';
+    msg += 'Valor: ' + formatBRL(opt.price) + '\n';
+    if (state.cachos) msg += 'Adicional de cachos: Sim (+ ' + formatBRL(ADICIONAL_CACHOS) + ')\n';
+    msg += 'Local: ' + localLabel + '\n';
+    msg += 'Data: ' + formatDate(state.date) + '\n';
+    msg += 'Período: ' + state.periodo + '\n';
+    msg += 'Total estimado: ' + formatBRL(total());
+    if (state.local === 'domicilio') msg += ' (+ taxa de deslocamento a combinar)';
+
+    openWhatsApp(msg);
+  });
+})();
+</script>
+</body>
+</html>
