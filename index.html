@@ -447,8 +447,8 @@
     if (t) t.classList.add('active');
     if (window.scrollTo) window.scrollTo(0, 0);
     // Não faz sentido o carrossel girar numa tela que não está visível.
-    if (id === 'screen-home') { if (!userTookOver) startAutoplay(); }
-    else pauseAutoplay();
+    if (id === 'screen-home') startAutoplay();
+    else { clearTimeout(resumeTimer); pauseAutoplay(); }
   }
 
   // ---------- HOME ----------
@@ -481,7 +481,8 @@
   // ---------- Galeria ----------
   var galleryTimer = null;
   var galleryIndex = 0;
-  var userTookOver = false;
+  var resumeTimer = null;
+  var RETOMAR_MS = 3000;
 
   function renderGallery() {
     var track = $('carousel');
@@ -509,7 +510,7 @@
       dot.setAttribute('aria-label', 'Ver foto ' + (i + 1) + ' de ' + FOTOS.length);
       dot.appendChild(document.createElement('span'));
       dot.addEventListener('click', function () {
-        takeOver();
+        segurar();
         goToSlide(i);
       });
       dots.appendChild(dot);
@@ -530,18 +531,20 @@
     }
     track.addEventListener('scroll', syncDots);
 
-    // Qualquer toque do usuário encerra o automático de vez — nada pior
-    // que um carrossel que anda sozinho enquanto a pessoa está passando.
-    ['touchstart', 'pointerdown', 'wheel'].forEach(function (ev) {
-      track.addEventListener(ev, takeOver, { passive: true });
-    });
+    // Enquanto a pessoa está passando o dedo, o automático sai da frente —
+    // e volta sozinho alguns segundos depois que ela solta.
+    ['touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointerup', 'wheel']
+      .forEach(function (ev) {
+        track.addEventListener(ev, segurar, { passive: true });
+      });
 
     startAutoplay();
   }
 
-  function takeOver() {
-    userTookOver = true;
+  function segurar() {
     pauseAutoplay();
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(startAutoplay, RETOMAR_MS);
   }
 
   function goToSlide(i) {
