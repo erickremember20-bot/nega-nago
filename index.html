@@ -89,7 +89,7 @@
   .promo-card .ph { width: 26px; height: 26px; border-radius: 6px; background: var(--ph); margin-bottom: 8px; }
 
   .section-title { margin: 20px 16px 10px; font-size: 15px; font-weight: 700; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 16px 24px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 16px 8px; }
   .style-card { text-align: center; }
   /* Fallback para iOS < 15, que não suporta aspect-ratio */
   .style-card .ph {
@@ -105,6 +105,53 @@
   }
   .style-card .name { font-size: 11.5px; font-weight: 600; line-height: 1.25; display: block; }
   .style-card .time { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ---- Galeria (carrossel de trabalhos) ---- */
+  .gallery { padding-bottom: 28px; }
+
+  .carousel {
+    display: flex;
+    gap: 10px;
+    padding: 0 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .carousel::-webkit-scrollbar { display: none; }
+
+  .slide {
+    flex: 0 0 72%;
+    width: 72%;
+    scroll-snap-align: start;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--ph);
+    /* Fallback 3:4 para iOS < 15 — 96% é 72% × 4/3, e ambos resolvem
+       contra a mesma largura (o content box do carrossel). */
+    height: 0;
+    padding-top: 96%;
+  }
+  @supports (aspect-ratio: 3 / 4) {
+    .slide { height: auto; padding-top: 0; aspect-ratio: 3 / 4; }
+  }
+  .slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .dots { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 12px; }
+  .dot { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+  .dot span {
+    display: block; width: 6px; height: 6px; border-radius: 50%;
+    background: #cfcfcf; transition: width .2s ease, background-color .2s ease;
+  }
+  .dot.active span { width: 16px; border-radius: 3px; background: var(--text); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel { scroll-behavior: auto; }
+    .dot span { transition: none; }
+  }
 
   /* ---- compartilhado ---- */
   .topbar { display: flex; align-items: center; padding: 14px 16px 0; }
@@ -208,6 +255,12 @@
     </div>
     <div class="section-title">Qual vai ser a coroa da vez?</div>
     <div class="grid" id="style-grid"></div>
+
+    <section class="gallery" aria-label="Trabalhos recentes">
+      <div class="section-title">Coroas que já saíram daqui</div>
+      <div class="carousel" id="carousel"></div>
+      <div class="dots" id="dots"></div>
+    </section>
   </section>
 
   <!-- ============ PRODUTO ============ -->
@@ -341,6 +394,22 @@
 
   var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
+  // ==========================================================
+  // Galeria da home. Para usar as fotos reais, é só preencher
+  // `src` (proporção 3:4, ex.: 900 × 1200). Enquanto for null,
+  // aparece o placeholder cinza.
+  // ==========================================================
+  var FOTOS = [
+    { src: null, alt: 'Box braids feitas no estúdio' },
+    { src: null, alt: 'Nagô desenhada' },
+    { src: null, alt: 'Knotless longa' },
+    { src: null, alt: 'Fulani com adornos' },
+    { src: null, alt: 'Twist braids' },
+    { src: null, alt: 'Nagô tiara' }
+  ];
+
+  var AUTOPLAY_MS = 3800;
+
   var state = {
     styleId: null, optionIndex: null, cachos: false,
     local: null, date: null, periodo: null, calView: new Date()
@@ -377,6 +446,9 @@
     var t = $(id);
     if (t) t.classList.add('active');
     if (window.scrollTo) window.scrollTo(0, 0);
+    // Não faz sentido o carrossel girar numa tela que não está visível.
+    if (id === 'screen-home') { if (!userTookOver) startAutoplay(); }
+    else pauseAutoplay();
   }
 
   // ---------- HOME ----------
@@ -404,6 +476,95 @@
       card.addEventListener('click', function () { openProduct(st.id); });
       grid.appendChild(card);
     });
+  }
+
+  // ---------- Galeria ----------
+  var galleryTimer = null;
+  var galleryIndex = 0;
+  var userTookOver = false;
+
+  function renderGallery() {
+    var track = $('carousel');
+    var dots = $('dots');
+    if (!track || !dots) return;
+
+    track.innerHTML = '';
+    dots.innerHTML = '';
+
+    FOTOS.forEach(function (foto, i) {
+      var slide = document.createElement('div');
+      slide.className = 'slide';
+      if (foto.src) {
+        var img = document.createElement('img');
+        img.src = foto.src;
+        img.alt = foto.alt || '';
+        img.loading = 'lazy';
+        slide.appendChild(img);
+      }
+      track.appendChild(slide);
+
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Ver foto ' + (i + 1) + ' de ' + FOTOS.length);
+      dot.appendChild(document.createElement('span'));
+      dot.addEventListener('click', function () {
+        takeOver();
+        goToSlide(i);
+      });
+      dots.appendChild(dot);
+    });
+
+    function syncDots() {
+      var slides = track.children;
+      if (!slides.length) return;
+      var step = slides[0].getBoundingClientRect().width + 10;
+      var i = Math.round(track.scrollLeft / step);
+      if (i < 0) i = 0;
+      if (i > FOTOS.length - 1) i = FOTOS.length - 1;
+      if (i === galleryIndex) return;
+      galleryIndex = i;
+      for (var d = 0; d < dots.children.length; d++) {
+        dots.children[d].className = 'dot' + (d === i ? ' active' : '');
+      }
+    }
+    track.addEventListener('scroll', syncDots);
+
+    // Qualquer toque do usuário encerra o automático de vez — nada pior
+    // que um carrossel que anda sozinho enquanto a pessoa está passando.
+    ['touchstart', 'pointerdown', 'wheel'].forEach(function (ev) {
+      track.addEventListener(ev, takeOver, { passive: true });
+    });
+
+    startAutoplay();
+  }
+
+  function takeOver() {
+    userTookOver = true;
+    pauseAutoplay();
+  }
+
+  function goToSlide(i) {
+    var track = $('carousel');
+    if (!track || !track.children.length) return;
+    var step = track.children[0].getBoundingClientRect().width + 10;
+    var left = i * step;
+    if (track.scrollTo) track.scrollTo({ left: left, behavior: 'smooth' });
+    else track.scrollLeft = left;
+  }
+
+  function startAutoplay() {
+    var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduz || galleryTimer) return;
+    galleryTimer = setInterval(function () {
+      goToSlide((galleryIndex + 1) % FOTOS.length);
+    }, AUTOPLAY_MS);
+  }
+
+  function pauseAutoplay() {
+    if (!galleryTimer) return;
+    clearInterval(galleryTimer);
+    galleryTimer = null;
   }
 
   function openProduct(styleId) {
@@ -548,6 +709,7 @@
   // O grid é desenhado ANTES dos listeners: mesmo que algum elemento
   // falte, a home nunca fica em branco.
   renderHome();
+  renderGallery();
 
   on($('addon-row'), 'change', function (e) {
     state.cachos = !!(e.target && e.target.checked);
