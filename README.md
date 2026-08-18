@@ -13,13 +13,6 @@ Protótipo navegável de baixa fidelidade para validar o fluxo de agendamento.
 Ao finalizar, abre o WhatsApp com a mensagem já montada (serviço, tamanho,
 valor, duração estimada, local, data, período e total).
 
-## Pendências de conteúdo
-
-- **Masculino / Barrel twist** — sem tempo informado; aparece como
-  "Tempo a combinar".
-- **Masculino / Box braids** — há tempo (5 a 7 horas) mas não há preço, então
-  a opção ainda não existe no app.
-
 ## Antes de usar de verdade
 
 Trocar o número no topo do `<script>` em `index.html`:
