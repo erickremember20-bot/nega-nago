@@ -16,6 +16,9 @@
   }
   * { box-sizing: border-box; }
 
+  /* Os placeholders são <span>; sem block, width/height seriam ignorados. */
+  .ph { display: block; }
+
   html, body {
     margin: 0;
     padding: 0;
@@ -100,7 +103,8 @@
   @supports (aspect-ratio: 1 / 1) {
     .style-card .ph { height: auto; padding-top: 0; aspect-ratio: 1 / 1; }
   }
-  .style-card span { font-size: 11.5px; font-weight: 600; line-height: 1.25; display: block; }
+  .style-card .name { font-size: 11.5px; font-weight: 600; line-height: 1.25; display: block; }
+  .style-card .time { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
 
   /* ---- compartilhado ---- */
   .topbar { display: flex; align-items: center; padding: 14px 16px 0; }
@@ -116,8 +120,10 @@
   }
   .option-row.selected { border-color: var(--text); background: #fafafa; }
   .option-row .ph { width: 40px; height: 40px; border-radius: 6px; background: var(--ph); flex-shrink: 0; }
-  .option-row .name { flex: 1 1 0; min-width: 0; font-size: 13.5px; font-weight: 600; }
-  .option-row .price { font-size: 13.5px; font-weight: 700; }
+  .option-row .info { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .option-row .name { font-size: 13.5px; font-weight: 600; }
+  .option-row .time { font-size: 11.5px; color: var(--muted); }
+  .option-row .price { font-size: 13.5px; font-weight: 700; flex-shrink: 0; }
 
   .addon-row {
     display: flex; align-items: center; gap: 10px;
@@ -173,9 +179,11 @@
   }
   .periodo-btn.selected { border-color: var(--text); background: var(--text); color: #fff; }
 
-  .summary { margin: 18px 16px 0; padding: 12px 14px; border-radius: 10px; background: #f0f0f0; display: flex; justify-content: space-between; align-items: baseline; }
+  .summary { margin: 18px 16px 0; padding: 12px 14px; border-radius: 10px; background: #f0f0f0; display: flex; flex-direction: column; gap: 7px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .summary .label { font-size: 11.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
   .summary .value { font-size: 17px; font-weight: 700; }
+  .summary .dur { font-size: 13px; font-weight: 600; text-align: right; }
   .summary-note { margin: 6px 16px 0; font-size: 11px; color: var(--muted); min-height: 14px; }
 
   button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
@@ -255,8 +263,14 @@
     </div>
 
     <div class="summary">
-      <span class="label">Total estimado</span>
-      <span class="value" id="summary-total">R$ 0,00</span>
+      <div class="summary-row">
+        <span class="label">Duração estimada</span>
+        <span class="dur" id="summary-duracao">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Total estimado</span>
+        <span class="value" id="summary-total">R$ 0,00</span>
+      </div>
     </div>
     <div class="summary-note" id="summary-note"></div>
 
@@ -279,35 +293,44 @@
   var WHATSAPP_NUMBER = '55XXXXXXXXXXX';
   var ADICIONAL_CACHOS = 50;
 
+  // `time` é a duração estimada da categoria; uma opção pode sobrescrever com
+  // a sua própria. `short` é a versão compacta usada no card da home.
   var STYLES = [
-    { id: 'box-braids', name: 'Box Braids', unit: 'Tamanho', options: [
+    { id: 'box-braids', name: 'Box Braids', unit: 'Tamanho', time: '6 a 8 horas', short: '6–8h', options: [
       { label: 'Chanel', price: 300 }, { label: 'Long Bob', price: 340 }, { label: 'Meio das costas', price: 380 },
       { label: 'Quadril', price: 400 }, { label: 'Abaixo do quadril', price: 480 } ] },
-    { id: 'fulani', name: 'Fulani', unit: 'Tamanho', options: [
+    { id: 'fulani', name: 'Fulani', unit: 'Tamanho', time: '5 a 7 horas', short: '5–7h', options: [
       { label: 'Chanel', price: 340 }, { label: 'Meio das costas', price: 380 },
       { label: 'Quadril', price: 420 }, { label: 'Abaixo do quadril', price: 460 } ] },
-    { id: 'knotless', name: 'Knotles', unit: 'Tamanho', options: [
+    { id: 'knotless', name: 'Knotles', unit: 'Tamanho', time: '7 a 9 horas', short: '7–9h', options: [
       { label: 'Chanel', price: 350 }, { label: 'Long Bob', price: 370 }, { label: 'Meio das costas', price: 400 },
       { label: 'Até o quadril', price: 450 }, { label: 'Abaixo do quadril', price: 500 } ] },
-    { id: 'nago-desenhada', name: 'Nagô Desenhada', unit: 'Tamanhos', options: [
+    { id: 'nago-desenhada', name: 'Nagô Desenhada', unit: 'Tamanhos', time: '2 a 4 horas', short: '2–4h', options: [
       { label: 'Chanel', price: 190 }, { label: 'Meio das costas', price: 210 },
       { label: 'Cintura', price: 230 }, { label: 'Abaixo do quadril', price: 230 } ] },
-    { id: 'nago-tiara', name: 'Nagô Tiara', unit: 'Modelos', options: [
-      { label: 'Tiara', price: 80 }, { label: 'Lateral', price: 45 } ] },
-    { id: 'rabo-de-cavalo', name: 'Rabo de Cavalo', unit: 'Tamanhos', options: [
+    { id: 'nago-tiara', name: 'Nagô Tiara', unit: 'Modelos', short: '40min–1h', options: [
+      { label: 'Tiara', price: 80, time: '1 hora' },
+      { label: 'Lateral', price: 45, time: '40 minutos' } ] },
+    { id: 'rabo-de-cavalo', name: 'Rabo de Cavalo', unit: 'Tamanhos', time: '3 a 5 horas', short: '3–5h', options: [
       { label: 'Meio das costas', price: 210 }, { label: 'Cintura', price: 250 }, { label: 'Abaixo do quadril', price: 280 } ] },
-    { id: 'ghanna', name: 'Ghanna', unit: 'Tamanhos', options: [
+    { id: 'ghanna', name: 'Ghanna', unit: 'Tamanhos', time: '2 a 4 horas', short: '2–4h', options: [
       { label: 'Chanel', price: 160 }, { label: 'Meio das costas', price: 190 }, { label: 'Cintura', price: 220 } ] },
-    { id: 'boxeadora', name: 'Boxeadora', unit: 'Modelos', options: [
+    { id: 'boxeadora', name: 'Boxeadora', unit: 'Modelos', time: '2 horas', short: '2h', options: [
       { label: 'Boxeadora simples', price: 130 }, { label: 'Boxeadora com detalhe', price: 150 } ] },
-    { id: 'twist-braids', name: 'Twist Braids', unit: 'Tamanho', options: [
+    { id: 'twist-braids', name: 'Twist Braids', unit: 'Tamanho', time: '6 a 8 horas', short: '6–8h', options: [
       { label: 'Chanel', price: 450 }, { label: 'Long Bob', price: 480 }, { label: 'Meio das costas', price: 520 },
       { label: 'Quadril', price: 560 }, { label: 'Abaixo do quadril', price: 600 } ] },
-    { id: 'masculino', name: 'Masculino', unit: 'Modelo', options: [
-      { label: 'Nagô', price: 180 }, { label: 'Twist', price: 250 }, { label: 'Barrel twist', price: 300 } ] },
-    { id: 'crochet-braids', name: 'Método Crochet Braids', unit: 'Modelo', options: [
+    { id: 'mohawk-braids', name: 'Mohawk Braids', unit: 'Tamanho', time: '6 a 8 horas', short: '6–8h', options: [
+      { label: 'Chanel', price: 350 }, { label: 'Meio das costas', price: 380 },
+      { label: 'Até a cintura', price: 420 }, { label: 'Abaixo da cintura', price: 460 } ] },
+    { id: 'masculino', name: 'Masculino', unit: 'Modelo', short: '3–4h', options: [
+      { label: 'Nagô', price: 180, time: '3 horas' },
+      { label: 'Twist', price: 250, time: '4 horas' },
+      // Sem tempo informado para Barrel twist — confirmar com a Nega Nagô.
+      { label: 'Barrel twist', price: 300 } ] },
+    { id: 'crochet-braids', name: 'Método Crochet Braids', unit: 'Modelo', time: '3 horas', short: '3h', options: [
       { label: 'Tranças', price: 480 }, { label: 'Dreads', price: 480 }, { label: 'Twist', price: 480 }, { label: 'Cabelo orgânico', price: 480 } ] },
-    { id: 'remocao', name: 'Remoção', unit: 'Serviço', options: [
+    { id: 'remocao', name: 'Remoção', unit: 'Serviço', time: '3 a 5 horas', short: '3–5h', options: [
       { label: 'Remoção Nagô', price: 80 }, { label: 'Remoção Box Braids', price: 120 } ] }
   ];
 
@@ -339,6 +362,11 @@
     var opt = currentOption();
     return opt ? opt.price + (state.cachos ? ADICIONAL_CACHOS : 0) : 0;
   }
+  // A opção manda; se ela não tiver tempo próprio, vale o da categoria.
+  function timeOf(style, option) {
+    if (option && option.time) return option.time;
+    return (style && style.time) || null;
+  }
   function showScreen(id) {
     each('.screen', function (s) { s.classList.remove('active'); });
     var t = $(id);
@@ -358,9 +386,16 @@
       var ph = document.createElement('span');
       ph.className = 'ph';
       var label = document.createElement('span');
+      label.className = 'name';
       label.textContent = st.name;
       card.appendChild(ph);
       card.appendChild(label);
+      if (st.short) {
+        var t = document.createElement('span');
+        t.className = 'time';
+        t.textContent = st.short;
+        card.appendChild(t);
+      }
       card.addEventListener('click', function () { openProduct(st.id); });
       grid.appendChild(card);
     });
@@ -389,9 +424,17 @@
         row.type = 'button';
         row.className = 'option-row' + (state.optionIndex === i ? ' selected' : '');
         var ph = document.createElement('span'); ph.className = 'ph';
+
+        var info = document.createElement('span'); info.className = 'info';
         var name = document.createElement('span'); name.className = 'name'; name.textContent = opt.label;
+        info.appendChild(name);
+        var t = document.createElement('span'); t.className = 'time';
+        var dur = timeOf(st, opt);
+        t.textContent = dur ? 'Cerca de ' + dur : 'Tempo a combinar';
+        info.appendChild(t);
+
         var price = document.createElement('span'); price.className = 'price'; price.textContent = formatBRL(opt.price);
-        row.appendChild(ph); row.appendChild(name); row.appendChild(price);
+        row.appendChild(ph); row.appendChild(info); row.appendChild(price);
         row.addEventListener('click', function () { state.optionIndex = i; renderProduct(); });
         list.appendChild(row);
       });
@@ -467,6 +510,13 @@
   function updateSummary() {
     var totalEl = $('summary-total');
     if (totalEl) totalEl.textContent = formatBRL(total());
+
+    var durEl = $('summary-duracao');
+    if (durEl) {
+      var dur = timeOf(currentStyle(), currentOption());
+      durEl.textContent = dur || 'A combinar';
+    }
+
     var btn = $('btn-finalizar');
     if (btn) btn.disabled = !(state.local && state.date && state.periodo);
   }
@@ -545,9 +595,12 @@
       ? 'Estúdio (Bairro Americanópolis)'
       : 'A domicílio (taxa a combinar)';
 
+    var dur = timeOf(st, opt);
+
     var msg = 'Olá! Gostaria de agendar:\n';
     msg += 'Serviço: ' + st.name + ' — ' + opt.label + '\n';
     msg += 'Valor: ' + formatBRL(opt.price) + '\n';
+    msg += 'Duração estimada: ' + (dur || 'a combinar') + '\n';
     if (state.cachos) msg += 'Adicional de cachos: Sim (+ ' + formatBRL(ADICIONAL_CACHOS) + ')\n';
     msg += 'Local: ' + localLabel + '\n';
     msg += 'Data: ' + formatDate(state.date) + '\n';

@@ -6,12 +6,19 @@ Protótipo navegável de baixa fidelidade para validar o fluxo de agendamento.
 
 ## Fluxo
 
-1. **Home** — escolha da trança (12 categorias)
-2. **Produto** — tamanho/modelo com preço + adicional de cachos (+R$ 50)
-3. **Agendamento** — Estúdio ou domicílio, data, período e total estimado
+1. **Home** — escolha da trança (13 categorias, com a duração estimada)
+2. **Produto** — tamanho/modelo com preço e tempo + adicional de cachos (+R$ 50)
+3. **Agendamento** — Estúdio ou domicílio, data, período, duração e total
 
 Ao finalizar, abre o WhatsApp com a mensagem já montada (serviço, tamanho,
-valor, local, data, período e total).
+valor, duração estimada, local, data, período e total).
+
+## Pendências de conteúdo
+
+- **Masculino / Barrel twist** — sem tempo informado; aparece como
+  "Tempo a combinar".
+- **Masculino / Box braids** — há tempo (5 a 7 horas) mas não há preço, então
+  a opção ainda não existe no app.
 
 ## Antes de usar de verdade
 
