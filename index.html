@@ -69,6 +69,11 @@
   .screen { display: none; flex-direction: column; flex: 1; }
   .screen.active { display: flex; }
 
+  /* Wrappers de coluna: no mobile são só containers em coluna, então o
+     empilhamento fica idêntico ao de antes. No desktop viram grid. */
+  .pdp, .booking { display: flex; flex-direction: column; flex: 1; }
+  .pdp__info, .booking__right { display: flex; flex-direction: column; flex: 1; }
+
   /* ---- Home ---- */
   .brandbar { padding: 14px 16px 0; font-weight: 700; font-size: 15px; letter-spacing: .02em; }
   .hero { margin: 12px 16px 0; height: 120px; border-radius: 10px; background: var(--ph); }
@@ -204,8 +209,10 @@
   .local-row { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; margin-top: 6px; }
   .local-card { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; text-align: left; width: 100%; }
   .local-card.selected { border-color: var(--text); background: #fafafa; }
-  .local-card .name { font-size: 13.5px; font-weight: 700; }
-  .local-card .sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  /* display: block porque são <span> — sem isso nome e endereço
+     ficariam na mesma linha. */
+  .local-card .name { display: block; font-size: 13.5px; font-weight: 700; }
+  .local-card .sub { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
 
   .calendar { margin: 16px 16px 0; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; }
   .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -234,6 +241,110 @@
   .summary-note { margin: 6px 16px 0; font-size: 11px; color: var(--muted); min-height: 14px; }
 
   button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+  /* ==========================================================
+     DESKTOP — desenhado para 1400px
+     O mobile acima é a base (360px). Daqui pra baixo é só o que
+     muda no desktop; nada aqui afeta a versão de celular.
+     ========================================================== */
+  @media (min-width: 1024px) {
+    body { background: #e9e9ea; align-items: flex-start; }
+    .shell { max-width: 1400px; }
+
+    /* ---------- Home: hero grande + cards ao lado ---------- */
+    #screen-home.active {
+      display: grid;
+      grid-template-columns: 1.9fr 1fr;
+      grid-template-areas:
+        "brand   brand"
+        "hero    promos"
+        "title   title"
+        "grid    grid"
+        "gallery gallery";
+      column-gap: 24px;
+      align-content: start;
+      padding: 0 48px 64px;
+    }
+    #screen-home .brandbar { grid-area: brand; padding: 40px 0 28px; font-size: 20px; }
+    #screen-home .hero { grid-area: hero; margin: 0; height: auto; min-height: 360px; border-radius: 14px; }
+    #screen-home .promo-row { grid-area: promos; margin: 0; flex-direction: column; gap: 16px; }
+    #screen-home > .section-title { grid-area: title; margin: 44px 0 18px; font-size: 22px; }
+    #screen-home .grid { grid-area: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 0; }
+    #screen-home .gallery { grid-area: gallery; padding-bottom: 0; }
+
+    .promo-card {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 22px; font-size: 15px; border-radius: 14px;
+    }
+    .promo-card .ph { width: 34px; height: 34px; margin-bottom: 12px; }
+
+    .style-card .ph { border-radius: 12px; margin-bottom: 10px; }
+    .style-card .name { font-size: 14px; }
+    .style-card .time { font-size: 12px; }
+
+    /* Carrossel: 4 fotos visíveis em vez de 1,5 */
+    .gallery .section-title { margin: 44px 0 18px; font-size: 22px; }
+    .carousel { padding: 0; scroll-padding-left: 0; gap: 16px; }
+    .slide { flex: 0 0 calc((100% - 48px) / 4); width: auto; border-radius: 14px; }
+    .dots { margin-top: 18px; }
+
+    /* ---------- Produto: foto à esquerda, escolha à direita ---------- */
+    #screen-product { padding: 0 48px 56px; }
+    #screen-product .topbar { padding: 32px 0 0; }
+    .pdp {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 56px;
+      align-items: start;
+      flex: 0 1 auto;
+      margin-top: 20px;
+    }
+    .pdp__media, .pdp__info { display: block; flex: 0 1 auto; }
+    .product-hero { margin: 0; height: 560px; border-radius: 14px; }
+    .pdp__info .h2 { margin: 0 0 6px; font-size: 30px; }
+    .pdp__info .unit-label { margin: 0 0 16px; font-size: 13px; }
+    .option-list { padding: 0; gap: 12px; }
+    .option-row { padding: 14px; border-radius: 14px; }
+    .option-row .ph { width: 56px; height: 56px; border-radius: 10px; }
+    .option-row .name { font-size: 15px; }
+    .option-row .time { font-size: 12.5px; }
+    .option-row .price { font-size: 16px; }
+    .addon-row { margin: 20px 0 0; padding: 14px; border-radius: 14px; }
+
+    /* ---------- Agendamento: calendário | resumo ---------- */
+    #screen-booking { padding: 0 48px 56px; }
+    #screen-booking .topbar { padding: 32px 0 0; }
+    .booking {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+      column-gap: 56px;
+      align-items: start;
+      flex: 0 1 auto;
+      margin-top: 20px;
+    }
+    .booking__left, .booking__right { display: block; flex: 0 1 auto; }
+    .booking .h2 { margin: 0 0 12px; font-size: 22px; }
+    .local-row { padding: 0; margin: 0 0 36px; flex-direction: row; gap: 16px; }
+    .local-card { padding: 18px; border-radius: 14px; }
+    .local-card .name { font-size: 15px; }
+    .local-card .sub { font-size: 12.5px; }
+    .calendar { margin: 0; padding: 20px; border-radius: 14px; }
+    .cal-head .label { font-size: 16px; }
+    .cal-weekdays span { font-size: 12px; }
+    .cal-days { gap: 6px; }
+    .cal-days .day { padding: 14px 0; font-size: 14px; }
+    .cal-days .spacer { padding: 14px 0; }
+    .periodo-row { padding: 0; margin: 0 0 28px; gap: 12px; }
+    .periodo-btn { padding: 14px; font-size: 14px; border-radius: 14px; }
+    .summary { margin: 0; padding: 18px; border-radius: 14px; }
+    .summary .value { font-size: 20px; }
+    .summary-note { margin: 10px 0 0; font-size: 12px; }
+
+    /* CTA deixa de ser grudado no rodapé e passa a seguir o conteúdo */
+    .cta-wrap { margin-top: 28px; padding: 0; }
+    .cta { padding: 16px; font-size: 15px; }
+    .cta-note { font-size: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -266,24 +377,32 @@
   <!-- ============ PRODUTO ============ -->
   <section id="screen-product" class="screen">
     <div class="topbar"><button type="button" class="back" data-nav="home">‹ Voltar</button></div>
-    <div class="product-hero"></div>
-    <div class="h2" id="product-title"></div>
-    <div class="unit-label" id="product-unit"></div>
-    <div class="option-list" id="product-options"></div>
-    <label class="addon-row" id="addon-row" for="addon-check">
-      <input type="checkbox" id="addon-check">
-      <span class="name">Adicional de cachos</span>
-      <span class="price">+ R$ 50,00</span>
-    </label>
-    <div class="cta-wrap">
-      <button type="button" class="cta" id="btn-continuar" disabled>Continuar</button>
+    <div class="pdp">
+      <div class="pdp__media">
+        <div class="product-hero"></div>
+      </div>
+      <div class="pdp__info">
+        <div class="h2" id="product-title"></div>
+        <div class="unit-label" id="product-unit"></div>
+        <div class="option-list" id="product-options"></div>
+        <label class="addon-row" id="addon-row" for="addon-check">
+          <input type="checkbox" id="addon-check">
+          <span class="name">Adicional de cachos</span>
+          <span class="price">+ R$ 50,00</span>
+        </label>
+        <div class="cta-wrap">
+          <button type="button" class="cta" id="btn-continuar" disabled>Continuar</button>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ============ AGENDAMENTO ============ -->
   <section id="screen-booking" class="screen">
     <div class="topbar"><button type="button" class="back" data-nav="product">‹ Voltar</button></div>
-    <div class="h2" style="margin-top:14px;">Onde vai ser?</div>
+    <div class="booking">
+      <div class="booking__left">
+        <div class="h2">Onde vai ser?</div>
     <div class="local-row">
       <button type="button" class="local-card" data-local="estudio">
         <span class="name">Estúdio</span>
@@ -308,7 +427,10 @@
       <div class="cal-days" id="cal-days"></div>
     </div>
 
-    <div class="h2">Período</div>
+      </div>
+
+      <div class="booking__right">
+        <div class="h2">Período</div>
     <div class="periodo-row">
       <button type="button" class="periodo-btn" data-periodo="Manhã">Manhã</button>
       <button type="button" class="periodo-btn" data-periodo="Tarde">Tarde</button>
@@ -329,7 +451,9 @@
 
     <div class="cta-wrap">
       <button type="button" class="cta" id="btn-finalizar" disabled>Finalizar Agendamento no Zap</button>
-      <div class="cta-note">Escolha o local, o dia e o período para continuar.</div>
+      <div class="cta-note" id="cta-note">Escolha o local, o dia e o período para continuar.</div>
+    </div>
+      </div>
     </div>
   </section>
 
@@ -686,8 +810,14 @@
       durEl.textContent = dur || 'A combinar';
     }
 
+    var pronto = !!(state.local && state.date && state.periodo);
+
     var btn = $('btn-finalizar');
-    if (btn) btn.disabled = !(state.local && state.date && state.periodo);
+    if (btn) btn.disabled = !pronto;
+
+    // Sem instrução contraditória: a dica some quando não falta mais nada.
+    var nota = $('cta-note');
+    if (nota) nota.style.visibility = pronto ? 'hidden' : 'visible';
   }
 
   function formatDate(d) {

@@ -38,3 +38,18 @@ var FOTOS = [
 
 Arquivo único, sem build e sem dependências. Servido pelo GitHub Pages a
 partir do branch `main`.
+
+## Breakpoints
+
+Duas versões desenhadas, no mesmo arquivo:
+
+| | Largura de referência | Layout |
+|---|---|---|
+| **Mobile** | 360 px | coluna única; grid de 3; carrossel com 1,5 foto |
+| **Desktop** | 1400 px | hero + cards ao lado; grid de 5; carrossel com 4 |
+
+A virada acontece em `min-width: 1024px`. No desktop, produto e agendamento
+passam a duas colunas (foto | escolha, e calendário | resumo).
+
+Para exportar para o Figma, abrir o navegador exatamente em **360** ou
+**1400** de largura e capturar a página inteira.
