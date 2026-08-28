@@ -160,7 +160,11 @@ button{border:0; padding:0; background:none; cursor:pointer}
 /* ============================================================
    HOME
    ============================================================ */
-.home{display:flex; flex-direction:column; gap:var(--gap); padding-bottom:0}
+/* o mesmo gap do frame também separa a barra do primeiro bloco, e o
+   hero dos avisos — no mobile eles são empilhados, não colunas */
+.home{display:flex; flex-direction:column; gap:var(--gap); padding-top:var(--gap)}
+.home__topo{display:flex; flex-direction:column; gap:16px}
+#grade{display:flex; flex-direction:column; gap:8px}
 
 /* Hero — texto_hero 167×104, 28px da direita e 8 do topo, blocos com 12 de gap */
 .hero{position:relative; overflow:hidden; border-radius:8px; min-height:120px;
@@ -324,6 +328,8 @@ button{border:0; padding:0; background:none; cursor:pointer}
   .t-secao{font-size:24px}
 
   .home__topo{display:grid; grid-template-columns:minmax(0,847fr) minmax(320px,441fr); gap:16px}
+  .grade{gap:12px}          /* Braids: título → grade */
+  #grade{gap:16px}          /* Grid: entre as fileiras */
   /* Hero 847×360: texto_hero 341×272, 55px da direita, 45 do topo, 112 entre os blocos */
   .hero{min-height:360px; border-radius:14px; padding:45px 0 43px; align-items:flex-start}
   .hero img{object-position:50% 50%}   /* no desktop a caixa tem a proporção da foto */
@@ -343,7 +349,6 @@ button{border:0; padding:0; background:none; cursor:pointer}
   .so-mob{display:none}
   .so-desk{display:inline}
 
-  .grade{gap:16px}
   .grade__linha{grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px}
   .estilo__foto{aspect-ratio:248/248}
   .estilo__nome{font-size:16px}
