@@ -35,27 +35,14 @@ O HTML troca sozinho com `<picture>` — cada tela pega o corte pensado pra ela.
 
 ---
 
-## ⏳ Ainda falta
+### `galeria/` — 6 fotos, 375 × 500 (3:4)
+O carrossel "Coroas que já saíram daqui", que passa sozinho a cada 3,8s,
+pausa no toque e volta a andar em 3s. Arquivos `01.webp` a `06.webp`.
 
-### `galeria/` — 6 fotos, proporção 3:4 (em pé)
+Se um dia não houver nenhuma foto na pasta, a seção se esconde sozinha
+em vez de mostrar seis caixas vazias.
 
-O carrossel "Coroas que já saíram daqui", que passa sozinho.
-Mínimo 750 × 1000.
-
-| Arquivo |
-|---|
-| `01.webp` |
-| `02.webp` |
-| `03.webp` |
-| `04.webp` |
-| `05.webp` |
-| `06.webp` |
-
-**Enquanto não tiver nenhuma, a seção inteira fica escondida** — assim
-quem testar o protótipo não vê seis caixas vazias. Assim que subir as
-fotos, ela reaparece sozinha.
-
-Link direto pra subir:
+Para trocar ou acrescentar:
 https://github.com/erickremember20-bot/nega-nago/upload/main/assets/galeria
 
 ---
