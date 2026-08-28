@@ -418,7 +418,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
   <div class="wrap">
     <div class="home__topo">
       <section class="hero">
-        <img src="assets/home/hero.png" alt="Nega Nagô trançando uma cliente no estúdio" onerror="this.hidden=true" onload="this.hidden=false">
+        <img src="assets/home/hero.webp" alt="Nega Nagô trançando uma cliente no estúdio" onerror="this.hidden=true" onload="this.hidden=false">
         <div class="hero__vinheta"></div>
         <div class="hero__txt">
           <h1 class="t-hero">+13 anos<br>trançando histórias</h1>
@@ -768,7 +768,7 @@ function montarGrade(){
   var g = $('grade'); if(!g) return;
   g.innerHTML = STYLES.map(function(e){
     return '<button class="estilo" onclick="abrirProduto(\'' + e.id + '\')">' +
-             '<span class="estilo__foto"><img src="assets/estilos/' + e.id + '.png" alt="' + esc(e.name) + '" loading="lazy" onerror="this.hidden=true" onload="this.hidden=false"></span>' +
+             '<span class="estilo__foto"><img src="assets/estilos/' + e.id + '.webp" alt="' + esc(e.name) + '" loading="lazy" onerror="this.hidden=true" onload="this.hidden=false"></span>' +
              '<span class="estilo__nome">' + esc(e.name) + '</span>' +
              '<span class="estilo__tempo">' + esc(e.short) + '</span>' +
            '</button>';
@@ -779,7 +779,7 @@ var idx=0, timer=null, retomar=null;
 function montarCarrossel(){
   var t=$('trilho'), p=$('pontos'); if(!t) return;
   t.innerHTML = FOTOS.map(function(n,i){
-    return '<div class="slide"><img src="assets/galeria/' + n + '.png" alt="Trabalho ' + (i+1) + '" fetchpriority="low"></div>';
+    return '<div class="slide"><img src="assets/galeria/' + n + '.webp" alt="Trabalho ' + (i+1) + '" fetchpriority="low"></div>';
   }).join('');
   p.innerHTML = FOTOS.map(function(_,i){ return '<span class="ponto' + (i?'':' on') + '"></span>'; }).join('');
 
@@ -831,8 +831,8 @@ window.abrirProduto = function(id){
   $('p-tempo').textContent = 'Duração estimada: ' + (e.time || e.short);
   $('p-unidade').textContent = e.unit;
   var f=$('p-foto'), fd=$('p-foto-desk');
-  if(fd) fd.srcset = 'assets/produto/' + e.id + '-desktop.png';
-  if(f){ f.src = 'assets/produto/' + e.id + '-mobile.png'; f.alt = e.name; }
+  if(fd) fd.srcset = 'assets/produto/' + e.id + '-desktop.webp';
+  if(f){ f.src = 'assets/produto/' + e.id + '-mobile.webp'; f.alt = e.name; }
   press($('p-cachos'), false);
   // cachos só faz sentido em trança longa — remoção e tiara ficam de fora
   $('p-cachos-bloco').style.display = (id==='remocao' || id==='nago-tiara') ? 'none' : '';
