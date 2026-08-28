@@ -3,913 +3,1024 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f4f4f4">
-<title>Nega Nagô — Protótipo de agendamento</title>
+<title>Nega Nagô — Agendamento</title>
+<meta name="theme-color" content="#fff8f1">
+<meta name="description" content="Escolha sua trança, o tamanho e o dia. A gente monta a mensagem pronta e você finaliza no WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f4f4f4;
-    --card: #ffffff;
-    --line: #dcdcdc;
-    --ph: #c7c7c7;
-    --text: #1a1a1a;
-    --muted: #7a7a7a;
+/* ============================================================
+   TOKENS — extraídos da página "Nega Nagô - Prototype to code"
+   ============================================================ */
+:root{
+  /* superfícies */
+  --fundo:#fff8f1; --superficie:#fffdfb; --cartao:#fff5eb; --cartao-sel:#ffead3;
+  --pressed:#f1cebd; --aviso:#543533;
+
+  /* bordas */
+  --borda:#b5a696; --borda-forte:#8c8174; --borda-sel:#d3602a; --borda-mudo:#ebb69d;
+
+  /* acento */
+  --terracota:#d3602a; --terracota-h:#c05726; --terracota-p:#96441e; --zap:#2d9404;
+
+  /* texto */
+  --tx-titulo:#6b200f; --tx-secao:#c05726; --tx-item:#290200; --tx-sel:#592812;
+  --tx-corpo:#705554; --tx-default:#543533; --tx-mudo:#b5a696; --tx-claro:#fffdfb;
+
+  --scrim:rgba(41,2,0,.62);
+  --r:10px; --r-lg:14px;
+  --gut:16px;                        /* respiro lateral no mobile */
+  --topo:56px;                       /* altura da barra fixa */
+  --fonte:"Roboto Condensed",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--fundo); color:var(--tx-item);
+  font:400 14px/1.5 var(--fonte);
+  -webkit-font-smoothing:antialiased;
+  overflow-wrap:break-word;
+}
+img{display:block; max-width:100%}
+button,input{font:inherit; color:inherit}
+button{border:0; background:none; cursor:pointer}
+:focus-visible{outline:2px solid var(--terracota); outline-offset:2px; border-radius:6px}
+
+/* ============================================================
+   TIPOGRAFIA
+   ============================================================ */
+.t-hero{font:900 32px/1.1 var(--fonte); color:var(--tx-claro); margin:0}
+.t-pagina{font:700 24px/1.1 var(--fonte); color:var(--tx-titulo); margin:0}
+.t-secao{font:700 18px/1.5 var(--fonte); color:var(--tx-secao); margin:0}
+.t-corpo{font:400 14px/1.5 var(--fonte); color:var(--tx-corpo); margin:0}
+.t-rotulo{font:600 12px/1.1 var(--fonte); letter-spacing:.08em; text-transform:uppercase; color:var(--tx-corpo); margin:0}
+.t-forte{font-weight:700; color:var(--tx-item)}
+
+/* ============================================================
+   TELAS
+   ============================================================ */
+.tela{display:none}
+.tela.ativa{display:block}
+.wrap{max-width:1400px; margin:0 auto; padding-inline:var(--gut)}
+
+.brandbar,.topbar{
+  position:sticky; top:0; z-index:30; background:var(--fundo);
+  border-bottom:1px solid rgba(181,166,150,.35);
+}
+.brandbar__in,.topbar__in{
+  max-width:1400px; margin:0 auto; padding:10px var(--gut);
+  min-height:var(--topo); display:flex; align-items:center; gap:12px;
+}
+.marca{display:flex; align-items:center; gap:9px; text-decoration:none}
+.marca img{height:30px; width:auto}
+.marca__txt{font:900 18px/1 var(--fonte); color:var(--tx-titulo); letter-spacing:.01em}
+.marca__txt small{display:block; font:600 10px/1.2 var(--fonte); letter-spacing:.16em; color:var(--tx-corpo)}
+
+/* ============================================================
+   BOTÕES — estados conforme os rascunhos do Figma
+   Default · Hover · Pressed (= selecionado) · Disabled
+   ============================================================ */
+
+/* --- primário cheio --- */
+.btn{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; min-height:48px; padding:12px 18px; border-radius:var(--r);
+  background:var(--terracota); color:#fff; font:700 16px/1.5 var(--fonte);
+  transition:background .14s ease, transform .06s ease;
+}
+@media (hover:hover){ .btn:hover:not([disabled]){background:var(--terracota-h)} }
+.btn:active:not([disabled]){background:var(--terracota-p); transform:translateY(1px)}
+.btn[disabled]{background:var(--pressed); color:var(--tx-mudo); cursor:not-allowed}
+.btn--zap{background:var(--zap)}
+@media (hover:hover){ .btn--zap:hover:not([disabled]){background:#247803} }
+.btn--zap:active:not([disabled]){background:#1c5c02}
+.btn--zap[disabled]{background:var(--pressed); color:var(--tx-mudo)}
+
+/* --- fantasma (voltar) --- */
+.btn-ghost{
+  display:inline-flex; align-items:center; gap:6px; min-height:32px; padding:4px 8px;
+  border-radius:8px; color:var(--tx-secao); font:700 14px/1.5 var(--fonte);
+  transition:background .14s ease;
+}
+@media (hover:hover){ .btn-ghost:hover{background:var(--cartao-sel)} }
+.btn-ghost:active{background:var(--pressed)}
+
+/* --- ícone circular (fechar) --- */
+.btn-icone{
+  display:grid; place-items:center; width:36px; height:36px; border-radius:999px;
+  background:var(--cartao); color:var(--tx-sel); flex:none; transition:background .14s ease;
+}
+@media (hover:hover){ .btn-icone:hover{background:var(--cartao-sel)} }
+.btn-icone:active{background:var(--pressed)}
+
+/* --- CHIP  (Button_Checkout do Figma) ------------------------
+   Default  fill #fff5eb · borda #8c8174 1px · tinta #543533
+   Pressed  fill #ffead3 · borda #d3602a 2px · tinta #592812
+   Disabled fill #fff8f1 · borda #ebb69d 1px · tinta #b5a696
+   A borda é box-shadow inset: passar de 1px pra 2px não muda a
+   caixa, então nada dança na tela na hora de selecionar.
+------------------------------------------------------------- */
+.chip{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  min-height:48px; padding:12px 14px; border-radius:var(--r);
+  background:var(--cartao); color:var(--tx-default);
+  box-shadow:inset 0 0 0 1px var(--borda-forte);
+  font:700 16px/1.5 var(--fonte);
+  transition:background .14s ease, box-shadow .14s ease, color .14s ease;
+}
+.chip svg{flex:none; width:24px; height:24px}
+@media (hover:hover){ .chip:hover:not([disabled]):not([aria-pressed="true"]){background:var(--cartao-sel)} }
+.chip[aria-pressed="true"]{
+  background:var(--cartao-sel); color:var(--tx-sel);
+  box-shadow:inset 0 0 0 2px var(--borda-sel);
+}
+.chip[disabled]{
+  background:#fff8f1; color:var(--tx-mudo);
+  box-shadow:inset 0 0 0 1px var(--borda-mudo);
+  cursor:not-allowed;
+}
+.chip-par{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+
+/* --- OPTION ROW  (rascunho do Figma) -------------------------
+   Default  fill #fff5eb · borda #b5a696 1px · tinta #543533
+   Pressed  fill #ffead3 · borda #d3602a 2px · tinta #290200
+------------------------------------------------------------- */
+.opt{
+  display:flex; align-items:center; gap:12px; width:100%;
+  padding:12px; border-radius:var(--r); text-align:left;
+  background:var(--cartao); box-shadow:inset 0 0 0 1px var(--borda);
+  transition:background .14s ease, box-shadow .14s ease;
+}
+.opt__ic{
+  width:48px; height:48px; flex:none; display:grid; place-items:center;
+  border-radius:8px; background:var(--terracota); color:#fff;
+  transition:background .14s ease;
+}
+.opt__info{flex:1; min-width:0}
+.opt__nome{display:block; font:700 16px/1.5 var(--fonte); color:var(--tx-default)}
+.opt__sub{display:block; font:400 14px/1.5 var(--fonte); color:var(--tx-corpo)}
+.opt__preco{font:700 18px/1.5 var(--fonte); color:var(--tx-default); white-space:nowrap}
+@media (hover:hover){ .opt:hover:not([disabled]):not([aria-pressed="true"]){background:var(--cartao-sel)} }
+.opt[aria-pressed="true"]{background:var(--cartao-sel); box-shadow:inset 0 0 0 2px var(--borda-sel)}
+.opt[aria-pressed="true"] .opt__nome,
+.opt[aria-pressed="true"] .opt__preco{color:var(--tx-item)}
+.opt[disabled]{background:#fff8f1; box-shadow:inset 0 0 0 1px var(--borda-mudo); cursor:not-allowed}
+.opt[disabled] .opt__nome,.opt[disabled] .opt__sub,.opt[disabled] .opt__preco{color:var(--tx-mudo)}
+.opt[disabled] .opt__ic{background:var(--borda-mudo)}
+.opt-lista{display:grid; gap:10px}
+
+/* --- checkbox --- */
+.check{
+  display:flex; align-items:center; gap:12px; width:100%;
+  padding:12px; border-radius:var(--r); text-align:left;
+  background:var(--cartao); box-shadow:inset 0 0 0 1px var(--borda);
+  transition:background .14s ease, box-shadow .14s ease;
+}
+.check__box{
+  width:22px; height:22px; flex:none; border-radius:6px;
+  box-shadow:inset 0 0 0 1.5px var(--borda-forte);
+  display:grid; place-items:center; color:#fff;
+  transition:background .14s ease, box-shadow .14s ease;
+}
+.check__box svg{opacity:0; transition:opacity .12s ease}
+@media (hover:hover){ .check:hover:not([aria-pressed="true"]){background:var(--cartao-sel)} }
+.check[aria-pressed="true"]{background:var(--cartao-sel); box-shadow:inset 0 0 0 2px var(--borda-sel)}
+.check[aria-pressed="true"] .check__box{background:var(--terracota); box-shadow:none}
+.check[aria-pressed="true"] .check__box svg{opacity:1}
+.check__txt{flex:1; font:700 16px/1.5 var(--fonte); color:var(--tx-default)}
+.check[aria-pressed="true"] .check__txt{color:var(--tx-item)}
+.check__preco{font:700 16px/1.5 var(--fonte); color:var(--tx-secao); white-space:nowrap}
+
+/* --- campo de texto --- */
+.campo{
+  width:100%; min-height:48px; padding:12px 14px; border-radius:var(--r);
+  background:var(--superficie); color:var(--tx-item);
+  border:1px solid var(--borda-forte);
+  transition:border-color .14s ease, box-shadow .14s ease;
+}
+.campo::placeholder{color:var(--tx-mudo)}
+@media (hover:hover){ .campo:hover{border-color:var(--tx-default)} }
+.campo:focus{outline:0; border-color:var(--terracota); box-shadow:inset 0 0 0 1px var(--terracota)}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+.hero{
+  position:relative; overflow:hidden; border-radius:var(--r-lg);
+  margin-top:12px; min-height:208px; display:flex; align-items:flex-end;
+  background:linear-gradient(135deg,#6b3419,#290200);
+}
+.hero img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.hero__vinheta{position:absolute; inset:0; background:linear-gradient(90deg,rgba(41,2,0,.86) 0%,rgba(41,2,0,.5) 55%,rgba(41,2,0,.15) 100%)}
+.hero__txt{position:relative; padding:20px; max-width:560px}
+.hero__txt p{margin:8px 0 0; color:#ffead3; font:400 14px/1.5 var(--fonte)}
+
+.promo{display:grid; gap:12px; margin-top:12px}
+.promo__card{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:16px; border-radius:var(--r-lg); background:var(--aviso); color:var(--tx-claro);
+  transition:background .14s ease;
+}
+.promo__card svg{flex:none}
+.promo__card b{display:block; font:700 18px/1.25 var(--fonte)}
+.promo__card span{font:400 14px/1.4 var(--fonte); color:#ebb69d}
+@media (hover:hover){ .promo__card:hover{background:#6b3419} }
+.promo__card:active{background:#3d1c0d}
+
+.secao{margin-top:28px}
+.secao__cab{display:flex; align-items:center; gap:8px; margin-bottom:12px}
+.secao__cab svg{flex:none; color:var(--tx-secao)}
+
+.grade{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+.estilo{text-align:left; display:flex; flex-direction:column; gap:6px; padding-bottom:8px; border-radius:var(--r); transition:background .14s ease}
+.estilo__foto{
+  position:relative; width:100%; aspect-ratio:1/1; border-radius:var(--r); overflow:hidden;
+  background:linear-gradient(135deg,#ffead3,#ebb69d);
+}
+.estilo__foto img{width:100%; height:100%; object-fit:cover}
+/* reserva 2 linhas para o nome: nomes curtos e longos mantêm a
+   duração alinhada na mesma altura em toda a fileira */
+.estilo__nome{font:700 16px/1.5 var(--fonte); color:var(--tx-item); min-height:3em}
+.estilo__tempo{font:400 14px/1.5 var(--fonte); color:var(--tx-corpo); margin-top:auto}
+@media (hover:hover){ .estilo:hover .estilo__foto{filter:brightness(1.04)} }
+.estilo:active{background:var(--cartao-sel)}
+
+/* --- carrossel --- */
+.galeria{margin:28px 0 40px}
+.carrossel{overflow:hidden; border-radius:var(--r)}
+.trilho{display:flex; gap:12px; transition:transform .55s cubic-bezier(.4,0,.2,1); will-change:transform}
+.slide{
+  flex:0 0 auto; width:236px; aspect-ratio:3/4; border-radius:var(--r); overflow:hidden;
+  background:linear-gradient(135deg,#ffead3,#ebb69d);
+}
+.slide img{width:100%; height:100%; object-fit:cover}
+.pontos{display:flex; justify-content:center; gap:6px; margin-top:12px}
+.ponto{width:6px; height:6px; border-radius:999px; background:var(--borda-mudo); transition:width .25s ease, background .25s ease}
+.ponto.on{width:20px; background:var(--terracota)}
+
+/* ============================================================
+   PRODUTO
+   ============================================================ */
+.pdp__foto{
+  width:100%; aspect-ratio:4/3; border-radius:var(--r-lg); overflow:hidden; margin-top:12px;
+  background:linear-gradient(135deg,#ffead3,#ebb69d);
+}
+.pdp__foto img{width:100%; height:100%; object-fit:cover}
+.bloco{margin-top:22px}
+.bloco>.t-rotulo{margin-bottom:10px}
+
+.resumo{margin-top:20px; padding-top:14px; border-top:1px solid rgba(181,166,150,.5)}
+.resumo__linha{display:flex; justify-content:space-between; gap:12px; padding:5px 0; font:400 14px/1.5 var(--fonte); color:var(--tx-corpo)}
+.resumo__linha b{font-weight:700; color:var(--tx-item); text-align:right}
+.resumo__linha--destaque,.resumo__linha--destaque b{color:var(--tx-secao)}
+.resumo__linha--total{font:700 16px/1.5 var(--fonte); color:var(--tx-item); padding-top:10px; margin-top:6px; border-top:1px solid rgba(181,166,150,.5)}
+.resumo__linha--total b{font-size:20px}
+
+.aviso{
+  display:flex; gap:10px; padding:14px; border-radius:var(--r);
+  background:var(--aviso); color:var(--tx-claro); font:700 14px/1.5 var(--fonte);
+}
+.aviso svg{flex:none; margin-top:2px}
+.aviso--claro{background:var(--cartao-sel); color:var(--tx-item); box-shadow:inset 0 0 0 1px var(--borda-mudo); font-weight:400}
+
+.rodape-cta{
+  position:sticky; bottom:0; z-index:20; margin-top:20px;
+  padding:12px var(--gut) calc(12px + env(safe-area-inset-bottom));
+  margin-inline:calc(var(--gut) * -1);
+  background:linear-gradient(to top,var(--fundo) 72%,rgba(255,248,241,0));
+}
+.rodape-cta__nota{margin:8px 0 0; text-align:center; font:400 14px/1.4 var(--fonte); color:var(--tx-corpo)}
+
+/* ============================================================
+   AGENDAMENTO
+   ============================================================ */
+.calendario{padding:12px; border-radius:var(--r); background:var(--cartao); box-shadow:inset 0 0 0 1px var(--borda)}
+.cal__cab{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+.cal__mes{font:700 16px/1.5 var(--fonte); color:var(--tx-item); text-transform:capitalize}
+.cal__nav{display:grid; place-items:center; width:36px; height:36px; border-radius:999px; color:var(--tx-sel); transition:background .14s ease}
+@media (hover:hover){ .cal__nav:hover:not([disabled]){background:var(--cartao-sel)} }
+.cal__nav:active:not([disabled]){background:var(--pressed)}
+.cal__nav[disabled]{color:var(--tx-mudo); cursor:not-allowed}
+.cal__semana,.cal__dias{display:grid; grid-template-columns:repeat(7,1fr); gap:2px}
+.cal__semana span{text-align:center; font:600 12px/1.1 var(--fonte); color:var(--tx-corpo); padding:6px 0}
+.dia{
+  aspect-ratio:1/1; min-height:40px; display:grid; place-items:center; border-radius:8px;
+  font:400 14px/1 var(--fonte); color:var(--tx-sel);
+  transition:background .14s ease, color .14s ease;
+}
+@media (hover:hover){ .dia:hover:not([disabled]):not([aria-pressed="true"]){background:var(--cartao-sel)} }
+.dia:active:not([disabled]){background:var(--pressed)}
+.dia[aria-pressed="true"]{background:var(--terracota); color:#fff; font-weight:700}
+.dia[disabled]{color:var(--tx-mudo); cursor:not-allowed}
+.dia--vazio{visibility:hidden}
+.cal__legenda{display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font:400 14px/1.4 var(--fonte); color:var(--tx-corpo)}
+.cal__legenda i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px}
+
+/* ============================================================
+   OVERLAYS
+   ============================================================ */
+.sheet{position:fixed; inset:0; z-index:60; display:none}
+.sheet.aberto{display:block}
+.sheet__scrim{position:absolute; inset:0; background:var(--scrim)}
+.sheet__painel{
+  position:absolute; left:0; right:0; bottom:0; max-height:88vh; overflow:auto;
+  background:var(--fundo); border-radius:18px 18px 0 0;
+  padding:8px var(--gut) calc(20px + env(safe-area-inset-bottom));
+  animation:sobe .28s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes sobe{from{transform:translateY(16px); opacity:.6} to{transform:none; opacity:1}}
+.sheet__grip{width:36px; height:4px; border-radius:999px; background:var(--borda-mudo); margin:6px auto 14px}
+.sheet__cab{display:flex; align-items:flex-start; gap:12px; margin-bottom:16px}
+.sheet__cab div{flex:1}
+.passos{display:grid; gap:14px}
+.passo{display:flex; gap:12px}
+.passo__n{
+  width:28px; height:28px; flex:none; border-radius:999px; background:var(--terracota); color:#fff;
+  display:grid; place-items:center; font:700 14px/1 var(--fonte);
+}
+.passo b{display:block; font:700 16px/1.5 var(--fonte); color:var(--tx-item)}
+.sheet__acao{margin-top:18px}
+
+/* ============================================================
+   DESKTOP — a partir de 900px as telas desdobram em duas colunas
+   ============================================================ */
+@media (min-width:900px){
+  :root{--gut:48px; --topo:64px}
+  body{font-size:16px}
+  .t-hero{font-size:56px}
+  .t-pagina{font-size:32px}
+  .marca img{height:36px}
+
+  .hero{min-height:360px; margin-top:0}
+  .hero__txt{padding:40px}
+
+  /* hero e avisos lado a lado */
+  .home__topo{display:grid; grid-template-columns:minmax(0,863fr) minmax(320px,441fr); gap:16px; margin-top:16px}
+  .home__topo .hero{margin:0; height:100%}
+  .promo{margin-top:0}
+  .promo__card{height:100%; align-items:flex-start; flex-direction:column; justify-content:center; gap:8px; padding:24px}
+
+  .grade{grid-template-columns:repeat(5,1fr); gap:16px}
+  .slide{width:314px}
+  .secao{margin-top:44px}
+  .galeria{margin:44px 0 64px}
+
+  /* produto em duas colunas */
+  .pdp{display:grid; grid-template-columns:minmax(0,624fr) minmax(360px,624fr); gap:40px; align-items:start; padding-block:24px 48px}
+  .pdp__foto{margin-top:0; position:sticky; top:calc(var(--topo) + 16px); aspect-ratio:9/8}
+  .pdp__lado>.t-pagina{margin-top:0}
+
+  /* agendamento em duas colunas */
+  .booking{display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,420px); gap:40px; align-items:start; padding-block:24px 48px}
+  .booking__dir{position:sticky; top:calc(var(--topo) + 16px)}
+
+  .rodape-cta{position:static; margin-inline:0; padding-inline:0; background:none}
+  .chip-par{max-width:440px}
+
+  /* overlays viram diálogo centralizado */
+  .sheet__painel{
+    left:50%; top:50%; right:auto; bottom:auto; transform:translate(-50%,-50%);
+    width:min(620px,92vw); border-radius:var(--r-lg); padding:24px 28px 28px;
+    animation:aparece .22s ease;
   }
-  * { box-sizing: border-box; }
+  @keyframes aparece{from{transform:translate(-50%,-46%); opacity:0} to{transform:translate(-50%,-50%); opacity:1}}
+  .sheet__grip{display:none}
+}
 
-  /* Os placeholders são <span>; sem block, width/height seriam ignorados. */
-  .ph { display: block; }
-
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: var(--bg);
-  }
-
-  body {
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    /* iOS: evita o "pulo" da barra de endereço e o scroll elástico horizontal */
-    -webkit-text-size-adjust: 100%;
-    overflow-x: hidden;
-  }
-
-  /* iOS aplica estilo nativo em <button>: texto azul, centralizado e cantos
-     próprios. Sem este reset o card "Agende rápido pelo Zap" sai azul. */
-  button {
-    font: inherit;
-    color: inherit;
-    background: none;
-    border: 0;
-    margin: 0;
-    padding: 0;
-    text-align: inherit;
-    border-radius: 0;
-    -webkit-appearance: none;
-    appearance: none;
-    -webkit-tap-highlight-color: transparent;
-    cursor: pointer;
-  }
-
-  .shell {
-    width: 100%;
-    max-width: 400px;
-    background: var(--card);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  /* dvh evita que a barra do Safari corte o rodapé */
-  @supports (min-height: 100dvh) {
-    .shell { min-height: 100dvh; }
-  }
-
-  .screen { display: none; flex-direction: column; flex: 1; }
-  .screen.active { display: flex; }
-
-  /* Wrappers de coluna: no mobile são só containers em coluna, então o
-     empilhamento fica idêntico ao de antes. No desktop viram grid. */
-  .pdp, .booking { display: flex; flex-direction: column; flex: 1; }
-  .pdp__info, .booking__right { display: flex; flex-direction: column; flex: 1; }
-
-  /* ---- Home ---- */
-  .brandbar { padding: 14px 16px 0; font-weight: 700; font-size: 15px; letter-spacing: .02em; }
-  .hero { margin: 12px 16px 0; height: 120px; border-radius: 10px; background: var(--ph); }
-  .promo-row { display: flex; gap: 10px; margin: 12px 16px 0; }
-  .promo-card {
-    flex: 1 1 0;
-    min-width: 0;
-    background: #eee;
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 12.5px;
-    font-weight: 600;
-    line-height: 1.3;
-    border: 1px solid var(--line);
-    color: var(--text);
-    text-align: left;
-  }
-  .promo-card .ph { width: 26px; height: 26px; border-radius: 6px; background: var(--ph); margin-bottom: 8px; }
-
-  .section-title { margin: 20px 16px 10px; font-size: 15px; font-weight: 700; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 16px 8px; }
-  .style-card { text-align: center; }
-  /* Fallback para iOS < 15, que não suporta aspect-ratio */
-  .style-card .ph {
-    width: 100%;
-    height: 0;
-    padding-top: 100%;
-    border-radius: 8px;
-    background: var(--ph);
-    margin-bottom: 6px;
-  }
-  @supports (aspect-ratio: 1 / 1) {
-    .style-card .ph { height: auto; padding-top: 0; aspect-ratio: 1 / 1; }
-  }
-  .style-card .name { font-size: 11.5px; font-weight: 600; line-height: 1.25; display: block; }
-  .style-card .time { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
-
-  /* ---- Galeria (carrossel de trabalhos) ---- */
-  .gallery { padding-bottom: 28px; }
-
-  .carousel {
-    display: flex;
-    gap: 10px;
-    padding: 0 16px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-padding-left: 16px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .carousel::-webkit-scrollbar { display: none; }
-
-  .slide {
-    flex: 0 0 72%;
-    width: 72%;
-    scroll-snap-align: start;
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--ph);
-    /* Fallback 3:4 para iOS < 15 — 96% é 72% × 4/3, e ambos resolvem
-       contra a mesma largura (o content box do carrossel). */
-    height: 0;
-    padding-top: 96%;
-  }
-  @supports (aspect-ratio: 3 / 4) {
-    .slide { height: auto; padding-top: 0; aspect-ratio: 3 / 4; }
-  }
-  .slide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-
-  .dots { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 12px; }
-  .dot { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
-  .dot span {
-    display: block; width: 6px; height: 6px; border-radius: 50%;
-    background: #cfcfcf; transition: width .2s ease, background-color .2s ease;
-  }
-  .dot.active span { width: 16px; border-radius: 3px; background: var(--text); }
-
-  @media (prefers-reduced-motion: reduce) {
-    .carousel { scroll-behavior: auto; }
-    .dot span { transition: none; }
-  }
-
-  /* ---- compartilhado ---- */
-  .topbar { display: flex; align-items: center; padding: 14px 16px 0; }
-  .back { font-size: 13px; color: var(--muted); }
-  .product-hero { margin: 10px 16px 0; height: 140px; border-radius: 10px; background: var(--ph); }
-  .h2 { margin: 16px 16px 4px; font-size: 17px; font-weight: 700; }
-  .unit-label { margin: 0 16px 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  .option-list { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
-  .option-row {
-    display: flex; align-items: center; gap: 10px;
-    border: 1.5px solid var(--line); border-radius: 10px;
-    padding: 10px; width: 100%; text-align: left;
-  }
-  .option-row.selected { border-color: var(--text); background: #fafafa; }
-  .option-row .ph { width: 40px; height: 40px; border-radius: 6px; background: var(--ph); flex-shrink: 0; }
-  .option-row .info { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  .option-row .name { font-size: 13.5px; font-weight: 600; }
-  .option-row .time { font-size: 11.5px; color: var(--muted); }
-  .option-row .price { font-size: 13.5px; font-weight: 700; flex-shrink: 0; }
-
-  .addon-row {
-    display: flex; align-items: center; gap: 10px;
-    margin: 14px 16px 0; padding: 10px;
-    border: 1.5px solid var(--line); border-radius: 10px;
-    cursor: pointer; -webkit-tap-highlight-color: transparent;
-  }
-  .addon-row.selected { border-color: var(--text); background: #fafafa; }
-  /* Mantém o checkbox nativo visível no iOS */
-  .addon-row input[type="checkbox"] {
-    -webkit-appearance: checkbox;
-    appearance: checkbox;
-    width: 18px; height: 18px;
-    flex-shrink: 0;
-    accent-color: var(--text);
-    margin: 0;
-  }
-  .addon-row .name { flex: 1 1 0; min-width: 0; font-size: 13px; font-weight: 600; }
-  .addon-row .price { font-size: 13px; font-weight: 700; }
-
-  .cta-wrap { margin-top: auto; padding: 16px; }
-  .cta {
-    width: 100%; padding: 14px; border-radius: 100px;
-    background: var(--text); color: #fff;
-    font-weight: 700; font-size: 14px; text-align: center;
-  }
-  .cta[disabled] { background: #c9c9c9; color: #8a8a8a; cursor: not-allowed; }
-  .cta-note { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; }
-
-  /* ---- agendamento ---- */
-  .local-row { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; margin-top: 6px; }
-  .local-card { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; text-align: left; width: 100%; }
-  .local-card.selected { border-color: var(--text); background: #fafafa; }
-  /* display: block porque são <span> — sem isso nome e endereço
-     ficariam na mesma linha. */
-  .local-card .name { display: block; font-size: 13.5px; font-weight: 700; }
-  .local-card .sub { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-
-  .calendar { margin: 16px 16px 0; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; }
-  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .cal-head button { font-size: 18px; padding: 4px 10px; color: var(--text); }
-  .cal-head .label { font-size: 13.5px; font-weight: 700; text-transform: capitalize; }
-  .cal-weekdays, .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
-  .cal-weekdays span { font-size: 10.5px; color: var(--muted); font-weight: 600; }
-  .cal-days .day { font-size: 12.5px; padding: 9px 0; border-radius: 8px; width: 100%; text-align: center; }
-  .cal-days .day[disabled] { color: #ccc; }
-  .cal-days .day.selected { background: var(--text); color: #fff; font-weight: 700; }
-  .cal-days .spacer { padding: 9px 0; }
-
-  .periodo-row { display: flex; gap: 8px; padding: 0 16px; margin-top: 14px; }
-  .periodo-btn {
-    flex: 1 1 0; min-width: 0; padding: 11px;
-    border-radius: 10px; border: 1.5px solid var(--line);
-    background: #fff; font-size: 12.5px; font-weight: 600; text-align: center;
-  }
-  .periodo-btn.selected { border-color: var(--text); background: var(--text); color: #fff; }
-
-  .summary { margin: 18px 16px 0; padding: 12px 14px; border-radius: 10px; background: #f0f0f0; display: flex; flex-direction: column; gap: 7px; }
-  .summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .summary .label { font-size: 11.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
-  .summary .value { font-size: 17px; font-weight: 700; }
-  .summary .dur { font-size: 13px; font-weight: 600; text-align: right; }
-  .summary-note { margin: 6px 16px 0; font-size: 11px; color: var(--muted); min-height: 14px; }
-
-  button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
-
-  /* ==========================================================
-     DESKTOP — desenhado para 1400px
-     O mobile acima é a base (360px). Daqui pra baixo é só o que
-     muda no desktop; nada aqui afeta a versão de celular.
-     ========================================================== */
-  @media (min-width: 1024px) {
-    body { background: #e9e9ea; align-items: flex-start; }
-    .shell { max-width: 1400px; }
-
-    /* ---------- Home: hero grande + cards ao lado ---------- */
-    #screen-home.active {
-      display: grid;
-      grid-template-columns: 1.9fr 1fr;
-      grid-template-areas:
-        "brand   brand"
-        "hero    promos"
-        "title   title"
-        "grid    grid"
-        "gallery gallery";
-      column-gap: 24px;
-      align-content: start;
-      padding: 0 48px 64px;
-    }
-    #screen-home .brandbar { grid-area: brand; padding: 40px 0 28px; font-size: 20px; }
-    #screen-home .hero { grid-area: hero; margin: 0; height: auto; min-height: 360px; border-radius: 14px; }
-    #screen-home .promo-row { grid-area: promos; margin: 0; flex-direction: column; gap: 16px; }
-    #screen-home > .section-title { grid-area: title; margin: 44px 0 18px; font-size: 22px; }
-    #screen-home .grid { grid-area: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 0; }
-    #screen-home .gallery { grid-area: gallery; padding-bottom: 0; }
-
-    .promo-card {
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 22px; font-size: 15px; border-radius: 14px;
-    }
-    .promo-card .ph { width: 34px; height: 34px; margin-bottom: 12px; }
-
-    .style-card .ph { border-radius: 12px; margin-bottom: 10px; }
-    .style-card .name { font-size: 14px; }
-    .style-card .time { font-size: 12px; }
-
-    /* Carrossel: 4 fotos visíveis em vez de 1,5 */
-    .gallery .section-title { margin: 44px 0 18px; font-size: 22px; }
-    .carousel { padding: 0; scroll-padding-left: 0; gap: 16px; }
-    .slide { flex: 0 0 calc((100% - 48px) / 4); width: auto; border-radius: 14px; }
-    .dots { margin-top: 18px; }
-
-    /* ---------- Produto: foto à esquerda, escolha à direita ---------- */
-    #screen-product { padding: 0 48px 56px; }
-    #screen-product .topbar { padding: 32px 0 0; }
-    .pdp {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      column-gap: 56px;
-      align-items: start;
-      flex: 0 1 auto;
-      margin-top: 20px;
-    }
-    .pdp__media, .pdp__info { display: block; flex: 0 1 auto; }
-    .product-hero { margin: 0; height: 560px; border-radius: 14px; }
-    .pdp__info .h2 { margin: 0 0 6px; font-size: 30px; }
-    .pdp__info .unit-label { margin: 0 0 16px; font-size: 13px; }
-    .option-list { padding: 0; gap: 12px; }
-    .option-row { padding: 14px; border-radius: 14px; }
-    .option-row .ph { width: 56px; height: 56px; border-radius: 10px; }
-    .option-row .name { font-size: 15px; }
-    .option-row .time { font-size: 12.5px; }
-    .option-row .price { font-size: 16px; }
-    .addon-row { margin: 20px 0 0; padding: 14px; border-radius: 14px; }
-
-    /* ---------- Agendamento: calendário | resumo ---------- */
-    #screen-booking { padding: 0 48px 56px; }
-    #screen-booking .topbar { padding: 32px 0 0; }
-    .booking {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
-      column-gap: 56px;
-      align-items: start;
-      flex: 0 1 auto;
-      margin-top: 20px;
-    }
-    .booking__left, .booking__right { display: block; flex: 0 1 auto; }
-    .booking .h2 { margin: 0 0 12px; font-size: 22px; }
-    .local-row { padding: 0; margin: 0 0 36px; flex-direction: row; gap: 16px; }
-    .local-card { padding: 18px; border-radius: 14px; }
-    .local-card .name { font-size: 15px; }
-    .local-card .sub { font-size: 12.5px; }
-    .calendar { margin: 0; padding: 20px; border-radius: 14px; }
-    .cal-head .label { font-size: 16px; }
-    .cal-weekdays span { font-size: 12px; }
-    .cal-days { gap: 6px; }
-    .cal-days .day { padding: 14px 0; font-size: 14px; }
-    .cal-days .spacer { padding: 14px 0; }
-    .periodo-row { padding: 0; margin: 0 0 28px; gap: 12px; }
-    .periodo-btn { padding: 14px; font-size: 14px; border-radius: 14px; }
-    .summary { margin: 0; padding: 18px; border-radius: 14px; }
-    .summary .value { font-size: 20px; }
-    .summary-note { margin: 10px 0 0; font-size: 12px; }
-
-    /* CTA deixa de ser grudado no rodapé e passa a seguir o conteúdo */
-    .cta-wrap { margin-top: 28px; padding: 0; }
-    .cta { padding: 16px; font-size: 15px; }
-    .cta-note { font-size: 12px; }
-  }
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important; transition-duration:.01ms !important}
+  .trilho{transition:none}
+}
 </style>
 </head>
 <body>
-<div class="shell">
 
-  <!-- ============ HOME ============ -->
-  <section id="screen-home" class="screen active">
-    <div class="brandbar">NEGA NAGÔ</div>
-    <div class="hero"></div>
-    <div class="promo-row">
-      <button type="button" class="promo-card" id="promo-zap">
-        <span class="ph"></span>
-        Agende rápido<br>pelo Zap
-      </button>
-      <div class="promo-card">
-        <span class="ph"></span>
-        Trança na sua casa<br>ou no nosso Estúdio
+<!-- ================== HOME ================== -->
+<main class="tela ativa" id="tela-home">
+  <header class="brandbar">
+    <div class="brandbar__in">
+      <a class="marca" href="#" onclick="irPara('home');return false">
+        <img src="assets/logo/logo.png" alt="" onerror="this.remove()">
+        <span class="marca__txt">NEGA NAGÔ<small>TRANÇAS AFRO</small></span>
+      </a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="home__topo">
+      <section class="hero">
+        <img src="assets/home/hero.jpg" alt="Nega Nagô trançando uma cliente no estúdio" onerror="this.remove()">
+        <div class="hero__vinheta"></div>
+        <div class="hero__txt">
+          <h1 class="t-hero">+13 anos<br>trançando histórias</h1>
+          <p>Especialista formada pela Universidade Zumbi dos Palmares</p>
+        </div>
+      </section>
+
+      <div class="promo">
+        <button class="promo__card" onclick="abrirSheet('sheet-como')">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.1-.2-1-1.4-1-2.6 0-1.2.6-1.8.9-2 .2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.1.1.3 0 .5l-.3.4-.4.4c-.1.1-.3.3-.1.5.1.3.6 1.1 1.4 1.8 1 .8 1.7 1.1 2 1.2.2.1.4.1.5-.1l.8-.9c.2-.2.3-.2.5-.1l1.8.9c.2.1.4.2.4.3.1.1.1.6-.1 1.2Z"/></svg>
+          <div><b>Como agendar pelo Zap</b><span>Três passos, do catálogo à mensagem pronta</span></div>
+        </button>
+        <button class="promo__card" onclick="abrirSheet('sheet-regras')">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm-1 7V3.5L18.5 9H13ZM8 13h8v2H8v-2Zm0 4h8v2H8v-2Z"/></svg>
+          <div><b>Regrinhas de agendamento</b><span>Preparo, tolerância e remarcação</span></div>
+        </button>
       </div>
     </div>
-    <div class="section-title">Qual vai ser a coroa da vez?</div>
-    <div class="grid" id="style-grid"></div>
 
-    <section class="gallery" aria-label="Trabalhos recentes">
-      <div class="section-title">Coroas que já saíram daqui</div>
-      <div class="carousel" id="carousel"></div>
-      <div class="dots" id="dots"></div>
-    </section>
-  </section>
-
-  <!-- ============ PRODUTO ============ -->
-  <section id="screen-product" class="screen">
-    <div class="topbar"><button type="button" class="back" data-nav="home">‹ Voltar</button></div>
-    <div class="pdp">
-      <div class="pdp__media">
-        <div class="product-hero"></div>
+    <section class="secao">
+      <div class="secao__cab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 16 3 6l5.5 4L12 4l3.5 6L21 6l-2 10H5Zm0 2h14v2H5v-2Z"/></svg>
+        <h2 class="t-secao">Qual vai ser a coroa da vez?</h2>
       </div>
-      <div class="pdp__info">
-        <div class="h2" id="product-title"></div>
-        <div class="unit-label" id="product-unit"></div>
-        <div class="option-list" id="product-options"></div>
-        <label class="addon-row" id="addon-row" for="addon-check">
-          <input type="checkbox" id="addon-check">
-          <span class="name">Adicional de cachos</span>
-          <span class="price">+ R$ 50,00</span>
-        </label>
-        <div class="cta-wrap">
-          <button type="button" class="cta" id="btn-continuar" disabled>Continuar</button>
+      <div class="grade" id="grade"></div>
+    </section>
+
+    <section class="galeria">
+      <div class="secao__cab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.5-.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z"/></svg>
+        <h2 class="t-secao">Coroas que já saíram daqui</h2>
+      </div>
+      <div class="carrossel" id="carrossel"><div class="trilho" id="trilho"></div></div>
+      <div class="pontos" id="pontos"></div>
+    </section>
+  </div>
+</main>
+
+<!-- ================== PRODUTO ================== -->
+<main class="tela" id="tela-produto">
+  <header class="topbar">
+    <div class="topbar__in">
+      <button class="btn-ghost" onclick="irPara('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12l4.6-4.6Z"/></svg>
+        Voltar
+      </button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="pdp">
+      <div class="pdp__foto"><img id="p-foto" src="" alt="" onerror="this.remove()"></div>
+
+      <div class="pdp__lado">
+        <h1 class="t-pagina" id="p-nome">Box Braids</h1>
+        <p class="t-corpo" id="p-tempo" style="margin-top:4px"></p>
+
+        <div class="bloco">
+          <p class="t-rotulo" id="p-unidade">Tamanho</p>
+          <div class="opt-lista" id="p-opcoes"></div>
+        </div>
+
+        <div class="bloco" id="p-cachos-bloco">
+          <button class="check" id="p-cachos" aria-pressed="false" onclick="alternarCachos()">
+            <span class="check__box"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg></span>
+            <span class="check__txt">Adicional de cachos</span>
+            <span class="check__preco">+ R$ 50,00</span>
+          </button>
+        </div>
+
+        <div class="resumo">
+          <div class="resumo__linha resumo__linha--destaque"><span>Sinal para agendamento (30%)</span><b id="p-sinal">—</b></div>
+          <div class="resumo__linha resumo__linha--total"><span>TOTAL ESTIMADO</span><b id="p-total">—</b></div>
+        </div>
+
+        <div class="rodape-cta">
+          <button class="btn" id="p-cta" disabled onclick="irPara('agendamento')">CONTINUAR AGENDAMENTO</button>
+          <p class="rodape-cta__nota" id="p-nota">Escolha um tamanho para continuar</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</main>
 
-  <!-- ============ AGENDAMENTO ============ -->
-  <section id="screen-booking" class="screen">
-    <div class="topbar"><button type="button" class="back" data-nav="product">‹ Voltar</button></div>
+<!-- ================== AGENDAMENTO ================== -->
+<main class="tela" id="tela-agendamento">
+  <header class="topbar">
+    <div class="topbar__in">
+      <button class="btn-ghost" onclick="irPara('produto')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12l4.6-4.6Z"/></svg>
+        Voltar
+      </button>
+    </div>
+  </header>
+
+  <div class="wrap">
     <div class="booking">
-      <div class="booking__left">
-        <div class="h2">Onde vai ser?</div>
-    <div class="local-row">
-      <button type="button" class="local-card" data-local="estudio">
-        <span class="name">Estúdio</span>
-        <span class="sub">Bairro Americanópolis</span>
+      <div class="booking__esq">
+        <h1 class="t-pagina">Bora agendar a coroa!</h1>
+
+        <div class="bloco">
+          <p class="t-corpo" style="margin-bottom:8px">Pra começar, como podemos te chamar?</p>
+          <input class="campo" id="a-nome" type="text" autocomplete="name" placeholder="Seu nome" oninput="validar()">
+        </div>
+
+        <div class="bloco">
+          <h2 class="t-secao" style="margin-bottom:10px">Onde vai ser?</h2>
+          <div class="opt-lista">
+            <button class="opt" id="local-estudio" aria-pressed="false" onclick="escolherLocal('estudio')">
+              <span class="opt__ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 4h16l1 5a3 3 0 0 1-5.2 2A3 3 0 0 1 12 12a3 3 0 0 1-3.8-1A3 3 0 0 1 3 9l1-5Zm1 8.9V20h5v-4h4v4h5v-7.1a4.9 4.9 0 0 1-3.8-.7A4.9 4.9 0 0 1 12 13a4.9 4.9 0 0 1-3.2-.8 4.9 4.9 0 0 1-3.8.7Z"/></svg></span>
+              <span class="opt__info"><span class="opt__nome">Estúdio</span><span class="opt__sub">Bairro Americanópolis</span></span>
+            </button>
+            <button class="opt" id="local-casa" aria-pressed="false" onclick="escolherLocal('casa')">
+              <span class="opt__ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3L12 3Z"/></svg></span>
+              <span class="opt__info"><span class="opt__nome">A domicílio</span><span class="opt__sub">Taxa de deslocamento a combinar</span></span>
+            </button>
+          </div>
+          <div id="a-bairro-bloco" style="display:none; margin-top:12px">
+            <p class="t-corpo" style="margin-bottom:8px">Me fala, qual é o seu bairro?</p>
+            <input class="campo" id="a-bairro" type="text" placeholder="Seu bairro" oninput="validar()">
+          </div>
+        </div>
+
+        <div class="bloco">
+          <h2 class="t-secao" style="margin-bottom:4px">Escolha o dia</h2>
+          <p class="t-corpo" style="margin-bottom:10px">Qual dia você gostaria de fazer a coroa?</p>
+          <div class="calendario">
+            <div class="cal__cab">
+              <button class="cal__nav" id="cal-ant" aria-label="Mês anterior" onclick="mudarMes(-1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12l4.6-4.6Z"/></svg>
+              </button>
+              <span class="cal__mes" id="cal-mes"></span>
+              <button class="cal__nav" id="cal-prox" aria-label="Próximo mês" onclick="mudarMes(1)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6-4.6 4.6Z"/></svg>
+              </button>
+            </div>
+            <div class="cal__semana"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+            <div class="cal__dias" id="cal-dias"></div>
+            <div class="cal__legenda">
+              <span><i style="background:var(--terracota)"></i>Escolhido</span>
+              <span><i style="background:var(--borda-mudo)"></i>Agenda cheia</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bloco">
+          <h2 class="t-secao" style="margin-bottom:4px">Período</h2>
+          <p class="t-corpo" style="margin-bottom:10px">Me conta sua preferência que a gente alinha o horário certinho no WhatsApp!</p>
+          <div class="chip-par">
+            <button class="chip" id="per-manha" aria-pressed="false" onclick="escolherPeriodo('Manhã')">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-14 1.8 2.6h-3.6L12 3Zm0 18-1.8-2.6h3.6L12 21ZM3 12l2.6-1.8v3.6L3 12Zm18 0-2.6 1.8v-3.6L21 12ZM5.6 5.6l3.1.5-2.6 1.8-.5-2.3Zm12.8 12.8-3.1-.5 2.6-1.8.5 2.3ZM18.4 5.6l-.5 2.3-2.6-1.8 3.1-.5ZM5.6 18.4l.5-2.3 2.6 1.8-3.1.5Z"/></svg>
+              Manhã
+            </button>
+            <button class="chip" id="per-tarde" aria-pressed="false" onclick="escolherPeriodo('Tarde')">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 8a5 5 0 0 1 5 5H7a5 5 0 0 1 5-5Zm-9 7h18v2H3v-2Zm9-13 1.6 2.4h-3.2L12 2ZM4.2 6.4l2.8.9-1.6 1.7-1.2-2.6Zm15.6 0-1.2 2.6-1.6-1.7 2.8-.9Z"/></svg>
+              Tarde
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="booking__dir">
+        <div class="aviso">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-2h2v2Zm0-4h-2V7h2v6Z"/></svg>
+          <span>Para garantir sua vaga e material, pedimos um sinal de 30% (<span id="a-sinal-aviso">R$ 90,00</span>). O restante você acerta no dia da beleza.</span>
+        </div>
+
+        <div class="bloco">
+          <div class="secao__cab" style="margin-bottom:4px">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 7H3a1 1 0 0 0-1 1v9a2 2 0 0 0 2 2h15a2 2 0 0 0 2-2V8a1 1 0 0 0-1-1Zm-1 4H4V9h16v2ZM6 14h5v2H6v-2Z"/></svg>
+            <h2 class="t-secao">Forma de pagamento (sinal 30%)</h2>
+          </div>
+          <p class="t-corpo" style="margin-bottom:10px">Como você prefere pagar o sinal de <b class="t-forte" id="a-sinal-txt">R$ 90,00</b>?</p>
+          <div class="chip-par">
+            <button class="chip" id="pag-pix" aria-pressed="false" onclick="escolherPagamento('PIX')">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.6 22.4 12 12 22.4 1.6 12 12 1.6Zm0 3.3L4.9 12l7.1 7.1L19.1 12 12 4.9Z"/></svg>
+              PIX
+            </button>
+            <button class="chip" id="pag-cartao" aria-pressed="false" onclick="escolherPagamento('Cartão de Crédito')">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 4H3V7h18v2ZM4 13h5v2H4v-2Z"/></svg>
+              Cartão de Crédito
+            </button>
+          </div>
+        </div>
+
+        <div class="bloco">
+          <h2 class="t-secao" style="margin-bottom:8px">Resumo do agendamento</h2>
+          <div class="resumo" style="margin-top:0; border-top:0; padding-top:0" id="a-resumo"></div>
+        </div>
+
+        <div class="aviso aviso--claro" style="margin-top:18px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9Zm3 5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg>
+          <span>Só mais um detalhe: ao abrir o WhatsApp, mande uma foto do seu cabelo solto pra gente preparar tudo sob medida!</span>
+        </div>
+
+        <div class="rodape-cta">
+          <button class="btn btn--zap" id="a-cta" disabled onclick="enviarZap()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.1-.2-1-1.4-1-2.6 0-1.2.6-1.8.9-2 .2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.1.1.3 0 .5l-.3.4-.4.4c-.1.1-.3.3-.1.5.1.3.6 1.1 1.4 1.8 1 .8 1.7 1.1 2 1.2.2.1.4.1.5-.1l.8-.9c.2-.2.3-.2.5-.1l1.8.9c.2.1.4.2.4.3.1.1.1.6-.1 1.2Z"/></svg>
+            Finalizar e enviar no Zap
+          </button>
+          <p class="rodape-cta__nota" id="a-nota">Preencha os campos acima para enviar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ================== OVERLAYS ================== -->
+<div class="sheet" id="sheet-como" role="dialog" aria-modal="true" aria-labelledby="t-como">
+  <div class="sheet__scrim" onclick="fecharSheet('sheet-como')"></div>
+  <div class="sheet__painel">
+    <div class="sheet__grip"></div>
+    <div class="sheet__cab">
+      <div>
+        <h2 class="t-pagina" id="t-como">Como agendar</h2>
+        <p class="t-corpo" style="margin-top:4px">São três passos, do catálogo até a mensagem pronta no Zap.</p>
+      </div>
+      <button class="btn-icone" aria-label="Fechar" onclick="fecharSheet('sheet-como')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m19 6.4-1.4-1.4-5.6 5.6-5.6-5.6L5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4Z"/></svg>
       </button>
-      <button type="button" class="local-card" data-local="domicilio">
-        <span class="name">A domicílio</span>
-        <span class="sub">Taxa de deslocamento a combinar</span>
+    </div>
+    <div class="passos">
+      <div class="passo"><span class="passo__n">1</span><div><b>Escolha seu estilo</b><p class="t-corpo">Navegue pelo catálogo e defina a trança, o tamanho e adicionais de cachos.</p></div></div>
+      <div class="passo"><span class="passo__n">2</span><div><b>Preencha os detalhes do dia</b><p class="t-corpo">Escolha o local (estúdio ou casa), a data, o período e seus dados de contato.</p></div></div>
+      <div class="passo"><span class="passo__n">3</span><div><b>Envie o resumo detalhado no Zap</b><p class="t-corpo">Ao clicar no botão, o site gera a mensagem pronta para a Nega Nagô com a divisão exata dos valores: os 30% do sinal (para a compra do seu material) e o restante no dia da beleza.</p></div></div>
+    </div>
+    <div class="aviso aviso--claro" style="margin-top:18px">
+      <span>💡 <b class="t-forte">Fique tranquila, nada é cobrado aqui no site!</b><br>A mensagem vai prontinha para o WhatsApp e você acerta o sinal do material em uma conversa direta com a Maiara.</span>
+    </div>
+    <div class="sheet__acao"><button class="btn" onclick="fecharSheet('sheet-como')">Entendi</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet-regras" role="dialog" aria-modal="true" aria-labelledby="t-regras">
+  <div class="sheet__scrim" onclick="fecharSheet('sheet-regras')"></div>
+  <div class="sheet__painel">
+    <div class="sheet__grip"></div>
+    <div class="sheet__cab">
+      <div>
+        <h2 class="t-pagina" id="t-regras">Regrinhas do nosso agendamento</h2>
+        <p class="t-corpo" style="margin-top:4px">Para garantir pontualidade e a melhor experiência no seu dia da beleza!</p>
+      </div>
+      <button class="btn-icone" aria-label="Fechar" onclick="fecharSheet('sheet-regras')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m19 6.4-1.4-1.4-5.6 5.6-5.6-5.6L5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4Z"/></svg>
       </button>
     </div>
-
-    <div class="h2">Escolha o dia</div>
-    <div class="calendar">
-      <div class="cal-head">
-        <button type="button" id="cal-prev" aria-label="Mês anterior">‹</button>
-        <span class="label" id="cal-label"></span>
-        <button type="button" id="cal-next" aria-label="Próximo mês">›</button>
-      </div>
-      <div class="cal-weekdays">
-        <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
-      </div>
-      <div class="cal-days" id="cal-days"></div>
+    <div class="passos">
+      <div class="passo"><span class="passo__n">1</span><div><b>Preparo do cabelo</b><p class="t-corpo">Venha com os fios lavados, 100% secos e bem desembaraçados.</p></div></div>
+      <div class="passo"><span class="passo__n">2</span><div><b>Tolerância de 15 minutos</b><p class="t-corpo">Para não atrasar a cliente seguinte, temos 15 min de tolerância. Após esse tempo, o atendimento é considerado cancelado.</p></div></div>
+      <div class="passo"><span class="passo__n">3</span><div><b>Remarcação sem perdas</b><p class="t-corpo">Em caso de falta ou atraso, o sinal não é reembolsável. Porém, você pode remarcar seu horário uma vez dentro de 30 dias (conforme disponibilidade).</p></div></div>
     </div>
-
-      </div>
-
-      <div class="booking__right">
-        <div class="h2">Período</div>
-    <div class="periodo-row">
-      <button type="button" class="periodo-btn" data-periodo="Manhã">Manhã</button>
-      <button type="button" class="periodo-btn" data-periodo="Tarde">Tarde</button>
-      <button type="button" class="periodo-btn" data-periodo="Noite">Noite</button>
+    <div class="aviso aviso--claro" style="margin-top:18px">
+      <span>💡 Respeitar os horários garante que cada coroa receba a dedicação e a atenção que merece!</span>
     </div>
-
-    <div class="summary">
-      <div class="summary-row">
-        <span class="label">Duração estimada</span>
-        <span class="dur" id="summary-duracao">—</span>
-      </div>
-      <div class="summary-row">
-        <span class="label">Total estimado</span>
-        <span class="value" id="summary-total">R$ 0,00</span>
-      </div>
-    </div>
-    <div class="summary-note" id="summary-note"></div>
-
-    <div class="cta-wrap">
-      <button type="button" class="cta" id="btn-finalizar" disabled>Finalizar Agendamento no Zap</button>
-      <div class="cta-note" id="cta-note">Escolha o local, o dia e o período para continuar.</div>
-    </div>
-      </div>
-    </div>
-  </section>
-
+    <div class="sheet__acao"><button class="btn" onclick="fecharSheet('sheet-regras')">Entendi e concordo!</button></div>
+  </div>
 </div>
 
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
 
-  // ==========================================================
-  // Troque pelo número real da Nega Nagô antes de publicar.
-  // Formato: país + DDD + número, só dígitos.
-  // ==========================================================
-  var WHATSAPP_NUMBER = '55XXXXXXXXXXX';
-  var ADICIONAL_CACHOS = 50;
+/* ============================================================
+   DADOS — tabela real da Nega Nagô
+   ============================================================ */
+var WHATSAPP = '5511958974251';
+var ADICIONAL_CACHOS = 50;
+var PCT_SINAL = 0.30;
 
-  // `time` é a duração estimada da categoria; uma opção pode sobrescrever com
-  // a sua própria. `short` é a versão compacta usada no card da home.
-  var STYLES = [
-    { id: 'box-braids', name: 'Box Braids', unit: 'Tamanho', time: '6 a 8 horas', short: '6–8h', options: [
-      { label: 'Chanel', price: 300 }, { label: 'Long Bob', price: 340 }, { label: 'Meio das costas', price: 380 },
-      { label: 'Quadril', price: 400 }, { label: 'Abaixo do quadril', price: 480 } ] },
-    { id: 'fulani', name: 'Fulani', unit: 'Tamanho', time: '5 a 7 horas', short: '5–7h', options: [
-      { label: 'Chanel', price: 340 }, { label: 'Meio das costas', price: 380 },
-      { label: 'Quadril', price: 420 }, { label: 'Abaixo do quadril', price: 460 } ] },
-    { id: 'knotless', name: 'Knotles', unit: 'Tamanho', time: '7 a 9 horas', short: '7–9h', options: [
-      { label: 'Chanel', price: 350 }, { label: 'Long Bob', price: 370 }, { label: 'Meio das costas', price: 400 },
-      { label: 'Até o quadril', price: 450 }, { label: 'Abaixo do quadril', price: 500 } ] },
-    { id: 'nago-desenhada', name: 'Nagô Desenhada', unit: 'Tamanhos', time: '2 a 4 horas', short: '2–4h', options: [
-      { label: 'Chanel', price: 190 }, { label: 'Meio das costas', price: 210 },
-      { label: 'Cintura', price: 230 }, { label: 'Abaixo do quadril', price: 230 } ] },
-    { id: 'nago-tiara', name: 'Nagô Tiara', unit: 'Modelos', short: '40min–1h', options: [
-      { label: 'Tiara', price: 80, time: '1 hora' },
-      { label: 'Lateral', price: 45, time: '40 minutos' } ] },
-    { id: 'rabo-de-cavalo', name: 'Rabo de Cavalo', unit: 'Tamanhos', time: '3 a 5 horas', short: '3–5h', options: [
-      { label: 'Meio das costas', price: 210 }, { label: 'Cintura', price: 250 }, { label: 'Abaixo do quadril', price: 280 } ] },
-    { id: 'ghanna', name: 'Ghanna', unit: 'Tamanhos', time: '2 a 4 horas', short: '2–4h', options: [
-      { label: 'Chanel', price: 160 }, { label: 'Meio das costas', price: 190 }, { label: 'Cintura', price: 220 } ] },
-    { id: 'boxeadora', name: 'Boxeadora', unit: 'Modelos', time: '2 horas', short: '2h', options: [
-      { label: 'Boxeadora simples', price: 130 }, { label: 'Boxeadora com detalhe', price: 150 } ] },
-    { id: 'twist-braids', name: 'Twist Braids', unit: 'Tamanho', time: '6 a 8 horas', short: '6–8h', options: [
-      { label: 'Chanel', price: 450 }, { label: 'Long Bob', price: 480 }, { label: 'Meio das costas', price: 520 },
-      { label: 'Quadril', price: 560 }, { label: 'Abaixo do quadril', price: 600 } ] },
-    { id: 'mohawk-braids', name: 'Mohawk Braids', unit: 'Tamanho', time: '6 a 8 horas', short: '6–8h', options: [
-      { label: 'Chanel', price: 350 }, { label: 'Meio das costas', price: 380 },
-      { label: 'Até a cintura', price: 420 }, { label: 'Abaixo da cintura', price: 460 } ] },
-    { id: 'masculino', name: 'Masculino', unit: 'Modelo', short: '3–8h', options: [
-      { label: 'Nagô', price: 180, time: '3 horas' },
-      { label: 'Twist', price: 250, time: '4 horas' },
-      { label: 'Barrel twist', price: 300, time: '5 horas' },
-      // Box braids masculino tem o mesmo preço e tempo do feminino.
-      { label: 'Box braids — Chanel', price: 300, time: '6 a 8 horas' },
-      { label: 'Box braids — Long Bob', price: 340, time: '6 a 8 horas' },
-      { label: 'Box braids — Meio das costas', price: 380, time: '6 a 8 horas' },
-      { label: 'Box braids — Quadril', price: 400, time: '6 a 8 horas' },
-      { label: 'Box braids — Abaixo do quadril', price: 480, time: '6 a 8 horas' } ] },
-    { id: 'crochet-braids', name: 'Método Crochet Braids', unit: 'Modelo', time: '3 horas', short: '3h', options: [
-      { label: 'Tranças', price: 480 }, { label: 'Dreads', price: 480 }, { label: 'Twist', price: 480 }, { label: 'Cabelo orgânico', price: 480 } ] },
-    { id: 'remocao', name: 'Remoção', unit: 'Serviço', time: '3 a 5 horas', short: '3–5h', options: [
-      { label: 'Remoção Nagô', price: 80 }, { label: 'Remoção Box Braids', price: 120 } ] }
+var STYLES = [
+  { id:'box-braids', name:'Box Braids', unit:'Tamanho', time:'6 a 8 horas', short:'6–8h', options:[
+    {label:'Chanel',price:300},{label:'Long Bob',price:340},{label:'Meio das costas',price:380},
+    {label:'Quadril',price:400},{label:'Abaixo do quadril',price:480}]},
+  { id:'fulani', name:'Fulani', unit:'Tamanho', time:'5 a 7 horas', short:'5–7h', options:[
+    {label:'Chanel',price:340},{label:'Meio das costas',price:380},
+    {label:'Quadril',price:420},{label:'Abaixo do quadril',price:460}]},
+  { id:'knotles', name:'Knotles', unit:'Tamanho', time:'7 a 9 horas', short:'7–9h', options:[
+    {label:'Chanel',price:350},{label:'Long Bob',price:370},{label:'Meio das costas',price:400},
+    {label:'Até o quadril',price:450},{label:'Abaixo do quadril',price:500}]},
+  { id:'nago-desenhada', name:'Nagô Desenhada', unit:'Tamanhos', time:'2 a 4 horas', short:'2–4h', options:[
+    {label:'Chanel',price:190},{label:'Meio das costas',price:210},
+    {label:'Cintura',price:230},{label:'Abaixo do quadril',price:230}]},
+  { id:'nago-tiara', name:'Nagô Tiara', unit:'Modelos', short:'40min–1h', options:[
+    {label:'Tiara',price:80,time:'1 hora'},{label:'Lateral',price:45,time:'40 minutos'}]},
+  { id:'rabo-de-cavalo', name:'Rabo de Cavalo', unit:'Tamanhos', time:'3 a 5 horas', short:'3–5h', options:[
+    {label:'Meio das costas',price:210},{label:'Cintura',price:250},{label:'Abaixo do quadril',price:280}]},
+  { id:'ghanna', name:'Ghanna', unit:'Tamanhos', time:'2 a 4 horas', short:'2–4h', options:[
+    {label:'Chanel',price:160},{label:'Meio das costas',price:190},{label:'Cintura',price:220}]},
+  { id:'boxeadora', name:'Boxeadora', unit:'Modelos', time:'2 horas', short:'2h', options:[
+    {label:'Boxeadora simples',price:130},{label:'Boxeadora com detalhe',price:150}]},
+  { id:'twist-braids', name:'Twist Braids', unit:'Tamanho', time:'6 a 8 horas', short:'6–8h', options:[
+    {label:'Chanel',price:450},{label:'Long Bob',price:480},{label:'Meio das costas',price:520},
+    {label:'Quadril',price:560},{label:'Abaixo do quadril',price:600}]},
+  { id:'mohawk-braids', name:'Mohawk Braids', unit:'Tamanho', time:'6 a 8 horas', short:'6–8h', options:[
+    {label:'Chanel',price:350},{label:'Meio das costas',price:380},
+    {label:'Até a cintura',price:420},{label:'Abaixo da cintura',price:460}]},
+  { id:'masculino', name:'Masculino', unit:'Modelo', short:'3–8h', options:[
+    {label:'Nagô',price:180,time:'3 horas'},
+    {label:'Twist',price:250,time:'4 horas'},
+    {label:'Barrel twist',price:300,time:'5 horas'},
+    {label:'Box braids — Chanel',price:300,time:'6 a 8 horas'},
+    {label:'Box braids — Long Bob',price:340,time:'6 a 8 horas'},
+    {label:'Box braids — Meio das costas',price:380,time:'6 a 8 horas'},
+    {label:'Box braids — Quadril',price:400,time:'6 a 8 horas'},
+    {label:'Box braids — Abaixo do quadril',price:480,time:'6 a 8 horas'}]},
+  { id:'crochet-braids', name:'Crochet Braids', unit:'Modelo', time:'3 horas', short:'3h', options:[
+    {label:'Tranças',price:480},{label:'Dreads',price:480},{label:'Twist',price:480},{label:'Cabelo orgânico',price:480}]},
+  { id:'remocao', name:'Remoção', unit:'Serviço', time:'3 a 5 horas', short:'3–5h', options:[
+    {label:'Remoção Nagô',price:80},{label:'Remoção Box Braids',price:120}]}
+];
+
+var FOTOS = ['01','02','03','04','05','06'];
+var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+/* Agenda cheia. No piloto isso vem da Google Agenda da Maiara;
+   aqui é fixo só para o dia desabilitado aparecer no protótipo. */
+var OCUPADOS = [3,4,10,11,17,18,24,25];
+
+var AUTOPLAY_MS = 3800, RETOMAR_MS = 3000;
+
+var st = { styleId:null, opt:null, cachos:false, nome:'', local:null, bairro:'',
+           data:null, periodo:null, pagamento:null, mes:new Date() };
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function brl(v){ return 'R$ ' + v.toFixed(2).replace('.',','); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function estilo(){ for(var i=0;i<STYLES.length;i++) if(STYLES[i].id===st.styleId) return STYLES[i]; return null; }
+function opcao(){ var e=estilo(); return (e && st.opt!==null) ? e.options[st.opt] : null; }
+function total(){ var o=opcao(); return o ? o.price + (st.cachos?ADICIONAL_CACHOS:0) : 0; }
+function sinal(){ return Math.round(total()*PCT_SINAL); }
+function tempoDe(e,o){ return (o && o.time) || e.time || e.short; }
+function press(el,on){ if(el) el.setAttribute('aria-pressed', on?'true':'false'); }
+
+/* ============================================================
+   HOME — grade e carrossel
+   ============================================================ */
+function montarGrade(){
+  var g = $('grade'); if(!g) return;
+  g.innerHTML = STYLES.map(function(e){
+    return '<button class="estilo" onclick="abrirProduto(\'' + e.id + '\')">' +
+             '<span class="estilo__foto"><img src="assets/estilos/' + e.id + '.jpg" alt="' + esc(e.name) + '" loading="lazy" onerror="this.remove()"></span>' +
+             '<span class="estilo__nome">' + esc(e.name) + '</span>' +
+             '<span class="estilo__tempo">' + esc(e.short) + '</span>' +
+           '</button>';
+  }).join('');
+}
+
+var idx=0, timer=null, retomar=null;
+function montarCarrossel(){
+  var t=$('trilho'), p=$('pontos'); if(!t) return;
+  t.innerHTML = FOTOS.map(function(n,i){
+    return '<div class="slide"><img src="assets/galeria/' + n + '.jpg" alt="Trabalho ' + (i+1) + '" loading="lazy" onerror="this.remove()"></div>';
+  }).join('');
+  p.innerHTML = FOTOS.map(function(_,i){ return '<span class="ponto' + (i?'':' on') + '"></span>'; }).join('');
+  posicionar(); iniciar();
+  var c=$('carrossel');
+  ['touchstart','pointerdown'].forEach(function(ev){ c.addEventListener(ev, pausar, {passive:true}); });
+  window.addEventListener('resize', posicionar);
+  document.addEventListener('visibilitychange', function(){ document.hidden ? parar() : iniciar(); });
+}
+function posicionar(){
+  var t=$('trilho'); if(!t || !t.children.length) return;
+  var passo = t.children[0].getBoundingClientRect().width + 12;
+  t.style.transform = 'translateX(' + (-idx*passo) + 'px)';
+  var ps = $('pontos').children;
+  for(var i=0;i<ps.length;i++) ps[i].className = 'ponto' + (i===idx?' on':'');
+}
+function iniciar(){ parar(); timer = setInterval(function(){ idx=(idx+1)%FOTOS.length; posicionar(); }, AUTOPLAY_MS); }
+function parar(){ if(timer){ clearInterval(timer); timer=null; } }
+function pausar(){ parar(); clearTimeout(retomar); retomar = setTimeout(iniciar, RETOMAR_MS); }
+
+/* ============================================================
+   NAVEGAÇÃO
+   ============================================================ */
+window.irPara = function(tela){
+  ['home','produto','agendamento'].forEach(function(t){
+    $('tela-'+t).classList.toggle('ativa', t===tela);
+  });
+  window.scrollTo(0,0);
+  if(tela==='agendamento') pintarAgendamento();
+};
+
+window.abrirProduto = function(id){
+  st.styleId=id; st.opt=null; st.cachos=false;
+  var e=estilo();
+  $('p-nome').textContent = e.name;
+  $('p-tempo').textContent = 'Duração estimada: ' + (e.time || e.short);
+  $('p-unidade').textContent = e.unit;
+  var f=$('p-foto');
+  if(f){ f.src = 'assets/produto/' + e.id + '.jpg'; f.alt = e.name; }
+  press($('p-cachos'), false);
+  // cachos só faz sentido em trança longa — remoção e tiara ficam de fora
+  $('p-cachos-bloco').style.display = (id==='remocao' || id==='nago-tiara') ? 'none' : '';
+  montarOpcoes();
+  pintarProduto();
+  irPara('produto');
+};
+
+function montarOpcoes(){
+  var e=estilo();
+  $('p-opcoes').innerHTML = e.options.map(function(o,i){
+    return '<button class="opt" aria-pressed="false" onclick="escolherOpcao(' + i + ')">' +
+             '<span class="opt__ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1.7 0 3 1.3 3 3 0 1.2-.7 2.2-1.7 2.7l.6 2.1c1.4.6 2.4 2 2.4 3.7 0 1.1-.4 2-1.1 2.8l.8 2.6c.2.8-.4 1.6-1.2 1.6H9.2c-.8 0-1.4-.8-1.2-1.6l.8-2.6A4 4 0 0 1 7.7 13c0-1.7 1-3.1 2.4-3.7l.6-2.1A3 3 0 0 1 9 5c0-1.7 1.3-3 3-3Z"/></svg></span>' +
+             '<span class="opt__info"><span class="opt__nome">' + esc(o.label) + '</span>' +
+             '<span class="opt__sub">Cerca de ' + esc(tempoDe(e,o)) + '</span></span>' +
+             '<span class="opt__preco">' + brl(o.price) + '</span>' +
+           '</button>';
+  }).join('');
+}
+
+window.escolherOpcao = function(i){
+  st.opt = (st.opt===i) ? null : i;   // clicar de novo desmarca
+  pintarProduto();
+};
+window.alternarCachos = function(){ st.cachos = !st.cachos; pintarProduto(); };
+
+function pintarProduto(){
+  var rows = $('p-opcoes').children;
+  for(var i=0;i<rows.length;i++) press(rows[i], i===st.opt);
+  press($('p-cachos'), st.cachos);
+  var t = total();
+  $('p-total').textContent = t ? brl(t) : '—';
+  $('p-sinal').textContent = t ? brl(sinal()) : '—';
+  var ok = st.opt !== null;
+  $('p-cta').disabled = !ok;
+  $('p-nota').textContent = ok ? 'Você confere tudo antes de enviar' : 'Escolha um tamanho para continuar';
+}
+
+/* ============================================================
+   AGENDAMENTO
+   ============================================================ */
+window.escolherLocal = function(l){
+  st.local = (st.local===l) ? null : l;
+  press($('local-estudio'), st.local==='estudio');
+  press($('local-casa'), st.local==='casa');
+  $('a-bairro-bloco').style.display = (st.local==='casa') ? '' : 'none';
+  pintarAgendamento();
+};
+window.escolherPeriodo = function(p){
+  st.periodo = (st.periodo===p) ? null : p;
+  press($('per-manha'), st.periodo==='Manhã');
+  press($('per-tarde'), st.periodo==='Tarde');
+  pintarAgendamento();
+};
+window.escolherPagamento = function(p){
+  st.pagamento = (st.pagamento===p) ? null : p;
+  press($('pag-pix'), st.pagamento==='PIX');
+  press($('pag-cartao'), st.pagamento==='Cartão de Crédito');
+  pintarAgendamento();
+};
+window.mudarMes = function(d){
+  st.mes = new Date(st.mes.getFullYear(), st.mes.getMonth()+d, 1);
+  montarCalendario();
+};
+window.escolherDia = function(iso){
+  st.data = (st.data===iso) ? null : iso;
+  montarCalendario();
+  pintarAgendamento();
+};
+
+/* quantos dias ainda dá para escolher no mês visível */
+function vagasNoMes(d){
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var ano = d.getFullYear(), mes = d.getMonth();
+  var dias = new Date(ano,mes+1,0).getDate(), n = 0;
+  for(var i=1;i<=dias;i++)
+    if(new Date(ano,mes,i) >= hoje && OCUPADOS.indexOf(i) === -1) n++;
+  return n;
+}
+
+function montarCalendario(){
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var ano = st.mes.getFullYear(), mes = st.mes.getMonth();
+  $('cal-mes').textContent = MESES[mes] + ' ' + ano;
+  $('cal-ant').disabled = (ano===hoje.getFullYear() && mes===hoje.getMonth());
+
+  var primeiro = new Date(ano,mes,1).getDay();
+  var dias = new Date(ano,mes+1,0).getDate();
+  var out = '';
+  for(var v=0; v<primeiro; v++) out += '<span class="dia dia--vazio"></span>';
+  for(var d=1; d<=dias; d++){
+    var passou = new Date(ano,mes,d) < hoje;
+    var cheio = OCUPADOS.indexOf(d) !== -1;
+    var iso = ano + '-' + ('0'+(mes+1)).slice(-2) + '-' + ('0'+d).slice(-2);
+    out += '<button class="dia" ' + ((passou||cheio) ? 'disabled ' : '') +
+           'aria-pressed="' + (st.data===iso ? 'true' : 'false') + '" ' +
+           'onclick="escolherDia(\'' + iso + '\')">' + d + '</button>';
+  }
+  $('cal-dias').innerHTML = out;
+}
+
+function dataLonga(iso){
+  if(!iso) return '—';
+  var p = iso.split('-');
+  return Number(p[2]) + ' de ' + MESES[Number(p[1])-1] + ' de ' + p[0];
+}
+
+function pintarAgendamento(){
+  if(!$('tela-agendamento').classList.contains('ativa')) return;
+  montarCalendario();
+  st.nome = $('a-nome').value.trim();
+  st.bairro = $('a-bairro').value.trim();
+
+  $('a-sinal-aviso').textContent = brl(sinal());
+  $('a-sinal-txt').textContent = brl(sinal());
+
+  var e = estilo(), o = opcao();
+  var linhas = [
+    ['Trança', e ? e.name : '—'],
+    [e ? e.unit : 'Tamanho', o ? o.label : '—'],
+    ['Duração estimada', e ? 'Cerca de ' + tempoDe(e,o) : '—']
   ];
+  if(st.cachos) linhas.push(['Adicional de cachos', brl(ADICIONAL_CACHOS)]);
+  linhas.push(['Local', st.local==='casa' ? 'A domicílio' : st.local==='estudio' ? 'Estúdio · Americanópolis' : '—']);
+  if(st.local==='casa') linhas.push(['Bairro', st.bairro || '—']);
+  linhas.push(['Dia', dataLonga(st.data)]);
+  linhas.push(['Período', st.periodo || '—']);
+  linhas.push(['Pagamento do sinal', st.pagamento || '—']);
 
-  var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var html = linhas.map(function(l){
+    return '<div class="resumo__linha"><span>' + esc(l[0]) + '</span><b>' + esc(l[1]) + '</b></div>';
+  }).join('');
+  html += '<div class="resumo__linha resumo__linha--destaque"><span>Sinal agora (30%)</span><b>' + brl(sinal()) + '</b></div>';
+  html += '<div class="resumo__linha"><span>No dia da beleza</span><b>' + brl(total()-sinal()) + '</b></div>';
+  html += '<div class="resumo__linha resumo__linha--total"><span>TOTAL ESTIMADO</span><b>' + brl(total()) + '</b></div>';
+  $('a-resumo').innerHTML = html;
 
-  // ==========================================================
-  // Galeria da home. Para usar as fotos reais, é só preencher
-  // `src` (proporção 3:4, ex.: 900 × 1200). Enquanto for null,
-  // aparece o placeholder cinza.
-  // ==========================================================
-  var FOTOS = [
-    { src: null, alt: 'Box braids feitas no estúdio' },
-    { src: null, alt: 'Nagô desenhada' },
-    { src: null, alt: 'Knotless longa' },
-    { src: null, alt: 'Fulani com adornos' },
-    { src: null, alt: 'Twist braids' },
-    { src: null, alt: 'Nagô tiara' }
-  ];
+  validar();
+}
 
-  var AUTOPLAY_MS = 3800;
+window.validar = function(){
+  st.nome = $('a-nome').value.trim();
+  st.bairro = $('a-bairro').value.trim();
+  var falta = [];
+  if(!st.nome) falta.push('seu nome');
+  if(!st.local) falta.push('o local');
+  if(st.local==='casa' && !st.bairro) falta.push('o bairro');
+  if(!st.data) falta.push('o dia');
+  if(!st.periodo) falta.push('o período');
+  if(!st.pagamento) falta.push('a forma de pagamento');
 
-  var state = {
-    styleId: null, optionIndex: null, cachos: false,
-    local: null, date: null, periodo: null, calView: new Date()
-  };
+  $('a-cta').disabled = falta.length > 0;
+  $('a-nota').textContent = falta.length
+    ? 'Falta ' + (falta.length>1 ? falta.slice(0,-1).join(', ') + ' e ' + falta[falta.length-1] : falta[0])
+    : 'Nada é cobrado aqui — você acerta o sinal direto com a Maiara';
 
-  // Helpers tolerantes: um elemento ausente nunca derruba o resto do script
-  function $(id) { return document.getElementById(id); }
-  function on(el, ev, fn) { if (el) el.addEventListener(ev, fn); }
-  function each(sel, fn) {
-    var list = document.querySelectorAll(sel);
-    for (var i = 0; i < list.length; i++) fn(list[i], i);
+  // mantém o resumo em dia enquanto a pessoa digita
+  var linhas = $('a-resumo').querySelectorAll('.resumo__linha');
+  for(var i=0;i<linhas.length;i++){
+    if(linhas[i].firstElementChild.textContent === 'Bairro')
+      linhas[i].lastElementChild.textContent = st.bairro || '—';
   }
+};
 
-  function formatBRL(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
-  function currentStyle() {
-    for (var i = 0; i < STYLES.length; i++) if (STYLES[i].id === state.styleId) return STYLES[i];
-    return null;
-  }
-  function currentOption() {
-    var st = currentStyle();
-    return st && state.optionIndex !== null ? st.options[state.optionIndex] : null;
-  }
-  function total() {
-    var opt = currentOption();
-    return opt ? opt.price + (state.cachos ? ADICIONAL_CACHOS : 0) : 0;
-  }
-  // A opção manda; se ela não tiver tempo próprio, vale o da categoria.
-  function timeOf(style, option) {
-    if (option && option.time) return option.time;
-    return (style && style.time) || null;
-  }
-  function showScreen(id) {
-    each('.screen', function (s) { s.classList.remove('active'); });
-    var t = $(id);
-    if (t) t.classList.add('active');
-    if (window.scrollTo) window.scrollTo(0, 0);
-    // Não faz sentido o carrossel girar numa tela que não está visível.
-    if (id === 'screen-home') startAutoplay();
-    else { clearTimeout(resumeTimer); pauseAutoplay(); }
-  }
+/* ============================================================
+   WHATSAPP
+   ============================================================ */
+window.enviarZap = function(){
+  var e = estilo(), o = opcao();
+  var m = 'Oi, Nega Nagô! Vim pelo site e quero agendar 💛\n\n';
+  m += '*' + e.name + '* — ' + o.label + '\n';
+  m += 'Duração estimada: cerca de ' + tempoDe(e,o) + '\n';
+  if(st.cachos) m += 'Adicional de cachos: sim (+ ' + brl(ADICIONAL_CACHOS) + ')\n';
+  m += '\n*Meus dados*\n';
+  m += 'Nome: ' + st.nome + '\n';
+  m += 'Local: ' + (st.local==='casa' ? 'A domicílio — ' + st.bairro : 'Estúdio (Americanópolis)') + '\n';
+  m += 'Dia: ' + dataLonga(st.data) + '\n';
+  m += 'Período: ' + st.periodo + '\n';
+  m += '\n*Valores*\n';
+  m += 'Total estimado: ' + brl(total()) + '\n';
+  m += 'Sinal agora (30%): ' + brl(sinal()) + ' via ' + st.pagamento + '\n';
+  m += 'No dia da beleza: ' + brl(total()-sinal()) + '\n';
+  m += '\nJá vou mandar a foto do meu cabelo solto!';
+  window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(m), '_blank', 'noopener');
+};
 
-  // ---------- HOME ----------
-  function renderHome() {
-    var grid = $('style-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    STYLES.forEach(function (st) {
-      var card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'style-card';
-      var ph = document.createElement('span');
-      ph.className = 'ph';
-      var label = document.createElement('span');
-      label.className = 'name';
-      label.textContent = st.name;
-      card.appendChild(ph);
-      card.appendChild(label);
-      if (st.short) {
-        var t = document.createElement('span');
-        t.className = 'time';
-        t.textContent = st.short;
-        card.appendChild(t);
-      }
-      card.addEventListener('click', function () { openProduct(st.id); });
-      grid.appendChild(card);
-    });
-  }
-
-  // ---------- Galeria ----------
-  var galleryTimer = null;
-  var galleryIndex = 0;
-  var resumeTimer = null;
-  var RETOMAR_MS = 3000;
-
-  function renderGallery() {
-    var track = $('carousel');
-    var dots = $('dots');
-    if (!track || !dots) return;
-
-    track.innerHTML = '';
-    dots.innerHTML = '';
-
-    FOTOS.forEach(function (foto, i) {
-      var slide = document.createElement('div');
-      slide.className = 'slide';
-      if (foto.src) {
-        var img = document.createElement('img');
-        img.src = foto.src;
-        img.alt = foto.alt || '';
-        img.loading = 'lazy';
-        slide.appendChild(img);
-      }
-      track.appendChild(slide);
-
-      var dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 'dot' + (i === 0 ? ' active' : '');
-      dot.setAttribute('aria-label', 'Ver foto ' + (i + 1) + ' de ' + FOTOS.length);
-      dot.appendChild(document.createElement('span'));
-      dot.addEventListener('click', function () {
-        segurar();
-        goToSlide(i);
-      });
-      dots.appendChild(dot);
-    });
-
-    function syncDots() {
-      var slides = track.children;
-      if (!slides.length) return;
-      var step = slides[0].getBoundingClientRect().width + 10;
-      var i = Math.round(track.scrollLeft / step);
-      if (i < 0) i = 0;
-      if (i > FOTOS.length - 1) i = FOTOS.length - 1;
-      if (i === galleryIndex) return;
-      galleryIndex = i;
-      for (var d = 0; d < dots.children.length; d++) {
-        dots.children[d].className = 'dot' + (d === i ? ' active' : '');
-      }
-    }
-    track.addEventListener('scroll', syncDots);
-
-    // Enquanto a pessoa está passando o dedo, o automático sai da frente —
-    // e volta sozinho alguns segundos depois que ela solta.
-    ['touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointerup', 'wheel']
-      .forEach(function (ev) {
-        track.addEventListener(ev, segurar, { passive: true });
-      });
-
-    startAutoplay();
-  }
-
-  function segurar() {
-    pauseAutoplay();
-    clearTimeout(resumeTimer);
-    resumeTimer = setTimeout(startAutoplay, RETOMAR_MS);
-  }
-
-  function goToSlide(i) {
-    var track = $('carousel');
-    if (!track || !track.children.length) return;
-    var step = track.children[0].getBoundingClientRect().width + 10;
-    var left = i * step;
-    if (track.scrollTo) track.scrollTo({ left: left, behavior: 'smooth' });
-    else track.scrollLeft = left;
-  }
-
-  function startAutoplay() {
-    var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduz || galleryTimer) return;
-    galleryTimer = setInterval(function () {
-      goToSlide((galleryIndex + 1) % FOTOS.length);
-    }, AUTOPLAY_MS);
-  }
-
-  function pauseAutoplay() {
-    if (!galleryTimer) return;
-    clearInterval(galleryTimer);
-    galleryTimer = null;
-  }
-
-  function openProduct(styleId) {
-    state.styleId = styleId;
-    state.optionIndex = null;
-    state.cachos = false;
-    renderProduct();
-    showScreen('screen-product');
-  }
-
-  // ---------- PRODUTO ----------
-  function renderProduct() {
-    var st = currentStyle();
-    if (!st) return;
-    var title = $('product-title'); if (title) title.textContent = st.name;
-    var unit = $('product-unit'); if (unit) unit.textContent = st.unit;
-
-    var list = $('product-options');
-    if (list) {
-      list.innerHTML = '';
-      st.options.forEach(function (opt, i) {
-        var row = document.createElement('button');
-        row.type = 'button';
-        row.className = 'option-row' + (state.optionIndex === i ? ' selected' : '');
-        var ph = document.createElement('span'); ph.className = 'ph';
-
-        var info = document.createElement('span'); info.className = 'info';
-        var name = document.createElement('span'); name.className = 'name'; name.textContent = opt.label;
-        info.appendChild(name);
-        var t = document.createElement('span'); t.className = 'time';
-        var dur = timeOf(st, opt);
-        t.textContent = dur ? 'Cerca de ' + dur : 'Tempo a combinar';
-        info.appendChild(t);
-
-        var price = document.createElement('span'); price.className = 'price'; price.textContent = formatBRL(opt.price);
-        row.appendChild(ph); row.appendChild(info); row.appendChild(price);
-        row.addEventListener('click', function () { state.optionIndex = i; renderProduct(); });
-        list.appendChild(row);
-      });
-    }
-
-    var addonRow = $('addon-row');
-    var addonCheck = $('addon-check');
-    if (addonRow) addonRow.className = 'addon-row' + (state.cachos ? ' selected' : '');
-    if (addonCheck) addonCheck.checked = state.cachos;
-
-    var btn = $('btn-continuar');
-    if (btn) btn.disabled = state.optionIndex === null;
-  }
-
-  // ---------- AGENDAMENTO ----------
-  function renderBooking() {
-    each('.local-card', function (c) {
-      c.className = 'local-card' + (c.getAttribute('data-local') === state.local ? ' selected' : '');
-    });
-    var note = $('summary-note');
-    if (note) note.textContent = state.local === 'domicilio' ? 'Taxa de deslocamento será combinada no WhatsApp.' : '';
-
-    each('.periodo-btn', function (b) {
-      b.className = 'periodo-btn' + (b.getAttribute('data-periodo') === state.periodo ? ' selected' : '');
-    });
-
-    renderCalendar();
-    updateSummary();
-  }
-
-  function renderCalendar() {
-    var view = state.calView;
-    var label = $('cal-label');
-    if (label) label.textContent = MESES[view.getMonth()] + ' ' + view.getFullYear();
-
-    var daysGrid = $('cal-days');
-    if (!daysGrid) return;
-    daysGrid.innerHTML = '';
-
-    var startWeekday = new Date(view.getFullYear(), view.getMonth(), 1).getDay();
-    var daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (var i = 0; i < startWeekday; i++) {
-      var spacer = document.createElement('span');
-      spacer.className = 'spacer';
-      daysGrid.appendChild(spacer);
-    }
-
-    for (var d = 1; d <= daysInMonth; d++) {
-      (function (day) {
-        var cellDate = new Date(view.getFullYear(), view.getMonth(), day);
-        var cell = document.createElement('button');
-        cell.type = 'button';
-        cell.className = 'day';
-        cell.textContent = String(day);
-
-        var isPast = cellDate.getTime() < today.getTime();
-        var isSelected = state.date && cellDate.getTime() === state.date.getTime();
-
-        if (isPast) {
-          cell.disabled = true;
-        } else {
-          if (isSelected) cell.className = 'day selected';
-          cell.addEventListener('click', function () { state.date = cellDate; renderBooking(); });
-        }
-        daysGrid.appendChild(cell);
-      })(d);
-    }
-  }
-
-  function updateSummary() {
-    var totalEl = $('summary-total');
-    if (totalEl) totalEl.textContent = formatBRL(total());
-
-    var durEl = $('summary-duracao');
-    if (durEl) {
-      var dur = timeOf(currentStyle(), currentOption());
-      durEl.textContent = dur || 'A combinar';
-    }
-
-    var pronto = !!(state.local && state.date && state.periodo);
-
-    var btn = $('btn-finalizar');
-    if (btn) btn.disabled = !pronto;
-
-    // Sem instrução contraditória: a dica some quando não falta mais nada.
-    var nota = $('cta-note');
-    if (nota) nota.style.visibility = pronto ? 'hidden' : 'visible';
-  }
-
-  function formatDate(d) {
-    var dd = String(d.getDate()); if (dd.length < 2) dd = '0' + dd;
-    var mm = String(d.getMonth() + 1); if (mm.length < 2) mm = '0' + mm;
-    return dd + '/' + mm + '/' + d.getFullYear();
-  }
-
-  function openWhatsApp(msg) {
-    var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
-    // iOS bloqueia window.open fora do gesto direto; âncora é mais confiável
-    var a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-
-  // ---------- Ligações ----------
-  // O grid é desenhado ANTES dos listeners: mesmo que algum elemento
-  // falte, a home nunca fica em branco.
-  renderHome();
-  renderGallery();
-
-  on($('addon-row'), 'change', function (e) {
-    state.cachos = !!(e.target && e.target.checked);
-    renderProduct();
+/* ============================================================
+   OVERLAYS
+   ============================================================ */
+var ultimoFoco = null;
+window.abrirSheet = function(id){
+  ultimoFoco = document.activeElement;
+  $(id).classList.add('aberto');
+  document.body.style.overflow = 'hidden';
+  var b = $(id).querySelector('.btn-icone'); if(b) b.focus();
+};
+window.fecharSheet = function(id){
+  $(id).classList.remove('aberto');
+  document.body.style.overflow = '';
+  if(ultimoFoco) ultimoFoco.focus();
+};
+document.addEventListener('keydown', function(ev){
+  if(ev.key !== 'Escape') return;
+  ['sheet-como','sheet-regras'].forEach(function(id){
+    if($(id).classList.contains('aberto')) fecharSheet(id);
   });
+});
 
-  on($('btn-continuar'), 'click', function () {
-    if (state.optionIndex === null) return;
-    renderBooking();
-    showScreen('screen-booking');
-  });
-
-  each('.local-card', function (card) {
-    card.addEventListener('click', function () {
-      state.local = card.getAttribute('data-local');
-      renderBooking();
-    });
-  });
-
-  each('.periodo-btn', function (btn) {
-    btn.addEventListener('click', function () {
-      state.periodo = btn.getAttribute('data-periodo');
-      renderBooking();
-    });
-  });
-
-  on($('cal-prev'), 'click', function () {
-    state.calView = new Date(state.calView.getFullYear(), state.calView.getMonth() - 1, 1);
-    renderCalendar();
-  });
-  on($('cal-next'), 'click', function () {
-    state.calView = new Date(state.calView.getFullYear(), state.calView.getMonth() + 1, 1);
-    renderCalendar();
-  });
-
-  each('.back', function (b) {
-    b.addEventListener('click', function () { showScreen('screen-' + b.getAttribute('data-nav')); });
-  });
-
-  on($('promo-zap'), 'click', function () {
-    openWhatsApp('Olá! Gostaria de agendar um horário na Nega Nagô.');
-  });
-
-  on($('btn-finalizar'), 'click', function () {
-    var st = currentStyle();
-    var opt = currentOption();
-    if (!st || !opt || !state.local || !state.date || !state.periodo) return;
-
-    var localLabel = state.local === 'estudio'
-      ? 'Estúdio (Bairro Americanópolis)'
-      : 'A domicílio (taxa a combinar)';
-
-    var dur = timeOf(st, opt);
-
-    var msg = 'Olá! Gostaria de agendar:\n';
-    msg += 'Serviço: ' + st.name + ' — ' + opt.label + '\n';
-    msg += 'Valor: ' + formatBRL(opt.price) + '\n';
-    msg += 'Duração estimada: ' + (dur || 'a combinar') + '\n';
-    if (state.cachos) msg += 'Adicional de cachos: Sim (+ ' + formatBRL(ADICIONAL_CACHOS) + ')\n';
-    msg += 'Local: ' + localLabel + '\n';
-    msg += 'Data: ' + formatDate(state.date) + '\n';
-    msg += 'Período: ' + state.periodo + '\n';
-    msg += 'Total estimado: ' + formatBRL(total());
-    if (state.local === 'domicilio') msg += ' (+ taxa de deslocamento a combinar)';
-
-    openWhatsApp(msg);
-  });
+/* ============================================================
+   START
+   ============================================================ */
+montarGrade();
+montarCarrossel();
+// abre o calendário já no primeiro mês que tem vaga, em vez de num mês todo cinza
+if(vagasNoMes(st.mes) === 0) st.mes = new Date(st.mes.getFullYear(), st.mes.getMonth()+1, 1);
+montarCalendario();
 })();
 </script>
 </body>
