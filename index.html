@@ -45,7 +45,7 @@ body{
 }
 img{display:block; max-width:100%}
 button,input{font:inherit; color:inherit}
-button{border:0; background:none; cursor:pointer}
+button{border:0; padding:0; background:none; cursor:pointer}
 :focus-visible{outline:2px solid var(--terracota); outline-offset:2px; border-radius:6px}
 
 /* ============================================================
@@ -74,7 +74,7 @@ button{border:0; background:none; cursor:pointer}
   min-height:var(--topo); display:flex; align-items:center; gap:12px;
 }
 .marca{display:flex; align-items:center; gap:9px; text-decoration:none}
-.marca img{height:30px; width:auto}
+.marca img{height:34px; width:auto}
 .marca__txt{font:900 18px/1 var(--fonte); color:var(--tx-titulo); letter-spacing:.01em}
 .marca__txt small{display:block; font:600 10px/1.2 var(--fonte); letter-spacing:.16em; color:var(--tx-corpo)}
 
@@ -233,10 +233,13 @@ button{border:0; background:none; cursor:pointer}
 .secao__cab{display:flex; align-items:center; gap:8px; margin-bottom:12px}
 .secao__cab svg{flex:none; color:var(--tx-secao)}
 
-.grade{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+/* minmax(0,1fr) e não 1fr: com 1fr a palavra mais longa vira o piso da
+   coluna e as vizinhas encolhem — os cards saíam com 112, 108 e 83px */
+.grade{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
 .estilo{text-align:left; display:flex; flex-direction:column; gap:6px; padding-bottom:8px; border-radius:var(--r); transition:background .14s ease}
 .estilo__foto{
-  position:relative; width:100%; aspect-ratio:1/1; border-radius:var(--r); overflow:hidden;
+  position:relative; width:100%; aspect-ratio:1/1; flex:none;   /* sem flex:none ela encolhe para caber na fileira */
+  border-radius:var(--r); overflow:hidden;
   background:linear-gradient(135deg,#ffead3,#ebb69d);
 }
 .estilo__foto img{width:100%; height:100%; object-fit:cover}
@@ -264,9 +267,11 @@ button{border:0; background:none; cursor:pointer}
    PRODUTO
    ============================================================ */
 .pdp__foto{
-  width:100%; aspect-ratio:4/3; border-radius:var(--r-lg); overflow:hidden; margin-top:12px;
+  width:100%; aspect-ratio:860/367;   /* proporção do recorte mobile */
+  border-radius:var(--r-lg); overflow:hidden; margin-top:12px;
   background:linear-gradient(135deg,#ffead3,#ebb69d);
 }
+.pdp__foto picture{display:block; width:100%; height:100%}
 .pdp__foto img{width:100%; height:100%; object-fit:cover}
 .bloco{margin-top:22px}
 .bloco>.t-rotulo{margin-bottom:10px}
@@ -362,14 +367,14 @@ button{border:0; background:none; cursor:pointer}
   .promo{margin-top:0}
   .promo__card{height:100%; align-items:flex-start; flex-direction:column; justify-content:center; gap:8px; padding:24px}
 
-  .grade{grid-template-columns:repeat(5,1fr); gap:16px}
+  .grade{grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px}
   .slide{width:314px}
   .secao{margin-top:44px}
   .galeria{margin:44px 0 64px}
 
   /* produto em duas colunas */
   .pdp{display:grid; grid-template-columns:minmax(0,624fr) minmax(360px,624fr); gap:40px; align-items:start; padding-block:24px 48px}
-  .pdp__foto{margin-top:0; position:sticky; top:calc(var(--topo) + 16px); aspect-ratio:9/8}
+  .pdp__foto{margin-top:0; position:sticky; top:calc(var(--topo) + 16px); aspect-ratio:624/560}
   .pdp__lado>.t-pagina{margin-top:0}
 
   /* agendamento em duas colunas */
@@ -402,8 +407,10 @@ button{border:0; background:none; cursor:pointer}
   <header class="brandbar">
     <div class="brandbar__in">
       <a class="marca" href="#" onclick="irPara('home');return false">
-        <img src="assets/logo/logo.png" alt="" onerror="this.remove()">
-        <span class="marca__txt">NEGA NAGÔ<small>TRANÇAS AFRO</small></span>
+        <!-- o SVG já traz o lettering; o texto só entra se ele não carregar -->
+        <img src="assets/logo/logo.svg" alt="Nega Nagô — tranças afro"
+             onerror="this.hidden=true;document.getElementById('marca-txt').hidden=false">
+        <span class="marca__txt" id="marca-txt" hidden>NEGA NAGÔ<small>TRANÇAS AFRO</small></span>
       </a>
     </div>
   </header>
@@ -411,7 +418,7 @@ button{border:0; background:none; cursor:pointer}
   <div class="wrap">
     <div class="home__topo">
       <section class="hero">
-        <img src="assets/home/hero.jpg" alt="Nega Nagô trançando uma cliente no estúdio" onerror="this.remove()">
+        <img src="assets/home/hero.png" alt="Nega Nagô trançando uma cliente no estúdio" onerror="this.hidden=true" onload="this.hidden=false">
         <div class="hero__vinheta"></div>
         <div class="hero__txt">
           <h1 class="t-hero">+13 anos<br>trançando histórias</h1>
@@ -463,7 +470,13 @@ button{border:0; background:none; cursor:pointer}
 
   <div class="wrap">
     <div class="pdp">
-      <div class="pdp__foto"><img id="p-foto" src="" alt="" onerror="this.remove()"></div>
+      <!-- dois recortes: deitado no celular, mais alto no desktop -->
+      <div class="pdp__foto">
+        <picture>
+          <source id="p-foto-desk" media="(min-width:900px)" srcset="">
+          <img id="p-foto" src="" alt="" onerror="this.hidden=true" onload="this.hidden=false">
+        </picture>
+      </div>
 
       <div class="pdp__lado">
         <h1 class="t-pagina" id="p-nome">Box Braids</h1>
@@ -755,7 +768,7 @@ function montarGrade(){
   var g = $('grade'); if(!g) return;
   g.innerHTML = STYLES.map(function(e){
     return '<button class="estilo" onclick="abrirProduto(\'' + e.id + '\')">' +
-             '<span class="estilo__foto"><img src="assets/estilos/' + e.id + '.jpg" alt="' + esc(e.name) + '" loading="lazy" onerror="this.remove()"></span>' +
+             '<span class="estilo__foto"><img src="assets/estilos/' + e.id + '.png" alt="' + esc(e.name) + '" loading="lazy" onerror="this.hidden=true" onload="this.hidden=false"></span>' +
              '<span class="estilo__nome">' + esc(e.name) + '</span>' +
              '<span class="estilo__tempo">' + esc(e.short) + '</span>' +
            '</button>';
@@ -766,9 +779,23 @@ var idx=0, timer=null, retomar=null;
 function montarCarrossel(){
   var t=$('trilho'), p=$('pontos'); if(!t) return;
   t.innerHTML = FOTOS.map(function(n,i){
-    return '<div class="slide"><img src="assets/galeria/' + n + '.jpg" alt="Trabalho ' + (i+1) + '" loading="lazy" onerror="this.remove()"></div>';
+    return '<div class="slide"><img src="assets/galeria/' + n + '.png" alt="Trabalho ' + (i+1) + '" fetchpriority="low"></div>';
   }).join('');
   p.innerHTML = FOTOS.map(function(_,i){ return '<span class="ponto' + (i?'':' on') + '"></span>'; }).join('');
+
+  // enquanto não houver foto de galeria, a seção some — melhor do que
+  // mostrar seis caixas vazias para quem for testar o protótipo
+  var imgs = t.querySelectorAll('img'), falhas = 0;
+  Array.prototype.forEach.call(imgs, function(img){
+    img.addEventListener('error', function(){
+      img.hidden = true;
+      if(++falhas === imgs.length){
+        var g = document.querySelector('.galeria');
+        if(g) g.hidden = true;
+        parar();
+      }
+    });
+  });
   posicionar(); iniciar();
   var c=$('carrossel');
   ['touchstart','pointerdown'].forEach(function(ev){ c.addEventListener(ev, pausar, {passive:true}); });
@@ -803,8 +830,9 @@ window.abrirProduto = function(id){
   $('p-nome').textContent = e.name;
   $('p-tempo').textContent = 'Duração estimada: ' + (e.time || e.short);
   $('p-unidade').textContent = e.unit;
-  var f=$('p-foto');
-  if(f){ f.src = 'assets/produto/' + e.id + '.jpg'; f.alt = e.name; }
+  var f=$('p-foto'), fd=$('p-foto-desk');
+  if(fd) fd.srcset = 'assets/produto/' + e.id + '-desktop.png';
+  if(f){ f.src = 'assets/produto/' + e.id + '-mobile.png'; f.alt = e.name; }
   press($('p-cachos'), false);
   // cachos só faz sentido em trança longa — remoção e tiara ficam de fora
   $('p-cachos-bloco').style.display = (id==='remocao' || id==='nago-tiara') ? 'none' : '';

@@ -1,83 +1,72 @@
 # Assets — Nega Nagô
 
-Sobe as imagens **com exatamente estes nomes**. O protótipo aponta pra estes caminhos.
-Se faltar alguma, a tela mostra um placeholder da marca no lugar — não quebra.
-
-Formato: `.jpg` (foto) ou `.png` (logo). Nome tudo minúsculo, sem acento e sem espaço.
+Estrutura atual, já com o que você subiu organizado.
+Se algum arquivo faltar, a tela mostra um degradê da marca no lugar — **não quebra**.
 
 ---
 
-## 1. `logo/`
+## ✅ Já no lugar
 
-| Arquivo | Formato | Observação |
+### `logo/logo.svg`
+Lockup horizontal. É o único elemento de marca no topo — o texto
+"NEGA NAGÔ / TRANÇAS AFRO" só aparece se o SVG não carregar.
+
+### `home/hero.png` — 850 × 360
+Foto grande do topo da Home, atrás do "+13 anos trançando histórias".
+
+### `estilos/` — 13 miniaturas, 300 × 300 (1:1)
+A grade "Qual vai ser a coroa da vez?".
+
+### `produto/` — 13 × 2 recortes
+A foto do topo da página da trança, em dois cortes:
+
+| Sufixo | Tamanho | Quando aparece |
 |---|---|---|
-| `logo.png` | PNG com fundo transparente | Altura útil ~32px. Serve pro topo de todas as telas. |
+| `-mobile.png` | 860 × 367 (deitada) | telas abaixo de 900px |
+| `-desktop.png` | 624 × 560 | telas de 900px pra cima |
+
+O HTML troca sozinho com `<picture>` — cada tela pega o corte pensado pra ela.
+
+**Os 13 nomes** (valem para `estilos/` e `produto/`):
+
+`box-braids` · `fulani` · `knotles` · `nago-desenhada` · `nago-tiara` ·
+`rabo-de-cavalo` · `ghanna` · `boxeadora` · `twist-braids` ·
+`mohawk-braids` · `masculino` · `crochet-braids` · `remocao`
 
 ---
 
-## 2. `home/`
+## ⏳ Ainda falta
 
-| Arquivo | Proporção | Tamanho mínimo |
-|---|---|---|
-| `hero.jpg` | **21:9** (bem deitada) | 1800 × 780 |
+### `galeria/` — 6 fotos, proporção 3:4 (em pé)
 
-É a foto grande do topo da Home, atrás do "+13 anos trançando histórias".
-Deixa espaço livre à esquerda — o texto entra por cima.
-
----
-
-## 3. `estilos/` — as 13 miniaturas da grade
-
-**Proporção 1:1 (quadrada).** Mínimo 600 × 600.
-Enquadra a cabeça/nuca de forma que a trança apareça bem no quadrado.
-
-| Arquivo | Trança |
-|---|---|
-| `box-braids.jpg` | Box Braids |
-| `fulani.jpg` | Fulani |
-| `knotles.jpg` | Knotles |
-| `nago-desenhada.jpg` | Nagô Desenhada |
-| `nago-tiara.jpg` | Nagô Tiara |
-| `rabo-de-cavalo.jpg` | Rabo de Cavalo |
-| `ghanna.jpg` | Ghanna |
-| `boxeadora.jpg` | Boxeadora |
-| `twist-braids.jpg` | Twist Braids |
-| `mohawk-braids.jpg` | Mohawk Braids |
-| `masculino.jpg` | Masculino |
-| `crochet-braids.jpg` | Crochet Braids |
-| `remocao.jpg` | Remoção |
-
----
-
-## 4. `produto/` — a foto grande de cada trança
-
-**Proporção 4:3 (deitada).** Mínimo 1200 × 900.
-Mesmos 13 nomes de arquivo da pasta `estilos/`.
-
-Aparece no topo da página da trança, antes de escolher o tamanho.
-Pode ser uma foto mais aberta que a miniatura.
-
----
-
-## 5. `galeria/` — o carrossel "Coroas que já saíram daqui"
-
-**Proporção 3:4 (em pé).** Mínimo 750 × 1000.
+O carrossel "Coroas que já saíram daqui", que passa sozinho.
+Mínimo 750 × 1000.
 
 | Arquivo |
 |---|
-| `01.jpg` |
-| `02.jpg` |
-| `03.jpg` |
-| `04.jpg` |
-| `05.jpg` |
-| `06.jpg` |
+| `01.png` |
+| `02.png` |
+| `03.png` |
+| `04.png` |
+| `05.png` |
+| `06.png` |
 
-São 6 fotos que passam sozinhas. Se subir mais, é só me avisar que eu aumento a lista.
+**Enquanto não tiver nenhuma, a seção inteira fica escondida** — assim
+quem testar o protótipo não vê seis caixas vazias. Assim que subir as
+fotos, ela reaparece sozinha.
+
+Link direto pra subir:
+https://github.com/erickremember20-bot/nega-nago/upload/main/assets/galeria
 
 ---
 
-## Dicas rápidas
+## ⚠️ Peso
 
-- **Peso:** mira em até 300 KB por foto. Foto de celular crua tem 4–8 MB e deixa o site lento no 4G.
-- **Corte:** as fotos são cortadas pelo centro. O que importa tem que estar no meio.
-- **Pelo celular:** dá pra subir direto pelo GitHub no navegador — entra na pasta, `Add file` → `Upload files`.
+As imagens estão em PNG e somam **15 MB**. Cada miniatura tem ~150 KB
+e cada foto de produto ~500 KB, então só a Home carrega uns 2,4 MB.
+
+Num 4G isso é uns 8 segundos de espera antes de a primeira trança
+aparecer. Convertendo para WebP na mesma qualidade, cai para algo
+perto de 1,5 MB no total — a Home ficaria em menos de 300 KB.
+
+Vale fazer antes de mandar o link pra alguém testar.
