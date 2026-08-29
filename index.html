@@ -556,7 +556,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
           <button class="check" id="p-cachos" aria-pressed="false" onclick="alternarCachos()">
             <span class="check__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg></span>
             <span class="check__txt">Adicional de cachos</span>
-            <span class="check__preco">+ R$ 50,00</span>
+            <span class="check__preco" id="p-cachos-preco">+ R$ 120,00</span>
           </button>
         </div>
 
@@ -787,37 +787,40 @@ button{border:0; padding:0; background:none; cursor:pointer}
 'use strict';
 
 var WHATSAPP = '5511958974251';
-var ADICIONAL_CACHOS = 50;
 var PCT_SINAL = 0.30;
+/* o adicional de cachos varia com o tipo de trança:
+   R$80 nas nagô (ghanna, rabo de cavalo, boxeadora, nagô desenhada)
+   R$120 nas box braids (box, twist, fulani, knotles, twist braids, mohawk)
+   as demais não têm a opção */
 
 var STYLES = [
-  { id:'box-braids', name:'Box Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
+  { id:'box-braids', cachos:120, name:'Box Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
     {label:'Chanel',price:300},{label:'Long Bob',price:340},{label:'Meio das costas',price:380},
     {label:'Quadril',price:400},{label:'Abaixo do quadril',price:480}]},
-  { id:'fulani', name:'Fulani', unit:'TAMANHO', time:'5 a 7 horas', short:'5–7h', options:[
+  { id:'fulani', cachos:120, name:'Fulani', unit:'TAMANHO', time:'5 a 7 horas', short:'5–7h', options:[
     {label:'Chanel',price:340},{label:'Meio das costas',price:380},
     {label:'Quadril',price:420},{label:'Abaixo do quadril',price:460}]},
-  { id:'knotles', name:'Knotles', unit:'TAMANHO', time:'7 a 9 horas', short:'7–9h', options:[
+  { id:'knotles', cachos:120, name:'Knotles', unit:'TAMANHO', time:'7 a 9 horas', short:'7–9h', options:[
     {label:'Chanel',price:350},{label:'Long Bob',price:370},{label:'Meio das costas',price:400},
     {label:'Até o quadril',price:450},{label:'Abaixo do quadril',price:500}]},
-  { id:'nago-desenhada', name:'Nagô Desenhada', unit:'TAMANHOS', time:'2 a 4 horas', short:'2–4h', options:[
+  { id:'nago-desenhada', cachos:80, name:'Nagô Desenhada', unit:'TAMANHOS', time:'2 a 4 horas', short:'2–4h', options:[
     {label:'Chanel',price:190},{label:'Meio das costas',price:210},
-    {label:'Cintura',price:230},{label:'Abaixo do quadril',price:230}]},
-  { id:'nago-tiara', name:'Nagô Tiara', unit:'MODELOS', short:'40min–1h', options:[
-    {label:'Tiara',price:80,time:'1 hora'},{label:'Lateral',price:45,time:'40 minutos'}]},
-  { id:'rabo-de-cavalo', name:'Rabo de Cavalo', unit:'TAMANHOS', time:'3 a 5 horas', short:'3–5h', options:[
+    {label:'Cintura',price:230},{label:'Abaixo do quadril',price:250}]},
+  { id:'nago-tiara', cachos:null, name:'Nagô Tiara', unit:'MODELOS', short:'40min–1h30', options:[
+    {label:'Tiara',price:80,time:'1 hora e meia'},{label:'Lateral',price:45,time:'40 minutos'}]},
+  { id:'rabo-de-cavalo', cachos:80, name:'Rabo de Cavalo', unit:'TAMANHOS', time:'3 a 5 horas', short:'3–5h', options:[
     {label:'Meio das costas',price:210},{label:'Cintura',price:250},{label:'Abaixo do quadril',price:280}]},
-  { id:'ghanna', name:'Ghanna', unit:'TAMANHOS', time:'2 a 4 horas', short:'2–4h', options:[
+  { id:'ghanna', cachos:80, name:'Ghanna', unit:'TAMANHOS', time:'2 a 4 horas', short:'2–4h', options:[
     {label:'Chanel',price:160},{label:'Meio das costas',price:190},{label:'Cintura',price:220}]},
-  { id:'boxeadora', name:'Boxeadora', unit:'MODELOS', time:'2 horas', short:'2h', options:[
+  { id:'boxeadora', cachos:80, name:'Boxeadora', unit:'MODELOS', time:'2 horas', short:'2h', options:[
     {label:'Boxeadora simples',price:130},{label:'Boxeadora com detalhe',price:150}]},
-  { id:'twist-braids', name:'Twist Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
+  { id:'twist-braids', cachos:120, name:'Twist Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
     {label:'Chanel',price:450},{label:'Long Bob',price:480},{label:'Meio das costas',price:520},
     {label:'Quadril',price:560},{label:'Abaixo do quadril',price:600}]},
-  { id:'mohawk-braids', name:'Mohawk Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
+  { id:'mohawk-braids', cachos:120, name:'Mohawk Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
     {label:'Chanel',price:350},{label:'Meio das costas',price:380},
     {label:'Até a cintura',price:420},{label:'Abaixo da cintura',price:460}]},
-  { id:'masculino', name:'Masculino', unit:'MODELO', short:'3–8h', options:[
+  { id:'masculino', cachos:null, name:'Masculino', unit:'MODELO', short:'3–8h', options:[
     {label:'Nagô',price:180,time:'3 horas'},
     {label:'Twist',price:250,time:'4 horas'},
     {label:'Barrel twist',price:300,time:'5 horas'},
@@ -826,9 +829,9 @@ var STYLES = [
     {label:'Box braids — Meio das costas',price:380,time:'6 a 8 horas'},
     {label:'Box braids — Quadril',price:400,time:'6 a 8 horas'},
     {label:'Box braids — Abaixo do quadril',price:480,time:'6 a 8 horas'}]},
-  { id:'crochet-braids', name:'Crochet Braids', unit:'MODELO', time:'3 horas', short:'3h', options:[
+  { id:'crochet-braids', cachos:null, name:'Crochet Braids', unit:'MODELO', time:'3 horas', short:'3h', options:[
     {label:'Tranças',price:480},{label:'Dreads',price:480},{label:'Twist',price:480},{label:'Cabelo orgânico',price:480}]},
-  { id:'remocao', name:'Remoção', unit:'SERVIÇO', time:'3 a 5 horas', short:'3–5h', options:[
+  { id:'remocao', cachos:null, name:'Remoção', unit:'SERVIÇO', time:'3 a 5 horas', short:'3–5h', options:[
     {label:'Remoção Nagô',price:80},{label:'Remoção Box Braids',price:120}]}
 ];
 
@@ -868,7 +871,8 @@ function brl(v){ return 'R$ ' + v.toFixed(2).replace('.',','); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function estilo(){ for(var i=0;i<STYLES.length;i++) if(STYLES[i].id===st.styleId) return STYLES[i]; return null; }
 function opcao(){ var e=estilo(); return (e && st.opt!==null) ? e.options[st.opt] : null; }
-function total(){ var o=opcao(); return o ? o.price + (st.cachos?ADICIONAL_CACHOS:0) : 0; }
+function cachosValor(){ var e=estilo(); return (e && e.cachos) || 0; }
+function total(){ var o=opcao(); return o ? o.price + (st.cachos?cachosValor():0) : 0; }
 function sinal(){ return Math.round(total()*PCT_SINAL); }
 function tempoDe(e,o){ return (o && o.time) || e.time || e.short; }
 function press(el,on){ if(el) el.setAttribute('aria-pressed', on?'true':'false'); }
@@ -1028,7 +1032,8 @@ window.abrirProduto = function(id){
   if(fd) fd.srcset = 'assets/produto/' + e.id + '-desktop.webp';
   if(f){ f.hidden=false; f.src = 'assets/produto/' + e.id + '-mobile.webp'; f.alt = e.name; }
   press($('p-cachos'), false);
-  $('p-cachos-bloco').hidden = (id==='remocao' || id==='nago-tiara');
+  $('p-cachos-bloco').hidden = !e.cachos;          /* só quem tem a opção mostra */
+  if(e.cachos) $('p-cachos-preco').textContent = '+ ' + brl(e.cachos);
   montarOpcoes();
   pintarProduto();
   irPara('produto');
@@ -1273,7 +1278,7 @@ function pintarAgendamento(){
     ['Nome', st.nome || '—'],
     ['Coroa escolhida', e ? e.name : '—'],
     ['Tamanho', o ? o.label + ' - ' + brl(o.price) : '—'],
-    ['Adicional de cachos', st.cachos ? 'Sim - ' + brl(ADICIONAL_CACHOS) : 'Não - 0'],
+    ['Adicional de cachos', st.cachos ? 'Sim - ' + brl(cachosValor()) : 'Não - 0'],
     ['Onde', ondeTexto()],
     ['Quando', dataCurta(st.data)],
     ['Período', st.periodo || '—'],
@@ -1323,7 +1328,7 @@ window.enviarZap = function(){
   var m = 'Oi, Nega Nagô! Vim pelo site e quero agendar 💛\n\n';
   m += '*' + e.name + '* — ' + o.label + '\n';
   m += 'Duração estimada: cerca de ' + tempoDe(e,o) + '\n';
-  if(st.cachos) m += 'Adicional de cachos: sim (+ ' + brl(ADICIONAL_CACHOS) + ')\n';
+  if(st.cachos) m += 'Adicional de cachos: sim (+ ' + brl(cachosValor()) + ')\n';
   m += '\n*Meus dados*\n';
   m += 'Nome: ' + st.nome + '\n';
   if(st.local==='casa' && st.endereco){
