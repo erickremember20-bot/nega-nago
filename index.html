@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Nega Nagô — Agendamento</title>
 <meta name="theme-color" content="#592812">
+<meta name="color-scheme" content="light">
 <meta name="description" content="Escolha sua trança, o tamanho e o dia. A gente monta a mensagem pronta e você finaliza no WhatsApp.">
 <style>
 /* Roboto Condensed variável, subconjunto latino (51 KB cobre 300–900).
@@ -20,6 +21,10 @@
    TOKENS — medidos na página "Nega Nagô - Prototype to code"
    ============================================================ */
 :root{
+  /* a paleta é a mesma no claro e no escuro: declarar o esquema impede
+     o tema escuro automático do Chrome de inverter tudo por conta */
+  color-scheme:light;
+
   --fundo:#fff8f1; --superficie:#fffdfb; --cartao:#fff5eb; --selecionado:#ffead3;
   --pressed:#f1cebd; --escuro:#592812; --aviso:#543533;
   --borda:#b5a696; --borda-forte:#8c8174; --borda-sel:#d3602a; --borda-mudo:#ebb69d;
@@ -47,6 +52,9 @@ body{margin:0; background:var(--fundo); color:var(--tx-item);
 img{display:block; max-width:100%}
 button,input{font:inherit; color:inherit}
 button{border:0; padding:0; background:none; cursor:pointer}
+/* sem !important o display:flex das classes vence o atributo e o bloco
+   de endereço aparecia mesmo com "Estúdio" escolhido */
+[hidden]{display:none !important}
 :focus-visible{outline:2px solid var(--terracota); outline-offset:2px; border-radius:6px}
 .sprite{position:absolute; width:0; height:0; overflow:hidden}
 .ic{width:24px; height:24px; flex:none; display:block}
@@ -287,7 +295,8 @@ button{border:0; padding:0; background:none; cursor:pointer}
 
 /* --- busca de endereço --- */
 .end{display:flex; flex-direction:column; gap:8px}
-.end__estado{font:400 14px/1.5 var(--f); color:var(--tx-corpo); min-height:21px}
+.end__estado{font:400 14px/1.5 var(--f); color:var(--tx-corpo)}
+.end__estado:empty{display:none}   /* sem mensagem, não reserva vão */
 .end__estado[data-erro]{color:var(--terracota-h)}
 .sugestoes{display:flex; flex-direction:column; gap:4px; padding:4px; border-radius:10px;
   background:var(--superficie); border:1px solid var(--borda-mudo); max-height:230px; overflow:auto}
