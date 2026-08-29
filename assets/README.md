@@ -29,7 +29,7 @@ O HTML troca sozinho com `<picture>` — cada tela pega o corte pensado pra ela.
 
 **Os 13 nomes** (valem para `estilos/` e `produto/`):
 
-`box-braids` · `fulani` · `knotles` · `nago-desenhada` · `nago-tiara` ·
+`box-braids` · `fulani` · `knotless` · `nago-desenhada` · `nago-tiara` ·
 `rabo-de-cavalo` · `ghanna` · `boxeadora` · `twist-braids` ·
 `mohawk-braids` · `masculino` · `crochet-braids` · `remocao`
 
