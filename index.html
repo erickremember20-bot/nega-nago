@@ -20,30 +20,23 @@
    TOKENS — medidos na página "Nega Nagô - Prototype to code"
    ============================================================ */
 :root{
-  /* superfícies */
   --fundo:#fff8f1; --superficie:#fffdfb; --cartao:#fff5eb; --selecionado:#ffead3;
   --pressed:#f1cebd; --escuro:#592812; --aviso:#543533;
-
-  /* bordas */
   --borda:#b5a696; --borda-forte:#8c8174; --borda-sel:#d3602a; --borda-mudo:#ebb69d;
-
-  /* acento */
   --terracota:#d3602a; --terracota-h:#c05726; --terracota-p:#96441e; --zap:#2d9404;
-
-  /* texto */
   --tx-secao:#c05726; --tx-item:#290200; --tx-sel:#592812; --tx-corpo:#705554;
-  --tx-corpo2:#6b6259; --tx-default:#543533; --tx-mudo:#b5a696;
+  --tx-default:#543533; --tx-mudo:#b5a696;
   --tx-claro:#fffdfb; --tx-creme:#fbefea; --tx-pessego:#ffead3;
   --hero-1:#ff4d23; --hero-2:#ff886c;
 
-  /* o degradê da marca e a trama de bolinhas por cima:
-     elipse de 20px escalada a 0.09 (1,8px), espaçamento 2,51 -> tile 4,31 */
+  /* degradê da marca + trama: elipse de 20px escalada a 0.09 (1,8px),
+     espaçamento 2,51 -> tile 4,31, 14% em overlay */
   --marca-grad:linear-gradient(180deg,#8f401b 0%,#592812 100%);
-  --marca-trama:radial-gradient(circle at 50% 50%, rgba(255,255,255,.13) 0 .9px, transparent .9px);
+  --marca-trama:radial-gradient(circle at 50% 50%, #fff 0 .9px, transparent .9px);
   --marca-tile:4.31px 4.31px;
 
   --scrim:rgba(41,2,0,.62);
-  --gut:16px; --gap:16px; --topo:55px;
+  --gut:16px; --gap:16px;
   --f:"Roboto Condensed",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
 }
 
@@ -55,10 +48,18 @@ img{display:block; max-width:100%}
 button,input{font:inherit; color:inherit}
 button{border:0; padding:0; background:none; cursor:pointer}
 :focus-visible{outline:2px solid var(--terracota); outline-offset:2px; border-radius:6px}
+.sprite{position:absolute; width:0; height:0; overflow:hidden}
+.ic{width:24px; height:24px; flex:none; display:block}
+.ic--48{width:48px; height:48px}
+.ic--32{width:32px; height:32px}
+.ic--22{width:22px; height:22px}
 
-/* a superfície da marca: degradê + trama, usada nos avisos e na galeria */
-.marca-sup{background-image:var(--marca-trama),var(--marca-grad);
-  background-size:var(--marca-tile),auto; background-repeat:repeat,no-repeat}
+/* a trama do Figma é overlay a 14%: aplicada como camada própria, ela
+   clareia de leve em vez de esbranquiçar o degradê */
+.marca-sup{position:relative; isolation:isolate; background-image:var(--marca-grad)}
+.marca-sup::before{content:''; position:absolute; inset:0; z-index:-1; border-radius:inherit;
+  background-image:var(--marca-trama); background-size:var(--marca-tile);
+  mix-blend-mode:overlay; opacity:.14; pointer-events:none}
 
 /* ============================================================
    TIPOGRAFIA
@@ -73,25 +74,26 @@ button{border:0; padding:0; background:none; cursor:pointer}
    ============================================================ */
 .tela{display:none}
 .tela.ativa{display:block}
-.wrap{max-width:1400px; margin:0 auto; padding-inline:var(--gut)}
+/* width:100% é necessário: como .home é flex, a margem automática do
+   centro cancelaria o stretch e o bloco encolheria para o conteúdo */
+.wrap{width:100%; max-width:1400px; margin:0 auto; padding-inline:var(--gut)}
 
 .barra{position:sticky; top:0; z-index:30; background:var(--escuro)}
 .barra__in{max-width:1400px; margin:0 auto; padding:16px var(--gut);
-  min-height:var(--topo); display:flex; align-items:center}
+  display:flex; align-items:center}
 .marca{display:flex; align-items:center; text-decoration:none}
 .marca img{height:23px; width:auto}
-.marca__txt{font:900 18px/1 var(--f); color:var(--tx-pessego); letter-spacing:.01em}
+.marca__txt{font:900 18px/1 var(--f); color:var(--tx-pessego)}
 .voltar{display:inline-flex; align-items:center; gap:4px; min-height:32px; padding:4px 8px;
   border-radius:6px; color:#fff; font:400 16px/1.5 var(--f); transition:background .14s}
 @media (hover:hover){ .voltar:hover{background:rgba(255,255,255,.12)} }
 .voltar:active{background:rgba(255,255,255,.2)}
 
 /* ============================================================
-   BOTÕES — estados conforme os rascunhos do Figma
-   Default · Hover · Pressed (= selecionado) · Disabled
+   BOTÕES — Default · Hover · Pressed (= selecionado) · Disabled
    ============================================================ */
 .btn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
-  min-height:51px; padding:12px 16px; border-radius:100px;    /* pílula, como no projeto */
+  min-height:51px; padding:12px 16px; border-radius:100px;
   background:var(--terracota); color:#fff; font:700 18px/1.5 var(--f);
   transition:background .14s, transform .06s}
 @media (hover:hover){ .btn:hover:not([disabled]){background:var(--terracota-h)} }
@@ -101,15 +103,18 @@ button{border:0; padding:0; background:none; cursor:pointer}
 @media (hover:hover){ .btn--zap:hover:not([disabled]){background:#247803} }
 .btn--zap:active:not([disabled]){background:#1c5c02}
 .btn--zap[disabled]{background:var(--pressed); color:var(--tx-mudo)}
+/* secundário: mesma pílula, peso menor — usado para confirmar o endereço */
+.btn--sec{min-height:44px; font-size:16px; background:var(--cartao); color:var(--tx-secao);
+  box-shadow:inset 0 0 0 1.5px var(--borda-sel)}
+@media (hover:hover){ .btn--sec:hover:not([disabled]){background:var(--selecionado)} }
+.btn--sec:active:not([disabled]){background:var(--pressed)}
+.btn--sec[disabled]{background:var(--fundo); color:var(--tx-mudo); box-shadow:inset 0 0 0 1px var(--borda-mudo)}
 
-/* CHIP — Button_Checkout: 1px cinza -> 2px terracota ao selecionar.
-   A borda é box-shadow inset, então a caixa não muda de tamanho. */
 .chip{display:flex; align-items:center; justify-content:center; gap:8px; flex:1;
   min-height:48px; padding:12px; border-radius:10px;
   background:var(--cartao); color:var(--tx-default);
   box-shadow:inset 0 0 0 1px var(--borda-forte); font:700 16px/1.5 var(--f);
   transition:background .14s, box-shadow .14s, color .14s}
-.chip svg{flex:none; width:24px; height:24px}
 @media (hover:hover){ .chip:hover:not([disabled]):not([aria-pressed="true"]){background:var(--selecionado)} }
 .chip[aria-pressed="true"]{background:var(--selecionado); color:var(--tx-item);
   box-shadow:inset 0 0 0 2px var(--borda-sel)}
@@ -117,12 +122,9 @@ button{border:0; padding:0; background:none; cursor:pointer}
   box-shadow:inset 0 0 0 1px var(--borda-mudo); cursor:not-allowed}
 .chip-par{display:flex; gap:8px}
 
-/* OPTION ROW */
 .opt{display:flex; align-items:center; gap:12px; width:100%; padding:12px; border-radius:10px;
   text-align:left; background:var(--cartao); box-shadow:inset 0 0 0 1px var(--borda);
   transition:background .14s, box-shadow .14s}
-.opt__ic{width:48px; height:48px; flex:none; display:grid; place-items:center;
-  border-radius:8px; background:var(--terracota); color:#fff}
 .opt__info{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
 .opt__nome{font:700 16px/1.5 var(--f); color:var(--tx-default)}
 .opt__sub{font:400 14px/1.5 var(--f); color:var(--tx-corpo)}
@@ -132,7 +134,6 @@ button{border:0; padding:0; background:none; cursor:pointer}
 .opt[aria-pressed="true"] .opt__nome{color:var(--tx-item)}
 .opt-lista{display:flex; flex-direction:column; gap:8px}
 
-/* CHECKBOX do adicional */
 .check{display:flex; align-items:center; gap:10px; width:100%; padding:12px; border-radius:10px;
   text-align:left; background:var(--cartao); box-shadow:inset 0 0 0 1px var(--borda-forte);
   transition:background .14s, box-shadow .14s}
@@ -146,7 +147,6 @@ button{border:0; padding:0; background:none; cursor:pointer}
 .check__txt{flex:1; font:700 14px/1.5 var(--f); color:var(--tx-default)}
 .check__preco{font:700 16px/1.5 var(--f); color:var(--tx-default); white-space:nowrap}
 
-/* CAMPO com rótulo flutuante */
 .campo{display:block; padding:8px 16px 10px; border-radius:10px; background:var(--superficie);
   border:1px solid var(--borda-forte); transition:border-color .14s, box-shadow .14s}
 .campo span{display:block; font:500 12px/1.5 var(--f); color:var(--tx-corpo)}
@@ -160,18 +160,14 @@ button{border:0; padding:0; background:none; cursor:pointer}
 /* ============================================================
    HOME
    ============================================================ */
-/* o mesmo gap do frame também separa a barra do primeiro bloco, e o
-   hero dos avisos — no mobile eles são empilhados, não colunas */
 .home{display:flex; flex-direction:column; gap:var(--gap); padding-top:var(--gap)}
 .home__topo{display:flex; flex-direction:column; gap:16px}
-#grade{display:flex; flex-direction:column; gap:8px}
 
-/* Hero — texto_hero 167×104, 28px da direita e 8 do topo, blocos com 12 de gap */
 .hero{position:relative; overflow:hidden; border-radius:8px; min-height:120px;
   background:var(--aviso); display:flex; justify-content:flex-end; align-items:flex-start;
   padding:8px 0}
 .hero img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-  object-position:50% 25%}          /* o afro é a âncora: corta por baixo, não por cima */
+  object-position:50% 25%}
 /* larguras em % do hero inteiro (167/328 e 28/328): com padding lateral o
    percentual cairia sobre a caixa de conteúdo e o subtítulo quebraria a mais */
 .hero__txt{position:relative; display:flex; flex-direction:column; align-items:flex-end;
@@ -182,22 +178,19 @@ button{border:0; padding:0; background:none; cursor:pointer}
 .hero__sub{margin:0; font:400 12px/1.5 var(--f); color:var(--tx-pessego)}
 .hero__sub b{font-weight:600}
 
-/* Avisos — 160×72 no mobile, ícone 32 com o glifo em 22 */
 .promo{display:flex; gap:8px}
 .promo__card{flex:1; min-width:0; display:flex; align-items:center; gap:8px; text-align:left;
   padding:12px; border-radius:8px; color:var(--tx-creme); transition:filter .14s}
 .promo__ic{width:32px; height:32px; flex:none; display:grid; place-items:center;
   border-radius:6px; background:var(--terracota); color:var(--tx-creme)}
-.promo__ic svg{width:22px; height:22px}
 .promo__card b{font:700 16px/1.5 var(--f)}
 .so-desk{display:none}
 @media (hover:hover){ .promo__card:hover{filter:brightness(1.12)} }
 .promo__card:active{filter:brightness(.9)}
 
 .secao__cab{display:flex; align-items:center; gap:8px}
-.secao__cab svg{flex:none}
-
 .grade{display:flex; flex-direction:column; gap:8px}
+#grade{display:flex; flex-direction:column; gap:8px}
 .grade__linha{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
 .estilo{display:flex; flex-direction:column; gap:6px; padding-bottom:8px;
   border-radius:12px; text-align:center; transition:background .14s}
@@ -209,16 +202,20 @@ button{border:0; padding:0; background:none; cursor:pointer}
 @media (hover:hover){ .estilo:hover .estilo__foto{filter:brightness(1.06)} }
 .estilo:active{background:var(--selecionado)}
 
-/* galeria: faixa da marca sangrando até as bordas da tela */
-.galeria{margin-inline:calc(var(--gut) * -1); padding:12px;
+/* a faixa da galeria sangra a largura toda; só o conteúdo fica centralizado */
+.galeria{padding-block:12px}
+.galeria__in{width:100%; max-width:1400px; margin:0 auto; padding-inline:12px;
   display:flex; flex-direction:column; gap:8px}
 .galeria .t-secao{color:var(--tx-pessego)}
-.carrossel{overflow:hidden}
-.trilho{display:flex; gap:10px; transition:transform .55s cubic-bezier(.4,0,.2,1); will-change:transform}
+.carrossel{overflow:hidden; padding-left:16px; padding-bottom:3px;
+  touch-action:pan-y; cursor:grab; user-select:none; -webkit-user-select:none}
+.carrossel.arrastando{cursor:grabbing}
+.trilho{display:flex; gap:10px; will-change:transform}
+.trilho.anima{transition:transform .55s cubic-bezier(.4,0,.2,1)}
 .slide{flex:0 0 auto; width:236px; aspect-ratio:236/315; border-radius:12px; overflow:hidden;
   background:var(--aviso)}
-.slide img{width:100%; height:100%; object-fit:cover}
-.pontos{display:flex; justify-content:center; gap:2px; padding-top:3px}
+.slide img{width:100%; height:100%; object-fit:cover; pointer-events:none}
+.pontos{display:flex; justify-content:center; gap:2px}
 .ponto{width:6px; height:6px; border-radius:50px; background:var(--pressed);
   transition:width .25s, background .25s, border-radius .25s}
 .ponto.on{width:16px; border-radius:3px; background:var(--terracota)}
@@ -230,6 +227,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
 .pdp__foto{width:100%; aspect-ratio:328/140; border-radius:8px; overflow:hidden; background:var(--aviso)}
 .pdp__foto picture{display:block; width:100%; height:100%}
 .pdp__foto img{width:100%; height:100%; object-fit:cover}
+.pdp__lado{display:flex; flex-direction:column; gap:16px}
 .pdp__h2{display:flex; flex-direction:column; gap:8px}
 .pdp__h2 h1{margin:0; font:700 16px/1.5 var(--f); color:var(--tx-secao)}
 .pdp__h2 p{margin:0; font:400 14px/1.5 var(--f); color:var(--tx-corpo)}
@@ -238,11 +236,11 @@ button{border:0; padding:0; background:none; cursor:pointer}
    AGENDAMENTO
    ============================================================ */
 .booking{display:flex; flex-direction:column; gap:16px; padding-top:16px}
+.booking__col{display:flex; flex-direction:column; gap:16px}
 .bloco{display:flex; flex-direction:column; gap:8px}
 .bloco--campo{gap:4px}
+.bloco--campo .secao__cab{padding-bottom:8px}
 
-/* Calendário 328×350: sem recuo lateral no corpo, célula 43×38 (não quadrada),
-   cabeçalho e semana recuados 13px, gap 8 entre as três faixas */
 .calendario{padding:16px 0; border-radius:10px; background:var(--superficie);
   border:2px solid var(--escuro); display:flex; flex-direction:column; gap:8px}
 .cal__cab{display:flex; align-items:center; justify-content:space-between; padding:0 13px 10px}
@@ -265,7 +263,10 @@ button{border:0; padding:0; background:none; cursor:pointer}
 
 .aviso{display:flex; gap:8px; padding:12px; border-radius:10px;
   background:var(--aviso); color:var(--tx-claro); font:700 14px/1.5 var(--f)}
-.aviso svg{flex:none; margin-top:3px}
+.aviso .ic{margin-top:3px; width:18px; height:18px}
+.aviso--duplo{flex-direction:column; gap:4px}
+.aviso--duplo b{font:700 14px/1.5 var(--f); color:var(--tx-claro)}
+.aviso--duplo i{font:400 14px/1.5 var(--f); font-style:normal; color:var(--borda-mudo)}
 
 .resumo{padding:12px; border-radius:10px; background:var(--superficie);
   border:1px solid var(--aviso); display:flex; flex-direction:column; gap:12px}
@@ -284,13 +285,36 @@ button{border:0; padding:0; background:none; cursor:pointer}
   display:flex; flex-direction:column; gap:8px; box-shadow:0 -1px 0 rgba(84,53,51,.12)}
 .rodape__nota{margin:0; text-align:center; font:400 14px/1.4 var(--f); color:var(--tx-corpo)}
 
+/* --- busca de endereço --- */
+.end{display:flex; flex-direction:column; gap:8px}
+.end__estado{font:400 14px/1.5 var(--f); color:var(--tx-corpo); min-height:21px}
+.end__estado[data-erro]{color:var(--terracota-h)}
+.sugestoes{display:flex; flex-direction:column; gap:4px; padding:4px; border-radius:10px;
+  background:var(--superficie); border:1px solid var(--borda-mudo); max-height:230px; overflow:auto}
+.sugestao{display:flex; gap:8px; align-items:flex-start; width:100%; text-align:left;
+  padding:8px 10px; border-radius:8px; transition:background .14s}
+.sugestao b{display:block; font:700 14px/1.4 var(--f); color:var(--tx-item)}
+.sugestao span{display:block; font:400 14px/1.4 var(--f); color:var(--tx-corpo)}
+.sugestao .ic{width:18px; height:18px; margin-top:2px; color:var(--terracota)}
+@media (hover:hover){ .sugestao:hover{background:var(--selecionado)} }
+.sugestao:active{background:var(--pressed)}
+.end__par{display:grid; grid-template-columns:96px 1fr; gap:8px}
+.end__card{display:flex; gap:8px; align-items:flex-start; padding:12px; border-radius:10px;
+  background:var(--selecionado); box-shadow:inset 0 0 0 2px var(--borda-sel)}
+.end__card .ic{width:20px; height:20px; color:var(--terracota); margin-top:2px}
+.end__card div{flex:1; min-width:0}
+.end__card b{display:block; font:700 16px/1.4 var(--f); color:var(--tx-item)}
+.end__card span{display:block; font:400 14px/1.4 var(--f); color:var(--tx-corpo)}
+.end__trocar{align-self:flex-start; font:700 14px/1.5 var(--f); color:var(--tx-secao);
+  padding:2px 6px; border-radius:6px}
+@media (hover:hover){ .end__trocar:hover{background:var(--superficie)} }
+
 /* ============================================================
    OVERLAYS
    ============================================================ */
 .sheet{position:fixed; inset:0; z-index:60; display:none}
 .sheet.aberto{display:block}
 .sheet__scrim{position:absolute; inset:0; background:var(--scrim)}
-/* Overlay 360×610: superfície #fffdfb, pad[10,16,18], as faixas com gap 16 */
 .sheet__painel{position:absolute; left:0; right:0; bottom:0; max-height:88vh; overflow:auto;
   background:var(--superficie); border-radius:18px 18px 0 0;
   padding:10px var(--gut) calc(18px + env(safe-area-inset-bottom));
@@ -308,70 +332,71 @@ button{border:0; padding:0; background:none; cursor:pointer}
 .fechar:active{background:var(--pressed)}
 .passos{display:flex; flex-direction:column; gap:16px}
 .passo{display:flex; gap:12px}
-/* marcador: círculo pêssego com o número em terracota, não o inverso */
 .passo__n{width:24px; height:24px; flex:none; border-radius:12px; background:var(--selecionado);
   color:var(--tx-secao); display:grid; place-items:center; font:700 14px/1 var(--f)}
 .passo div{display:flex; flex-direction:column; gap:2px}
 .passo b{font:700 16px/1.5 var(--f); color:var(--tx-item)}
-/* a faixa dos overlays tem duas vozes: chamada branca e apoio em pêssego */
-.aviso--duplo{flex-direction:column; gap:4px}
-.aviso--duplo b{font:700 14px/1.5 var(--f); color:var(--tx-claro)}
-.aviso--duplo i{font:400 14px/1.5 var(--f); font-style:normal; color:var(--borda-mudo)}
 
 /* ============================================================
    DESKTOP — 900px+
    ============================================================ */
 @media (min-width:900px){
-  :root{--gut:48px; --gap:24px; --topo:63px}
+  :root{--gut:48px; --gap:24px}
   body{font-size:16px}
   .marca img{height:31px}
+  .barra__in{padding:16px var(--gut)}
   .t-secao{font-size:24px}
 
   .home__topo{display:grid; grid-template-columns:minmax(0,847fr) minmax(320px,441fr); gap:16px}
   .grade{gap:12px}          /* Braids: título → grade */
   #grade{gap:16px}          /* Grid: entre as fileiras */
-  /* Hero 847×360: texto_hero 341×272, 55px da direita, 45 do topo, 112 entre os blocos */
-  .hero{min-height:360px; border-radius:14px; padding:45px 0 43px; align-items:flex-start}
-  .hero img{object-position:50% 50%}   /* no desktop a caixa tem a proporção da foto */
+
+  .hero{min-height:360px; border-radius:14px; padding:45px 0 43px}
+  .hero img{object-position:50% 50%}
   .hero__txt{width:40.3%; margin-right:6.49%; gap:112px; min-height:272px; justify-content:flex-start}
   .hero__n{font-size:72px}
   .hero__n small{font:700 26px/1.1 var(--f)}
   .hero__sub{font-size:24px; line-height:1.1}
   .hero__sub b{font-weight:700}
 
-  /* Avisos 441×172: ícone empilhado sobre o texto, glifo em 32 */
   .promo{flex-direction:column; gap:16px}
   .promo__card{flex-direction:column; align-items:flex-start; justify-content:center;
     gap:24px; padding:16px; min-height:172px}
   .promo__ic{width:48px; height:48px; border-radius:8px}
-  .promo__ic svg{width:32px; height:32px}
   .promo__card b{font:700 24px/1.1 var(--f); color:var(--tx-claro)}
   .so-mob{display:none}
   .so-desk{display:inline}
 
   .grade__linha{grid-template-columns:repeat(5,minmax(0,1fr)); gap:16px}
-  .estilo__foto{aspect-ratio:248/248}
+  .estilo__foto{aspect-ratio:1/1}
   .estilo__nome{font-size:16px}
-  .estilo__tempo{font-size:14px}
 
-  .galeria{padding:16px var(--gut); gap:16px}
+  .galeria{padding-block:16px}
+  .galeria__in{padding-inline:48px; gap:16px}
+  .carrossel{padding-left:0; padding-bottom:1px}
   .trilho{gap:16px}
   .slide{width:314px; aspect-ratio:314/419}
 
-  /* produto e agendamento abrem em duas colunas */
+  /* PDP H gap 48, Option list gap 12, Addon pad 16, CTA wrap gap 12 */
   .pdp{display:grid; grid-template-columns:minmax(0,624fr) minmax(360px,624fr);
-    gap:40px; align-items:start; padding-block:24px 48px}
-  .pdp__foto{aspect-ratio:624/560; position:sticky; top:calc(var(--topo) + 16px)}
-  .pdp__lado{display:flex; flex-direction:column; gap:16px}
+    gap:48px; align-items:start; padding-block:16px 48px}
+  .pdp__foto{aspect-ratio:624/560; position:sticky; top:80px}
+  .pdp__h2{gap:16px}
   .pdp__h2 h1{font-size:24px}
+  .pdp__h2 p{padding-bottom:11px}
+  .pdp .opt-lista{gap:12px}
+  .pdp .check{padding:16px}
+  .pdp .rodape{gap:12px}
 
-  .booking{display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,480px);
-    gap:40px; align-items:start; padding-block:24px 48px}
+  /* Booking H gap 48, coluna direita 400, blocos com gap 12 */
+  .booking{display:grid; grid-template-columns:minmax(0,1fr) 400px;
+    gap:48px; align-items:start; padding-block:16px 48px}
   .booking__col{display:flex; flex-direction:column; gap:24px}
-  .booking__dir{position:sticky; top:calc(var(--topo) + 16px)}
-  .rodape{position:static; margin-inline:0; padding:0; background:none; box-shadow:none}
+  .booking__dir{position:sticky; top:80px}
+  .bloco,.bloco--campo{gap:12px}
+  .bloco--campo .secao__cab{padding-bottom:0}
+  .rodape{position:static; margin-inline:0; padding:12px; background:none; box-shadow:none}
 
-  /* Modal 520×505, pad 24, r16 */
   .sheet__painel{left:50%; top:50%; right:auto; bottom:auto; transform:translate(-50%,-50%);
     width:min(520px,92vw); border-radius:16px; padding:24px; animation:aparece .22s ease}
   @keyframes aparece{from{transform:translate(-50%,-46%); opacity:0} to{transform:translate(-50%,-50%); opacity:1}}
@@ -380,11 +405,65 @@ button{border:0; padding:0; background:none; cursor:pointer}
 
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important; transition-duration:.01ms !important}
-  .trilho{transition:none}
+  .trilho.anima{transition:none}
 }
 </style>
 </head>
 <body>
+<!--ICONES--><svg class="sprite" aria-hidden="true" focusable="false"><symbol id="i-local-domicilio" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="12" y="22" width="24" height="18" rx="2" fill="#592812"/>
+<path d="M24 11L38 23H10L24 11Z" fill="#EBB69D"/>
+<rect x="20" y="29" width="8" height="11" rx="1.5" fill="#EBB69D"/></symbol><symbol id="i-local-estudio" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="11" y="19" width="26" height="21" rx="2" fill="#592812"/>
+<rect x="9" y="13" width="30" height="7" rx="2" fill="#EBB69D"/>
+<rect x="20" y="29" width="8" height="11" rx="1.5" fill="#EBB69D"/></symbol><symbol id="i-masculino-barrel-twist" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="7" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M24 28C35 25 35 17 24 12C13 17 13 25 24 28ZM24 28C13 31 13 39 24 44C35 39 35 31 24 28Z" stroke="#592812" stroke-width="5" stroke-linecap="round"/></symbol><symbol id="i-masculino-nago" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="7" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M13 14L17 20L13 26L17 32L13 38M22 14L26 20L22 26L26 32L22 38M31 14L35 20L31 26L35 32L31 38" stroke="#592812" stroke-width="3"/></symbol><symbol id="i-masculino-twist" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="7" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M24 23C32 19 32 16 24 12C16 16 16 19 24 23ZM24 23C16 27 16 30 24 34M24 23C32 27 32 30 24 34M24 34C32 38 32 40 24 43C16 40 16 38 24 34Z" stroke="#592812" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-modelo-cabelo-organico" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="7" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M24 12C33 15 15 19 24 22C33 25 15 29 24 32C33 35 15 39 24 42" stroke="#592812" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-modelo-dreads" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="7" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<rect x="19" y="12" width="10" height="30" rx="5" fill="#592812"/></symbol><symbol id="i-modelo-trancas" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="7" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M17 13L24 18L31 13M17 20L24 25L31 20M17 27L24 32L31 27M17 34L24 39L31 34" stroke="#592812" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-modelo-twist" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="7" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M24 23C32 19 32 16 24 12C16 16 16 19 24 23ZM24 23C16 27 16 30 24 34M24 23C32 27 32 30 24 34M24 34C32 38 32 40 24 43C16 40 16 38 24 34Z" stroke="#592812" stroke-width="3.5" stroke-linecap="round"/></symbol><symbol id="i-remocao-box-braids" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="6" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M19 12L24 16.5L29 12M19 18L24 22.5L29 18M19 24L24 28.5L29 24" stroke="#592812" stroke-width="3.2"/>
+<path d="M11 31.4434C16 26.4434 19 36.4434 24 31.4434C29 26.4434 32 36.4434 37 31.4434" stroke="#EBB69D" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-remocao-nago" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<rect x="14" y="6" width="20" height="5" rx="2.5" fill="#EBB69D"/>
+<path d="M13.5 12L16.5 17L13.5 22L16.5 27M22.5 12L25.5 17L22.5 22L25.5 27M31.5 12L34.5 17L31.5 22L34.5 27" stroke="#592812" stroke-width="3"/>
+<path d="M11 31.4434C16 26.4434 19 36.4434 24 31.4434C29 26.4434 32 36.4434 37 31.4434" stroke="#EBB69D" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-tamanho-abaixo-do-quadril" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<path d="M17 20H31L36 27L34 43H14L12 27L17 20Z" fill="#EBB69D"/>
+<rect x="15.5" y="10" width="4" height="37" rx="2" fill="#592812"/>
+<rect x="22" y="10" width="4" height="37" rx="2" fill="#592812"/>
+<rect x="28.5" y="10" width="4" height="37" rx="2" fill="#592812"/>
+<ellipse cx="24" cy="11.5" rx="8.5" ry="7" fill="#592812"/></symbol><symbol id="i-tamanho-chanel" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<path d="M17 20H31L36 27L34 43H14L12 27L17 20Z" fill="#EBB69D"/>
+<rect x="15.5" y="10" width="4" height="11" rx="2" fill="#592812"/>
+<rect x="22" y="10" width="4" height="11" rx="2" fill="#592812"/>
+<rect x="28.5" y="10" width="4" height="11" rx="2" fill="#592812"/>
+<ellipse cx="24" cy="11.5" rx="8.5" ry="7" fill="#592812"/></symbol><symbol id="i-tamanho-long-bob" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<path d="M17 20H31L36 27L34 43H14L12 27L17 20Z" fill="#EBB69D"/>
+<rect x="15.5" y="10" width="4" height="17" rx="2" fill="#592812"/>
+<rect x="22" y="10" width="4" height="17" rx="2" fill="#592812"/>
+<rect x="28.5" y="10" width="4" height="17" rx="2" fill="#592812"/>
+<ellipse cx="24" cy="11.5" rx="8.5" ry="7" fill="#592812"/></symbol><symbol id="i-tamanho-meio-das-costas" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<path d="M17 20H31L36 27L34 43H14L12 27L17 20Z" fill="#EBB69D"/>
+<rect x="15.5" y="10" width="4" height="24" rx="2" fill="#592812"/>
+<rect x="22" y="10" width="4" height="24" rx="2" fill="#592812"/>
+<rect x="28.5" y="10" width="4" height="24" rx="2" fill="#592812"/>
+<ellipse cx="24" cy="11.5" rx="8.5" ry="7" fill="#592812"/></symbol><symbol id="i-tamanho-quadril" viewBox="0 0 48 48"><rect width="48" height="48" rx="8" fill="#D3602A"/>
+<path d="M17 20H31L36 27L34 43H14L12 27L17 20Z" fill="#EBB69D"/>
+<rect x="15.5" y="10" width="4" height="32" rx="2" fill="#592812"/>
+<rect x="22" y="10" width="4" height="32" rx="2" fill="#592812"/>
+<rect x="28.5" y="10" width="4" height="32" rx="2" fill="#592812"/>
+<ellipse cx="24" cy="11.5" rx="8.5" ry="7" fill="#592812"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><path d="M19.5 3H17.25V2.25C17.25 2.05109 17.171 1.86032 17.0303 1.71967C16.8897 1.57902 16.6989 1.5 16.5 1.5C16.3011 1.5 16.1103 1.57902 15.9697 1.71967C15.829 1.86032 15.75 2.05109 15.75 2.25V3H8.25V2.25C8.25 2.05109 8.17098 1.86032 8.03033 1.71967C7.88968 1.57902 7.69891 1.5 7.5 1.5C7.30109 1.5 7.11032 1.57902 6.96967 1.71967C6.82902 1.86032 6.75 2.05109 6.75 2.25V3H4.5C4.10218 3 3.72064 3.15804 3.43934 3.43934C3.15804 3.72064 3 4.10218 3 4.5V19.5C3 19.8978 3.15804 20.2794 3.43934 20.5607C3.72064 20.842 4.10218 21 4.5 21H19.5C19.8978 21 20.2794 20.842 20.5607 20.5607C20.842 20.2794 21 19.8978 21 19.5V4.5C21 4.10218 20.842 3.72064 20.5607 3.43934C20.2794 3.15804 19.8978 3 19.5 3ZM15.9056 12.5306L11.4056 17.0306C11.336 17.1004 11.2533 17.1557 11.1622 17.1934C11.0712 17.2312 10.9736 17.2506 10.875 17.2506C10.7764 17.2506 10.6788 17.2312 10.5878 17.1934C10.4967 17.1557 10.414 17.1004 10.3444 17.0306L8.09437 14.7806C7.95364 14.6399 7.87458 14.449 7.87458 14.25C7.87458 14.051 7.95364 13.8601 8.09437 13.7194C8.23511 13.5786 8.42598 13.4996 8.625 13.4996C8.82402 13.4996 9.01489 13.5786 9.15563 13.7194L10.875 15.4397L14.8444 11.4694C14.9141 11.3997 14.9968 11.3444 15.0878 11.3067C15.1789 11.269 15.2765 11.2496 15.375 11.2496C15.4735 11.2496 15.5711 11.269 15.6622 11.3067C15.7532 11.3444 15.8359 11.3997 15.9056 11.4694C15.9753 11.5391 16.0306 11.6218 16.0683 11.7128C16.106 11.8039 16.1254 11.9015 16.1254 12C16.1254 12.0985 16.106 12.1961 16.0683 12.2872C16.0306 12.3782 15.9753 12.4609 15.9056 12.5306ZM4.5 7.5V4.5H6.75V5.25C6.75 5.44891 6.82902 5.63968 6.96967 5.78033C7.11032 5.92098 7.30109 6 7.5 6C7.69891 6 7.88968 5.92098 8.03033 5.78033C8.17098 5.63968 8.25 5.44891 8.25 5.25V4.5H15.75V5.25C15.75 5.44891 15.829 5.63968 15.9697 5.78033C16.1103 5.92098 16.3011 6 16.5 6C16.6989 6 16.8897 5.92098 17.0303 5.78033C17.171 5.63968 17.25 5.44891 17.25 5.25V4.5H19.5V7.5H4.5Z" fill="currentColor"/></symbol><symbol id="i-check-square" viewBox="0 0 24 24"><path d="M19.5 3H4.5C4.10218 3 3.72064 3.15804 3.43934 3.43934C3.15804 3.72064 3 4.10218 3 4.5V19.5C3 19.8978 3.15804 20.2794 3.43934 20.5607C3.72064 20.842 4.10218 21 4.5 21H19.5C19.8978 21 20.2794 20.842 20.5607 20.5607C20.842 20.2794 21 19.8978 21 19.5V4.5C21 4.10218 20.842 3.72064 20.5607 3.43934C20.2794 3.15804 19.8978 3 19.5 3ZM16.2806 10.2806L11.0306 15.5306C10.961 15.6004 10.8783 15.6557 10.7872 15.6934C10.6962 15.7312 10.5986 15.7506 10.5 15.7506C10.4014 15.7506 10.3038 15.7312 10.2128 15.6934C10.1217 15.6557 10.039 15.6004 9.96937 15.5306L7.71937 13.2806C7.57864 13.1399 7.49958 12.949 7.49958 12.75C7.49958 12.551 7.57864 12.3601 7.71937 12.2194C7.86011 12.0786 8.05098 11.9996 8.25 11.9996C8.44902 11.9996 8.63989 12.0786 8.78063 12.2194L10.5 13.9397L15.2194 9.21937C15.2891 9.14969 15.3718 9.09442 15.4628 9.0567C15.5539 9.01899 15.6515 8.99958 15.75 8.99958C15.8485 8.99958 15.9461 9.01899 16.0372 9.0567C16.1282 9.09442 16.2109 9.14969 16.2806 9.21937C16.3503 9.28906 16.4056 9.37178 16.4433 9.46283C16.481 9.55387 16.5004 9.65145 16.5004 9.75C16.5004 9.84855 16.481 9.94613 16.4433 10.0372C16.4056 10.1282 16.3503 10.2109 16.2806 10.2806Z" fill="currentColor"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 2.25C10.0716 2.25 8.18657 2.82183 6.58319 3.89317C4.97982 4.96451 3.73013 6.48726 2.99218 8.26884C2.25422 10.0504 2.06114 12.0108 2.43735 13.9021C2.81355 15.7934 3.74215 17.5307 5.10571 18.8943C6.46928 20.2579 8.20656 21.1865 10.0979 21.5627C11.9892 21.9389 13.9496 21.7458 15.7312 21.0078C17.5127 20.2699 19.0355 19.0202 20.1068 17.4168C21.1782 15.8134 21.75 13.9284 21.75 12C21.7473 9.41498 20.7192 6.93661 18.8913 5.10872C17.0634 3.28084 14.585 2.25273 12 2.25ZM17.25 12.75H12C11.8011 12.75 11.6103 12.671 11.4697 12.5303C11.329 12.3897 11.25 12.1989 11.25 12V6.75C11.25 6.55109 11.329 6.36032 11.4697 6.21967C11.6103 6.07902 11.8011 6 12 6C12.1989 6 12.3897 6.07902 12.5303 6.21967C12.671 6.36032 12.75 6.55109 12.75 6.75V11.25H17.25C17.4489 11.25 17.6397 11.329 17.7803 11.4697C17.921 11.6103 18 11.8011 18 12C18 12.1989 17.921 12.3897 17.7803 12.5303C17.6397 12.671 17.4489 12.75 17.25 12.75Z" fill="currentColor"/></symbol><symbol id="i-crown" viewBox="0 0 24 24"><path d="M23.25 7.4999C23.2503 7.08877 23.1541 6.6833 22.9691 6.31616C22.784 5.94902 22.5153 5.63048 22.1846 5.3862C21.8539 5.14192 21.4705 4.97873 21.0652 4.90978C20.6599 4.84084 20.244 4.86806 19.8512 4.98925C19.4583 5.11045 19.0994 5.32223 18.8034 5.60753C18.5073 5.89284 18.2824 6.24369 18.1468 6.63181C18.0112 7.01994 17.9687 7.43449 18.0227 7.84207C18.0766 8.24965 18.2255 8.63886 18.4575 8.97834L15.9459 12.0721L13.6875 6.88115C14.0994 6.53448 14.3947 6.06955 14.5335 5.54937C14.6722 5.02919 14.6477 4.47892 14.4632 3.97316C14.2787 3.4674 13.9431 3.0306 13.502 2.72197C13.0609 2.41334 12.5355 2.2478 11.9971 2.2478C11.4588 2.2478 10.9334 2.41334 10.4923 2.72197C10.0512 3.0306 9.71563 3.4674 9.53112 3.97316C9.34661 4.47892 9.32207 5.02919 9.46083 5.54937C9.59959 6.06955 9.89493 6.53448 10.3068 6.88115L8.05402 12.0693L5.54245 8.97553C5.86509 8.50279 6.02437 7.93756 5.99606 7.36592C5.96774 6.79428 5.75337 6.24756 5.3856 5.80902C5.01782 5.37049 4.5168 5.06416 3.95883 4.93671C3.40086 4.80926 2.81653 4.86766 2.29482 5.10301C1.77311 5.33837 1.34262 5.73779 1.06891 6.24043C0.795197 6.74308 0.693266 7.32141 0.778638 7.88735C0.864011 8.45329 1.13201 8.97581 1.54182 9.37535C1.95162 9.77489 2.48078 10.0295 3.0487 10.1005L4.4062 18.2465C4.46456 18.5967 4.64526 18.9148 4.91614 19.1443C5.18702 19.3739 5.53054 19.4998 5.88558 19.4999H18.1143C18.4694 19.4998 18.8129 19.3739 19.0838 19.1443C19.3547 18.9148 19.5353 18.5967 19.5937 18.2465L20.9503 10.1043C21.5851 10.025 22.1692 9.71658 22.5926 9.237C23.0161 8.75742 23.2499 8.13969 23.25 7.4999ZM12 3.7499C12.2225 3.7499 12.44 3.81588 12.625 3.9395C12.81 4.06312 12.9542 4.23882 13.0393 4.44438C13.1245 4.64995 13.1467 4.87615 13.1033 5.09438C13.0599 5.31261 12.9528 5.51306 12.7954 5.6704C12.6381 5.82773 12.4377 5.93488 12.2194 5.97829C12.0012 6.02169 11.775 5.99942 11.5694 5.91427C11.3639 5.82912 11.1882 5.68492 11.0646 5.49992C10.9409 5.31491 10.875 5.09741 10.875 4.8749C10.875 4.57653 10.9935 4.29039 11.2045 4.07941C11.4154 3.86843 11.7016 3.7499 12 3.7499ZM2.24995 7.4999C2.24995 7.2774 2.31593 7.05989 2.43955 6.87489C2.56317 6.68988 2.73887 6.54569 2.94444 6.46054C3.15 6.37539 3.3762 6.35311 3.59443 6.39652C3.81266 6.43993 4.01312 6.54707 4.17045 6.70441C4.32778 6.86174 4.43493 7.0622 4.47834 7.28043C4.52175 7.49865 4.49947 7.72485 4.41432 7.93042C4.32917 8.13599 4.18498 8.31169 3.99997 8.43531C3.81497 8.55892 3.59746 8.6249 3.37495 8.6249C3.07659 8.6249 2.79044 8.50638 2.57946 8.2954C2.36848 8.08442 2.24995 7.79827 2.24995 7.4999ZM20.625 8.6249C20.4025 8.6249 20.1849 8.55892 19.9999 8.43531C19.8149 8.31169 19.6707 8.13599 19.5856 7.93042C19.5004 7.72485 19.4782 7.49865 19.5216 7.28043C19.565 7.0622 19.6721 6.86174 19.8295 6.70441C19.9868 6.54707 20.1873 6.43993 20.4055 6.39652C20.6237 6.35311 20.8499 6.37539 21.0555 6.46054C21.261 6.54569 21.4367 6.68988 21.5604 6.87489C21.684 7.05989 21.75 7.2774 21.75 7.4999C21.75 7.79827 21.6314 8.08442 21.4204 8.2954C21.2095 8.50638 20.9233 8.6249 20.625 8.6249Z" fill="currentColor"/></symbol><symbol id="i-hand-coins" viewBox="0 0 24 24"><path d="M12.0084 5.37939C12.0505 4.79735 12.2427 4.23616 12.5663 3.75058C12.89 3.26501 13.334 2.87164 13.8551 2.6089C14.3761 2.34615 14.9564 2.22299 15.5393 2.25145C16.1221 2.27991 16.6876 2.45901 17.1806 2.77127C17.237 2.80815 17.2824 2.85952 17.312 2.92C17.3417 2.98048 17.3545 3.04783 17.3491 3.11497C17.3437 3.18211 17.3204 3.24657 17.2815 3.30156C17.2426 3.35656 17.1896 3.40007 17.1281 3.42752C16.2711 3.81308 15.5437 4.43786 15.0331 5.2268C14.5226 6.01573 14.2507 6.93529 14.25 7.87502C14.25 7.9847 14.25 8.09439 14.2612 8.2022C14.2664 8.27035 14.2529 8.33861 14.2221 8.39961C14.1913 8.46062 14.1444 8.51204 14.0865 8.54833C14.0285 8.58462 13.9618 8.60439 13.8935 8.60552C13.8252 8.60664 13.7578 8.58907 13.6987 8.5547C13.1463 8.23868 12.6944 7.77286 12.3953 7.21101C12.0962 6.64917 11.9621 6.0142 12.0084 5.37939ZM22.5 15.0572C22.5013 15.4858 22.3826 15.9061 22.1573 16.2707C21.9319 16.6352 21.609 16.9293 21.225 17.1197L21.1838 17.1385L17.5434 18.6891C17.5075 18.7049 17.4701 18.7175 17.4319 18.7266L11.4319 20.2266C11.3724 20.2419 11.3114 20.2497 11.25 20.25H1.5C1.10218 20.25 0.720644 20.092 0.43934 19.8107C0.158035 19.5294 0 19.1478 0 18.75V15C0 14.6022 0.158035 14.2207 0.43934 13.9394C0.720644 13.6581 1.10218 13.5 1.5 13.5H4.18969L6.31031 11.3785C6.58838 11.0991 6.91904 10.8777 7.28319 10.7269C7.64733 10.5762 8.03775 10.499 8.43188 10.5H13.125C13.5212 10.5 13.9122 10.5896 14.2688 10.7622C14.6254 10.9348 14.9383 11.1858 15.1841 11.4965C15.4298 11.8072 15.6021 12.1695 15.6879 12.5563C15.7738 12.943 15.7709 13.3442 15.6797 13.7297L19.6022 12.8278C19.9437 12.7374 20.3013 12.7266 20.6477 12.7962C20.994 12.8659 21.3197 13.0141 21.5996 13.2295C21.8796 13.4449 22.1064 13.7217 22.2625 14.0386C22.4186 14.3555 22.4999 14.704 22.5 15.0572ZM21 15.0572C20.9999 14.9332 20.9712 14.8109 20.9162 14.6998C20.8611 14.5886 20.7812 14.4917 20.6827 14.4164C20.5841 14.3412 20.4695 14.2896 20.3478 14.2658C20.2261 14.242 20.1006 14.2465 19.9809 14.2791L19.9519 14.2866L13.6706 15.7313C13.6155 15.7436 13.5593 15.7499 13.5028 15.75H10.5C10.3011 15.75 10.1103 15.671 9.96967 15.5303C9.82902 15.3897 9.75 15.1989 9.75 15C9.75 14.8011 9.82902 14.6103 9.96967 14.4697C10.1103 14.329 10.3011 14.25 10.5 14.25H13.125C13.4234 14.25 13.7095 14.1315 13.9205 13.9205C14.1315 13.7095 14.25 13.4234 14.25 13.125C14.25 12.8266 14.1315 12.5405 13.9205 12.3295C13.7095 12.1185 13.4234 12 13.125 12H8.43188C8.23482 11.9994 8.03961 12.0379 7.85758 12.1134C7.67555 12.1889 7.51035 12.2998 7.37156 12.4397L5.25 14.5603V18.75H11.1562L17.0091 17.2866L20.5716 15.7697C20.7012 15.7014 20.8097 15.5989 20.8852 15.4733C20.9608 15.3477 21.0005 15.2038 21 15.0572ZM15.75 7.87502C15.75 8.54253 15.9479 9.19505 16.3188 9.75007C16.6896 10.3051 17.2167 10.7377 17.8334 10.9931C18.4501 11.2486 19.1287 11.3154 19.7834 11.1852C20.4381 11.0549 21.0395 10.7335 21.5115 10.2615C21.9835 9.7895 22.3049 9.18813 22.4352 8.53345C22.5654 7.87876 22.4985 7.20016 22.2431 6.58346C21.9876 5.96676 21.5551 5.43966 21 5.06881C20.445 4.69796 19.7925 4.50002 19.125 4.50002C18.2299 4.50002 17.3715 4.8556 16.7385 5.48853C16.1056 6.12147 15.75 6.97991 15.75 7.87502Z" fill="currentColor"/></symbol><symbol id="i-instagram" viewBox="0 0 24 24"><path d="M16.5 2.25H7.5C6.10807 2.25149 4.77358 2.80509 3.78933 3.78933C2.80509 4.77358 2.25149 6.10807 2.25 7.5V16.5C2.25149 17.8919 2.80509 19.2264 3.78933 20.2107C4.77358 21.1949 6.10807 21.7485 7.5 21.75H16.5C17.8919 21.7485 19.2264 21.1949 20.2107 20.2107C21.1949 19.2264 21.7485 17.8919 21.75 16.5V7.5C21.7485 6.10807 21.1949 4.77358 20.2107 3.78933C19.2264 2.80509 17.8919 2.25149 16.5 2.25ZM12 16.5C11.11 16.5 10.24 16.2361 9.49993 15.7416C8.75991 15.2471 8.18314 14.5443 7.84254 13.7221C7.50195 12.8998 7.41283 11.995 7.58647 11.1221C7.7601 10.2492 8.18868 9.44736 8.81802 8.81802C9.44736 8.18868 10.2492 7.7601 11.1221 7.58647C11.995 7.41283 12.8998 7.50195 13.7221 7.84254C14.5443 8.18314 15.2471 8.75991 15.7416 9.49993C16.2361 10.24 16.5 11.11 16.5 12C16.4988 13.1931 16.0243 14.337 15.1806 15.1806C14.337 16.0243 13.1931 16.4988 12 16.5ZM17.625 7.5C17.4025 7.5 17.185 7.43402 17 7.3104C16.815 7.18679 16.6708 7.01109 16.5856 6.80552C16.5005 6.59995 16.4782 6.37375 16.5216 6.15552C16.565 5.93729 16.6722 5.73684 16.8295 5.5795C16.9868 5.42217 17.1873 5.31502 17.4055 5.27162C17.6238 5.22821 17.85 5.25049 18.0555 5.33564C18.2611 5.42078 18.4368 5.56498 18.5604 5.74998C18.684 5.93499 18.75 6.1525 18.75 6.375C18.75 6.67337 18.6315 6.95952 18.4205 7.1705C18.2095 7.38147 17.9234 7.5 17.625 7.5ZM15 12C15 12.5933 14.8241 13.1734 14.4944 13.6667C14.1648 14.1601 13.6962 14.5446 13.1481 14.7716C12.5999 14.9987 11.9967 15.0581 11.4147 14.9424C10.8328 14.8266 10.2982 14.5409 9.87868 14.1213C9.45912 13.7018 9.1734 13.1672 9.05764 12.5853C8.94189 12.0033 9.0013 11.4001 9.22836 10.8519C9.45542 10.3038 9.83994 9.83524 10.3333 9.50559C10.8266 9.17595 11.4067 9 12 9C12.7956 9 13.5587 9.31607 14.1213 9.87868C14.6839 10.4413 15 11.2044 15 12Z" fill="currentColor"/></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="M21.0001 11.9999C21.0001 12.1988 20.921 12.3896 20.7804 12.5303C20.6397 12.6709 20.449 12.7499 20.2501 12.7499H12.0001C11.8011 12.7499 11.6104 12.6709 11.4697 12.5303C11.3291 12.3896 11.2501 12.1988 11.2501 11.9999C11.2501 11.801 11.3291 11.6103 11.4697 11.4696C11.6104 11.3289 11.8011 11.2499 12.0001 11.2499H20.2501C20.449 11.2499 20.6397 11.3289 20.7804 11.4696C20.921 11.6103 21.0001 11.801 21.0001 11.9999ZM12.0001 6.74993H20.2501C20.449 6.74993 20.6397 6.67091 20.7804 6.53026C20.921 6.38961 21.0001 6.19884 21.0001 5.99993C21.0001 5.80102 20.921 5.61025 20.7804 5.4696C20.6397 5.32895 20.449 5.24993 20.2501 5.24993H12.0001C11.8011 5.24993 11.6104 5.32895 11.4697 5.4696C11.3291 5.61025 11.2501 5.80102 11.2501 5.99993C11.2501 6.19884 11.3291 6.38961 11.4697 6.53026C11.6104 6.67091 11.8011 6.74993 12.0001 6.74993ZM20.2501 17.2499H12.0001C11.8011 17.2499 11.6104 17.3289 11.4697 17.4696C11.3291 17.6103 11.2501 17.801 11.2501 17.9999C11.2501 18.1988 11.3291 18.3896 11.4697 18.5303C11.6104 18.6709 11.8011 18.7499 12.0001 18.7499H20.2501C20.449 18.7499 20.6397 18.6709 20.7804 18.5303C20.921 18.3896 21.0001 18.1988 21.0001 17.9999C21.0001 17.801 20.921 17.6103 20.7804 17.4696C20.6397 17.3289 20.449 17.2499 20.2501 17.2499ZM7.71943 3.9693L5.25005 6.43962L4.28068 5.4693C4.13995 5.32857 3.94907 5.24951 3.75005 5.24951C3.55103 5.24951 3.36016 5.32857 3.21943 5.4693C3.0787 5.61003 2.99963 5.80091 2.99963 5.99993C2.99963 6.19895 3.0787 6.38982 3.21943 6.53055L4.71943 8.03055C4.78908 8.10029 4.8718 8.15561 4.96285 8.19335C5.05389 8.23109 5.15149 8.25052 5.25005 8.25052C5.34861 8.25052 5.44621 8.23109 5.53726 8.19335C5.6283 8.15561 5.71102 8.10029 5.78068 8.03055L8.78068 5.03055C8.92141 4.88982 9.00047 4.69895 9.00047 4.49993C9.00047 4.30091 8.92141 4.11003 8.78068 3.9693C8.63995 3.82857 8.44907 3.74951 8.25005 3.74951C8.05103 3.74951 7.86016 3.82857 7.71943 3.9693ZM7.71943 9.9693L5.25005 12.4396L4.28068 11.4693C4.13995 11.3286 3.94907 11.2495 3.75005 11.2495C3.55103 11.2495 3.36016 11.3286 3.21943 11.4693C3.0787 11.61 2.99963 11.8009 2.99963 11.9999C2.99963 12.0985 3.01904 12.1961 3.05676 12.2871C3.09447 12.3781 3.14974 12.4609 3.21943 12.5306L4.71943 14.0306C4.78908 14.1003 4.8718 14.1556 4.96285 14.1933C5.05389 14.2311 5.15149 14.2505 5.25005 14.2505C5.34861 14.2505 5.44621 14.2311 5.53726 14.1933C5.6283 14.1556 5.71102 14.1003 5.78068 14.0306L8.78068 11.0306C8.92141 10.8898 9.00047 10.699 9.00047 10.4999C9.00047 10.3009 8.92141 10.11 8.78068 9.9693C8.63995 9.82857 8.44907 9.74951 8.25005 9.74951C8.05103 9.74951 7.86016 9.82857 7.71943 9.9693ZM7.71943 15.9693L5.25005 18.4396L4.28068 17.4693C4.21099 17.3996 4.12827 17.3443 4.03722 17.3066C3.94618 17.2689 3.8486 17.2495 3.75005 17.2495C3.6515 17.2495 3.55392 17.2689 3.46288 17.3066C3.37183 17.3443 3.28911 17.3996 3.21943 17.4693C3.14974 17.539 3.09447 17.6217 3.05676 17.7128C3.01904 17.8038 2.99963 17.9014 2.99963 17.9999C2.99963 18.0985 3.01904 18.1961 3.05676 18.2871C3.09447 18.3781 3.14974 18.4609 3.21943 18.5306L4.71943 20.0306C4.78908 20.1003 4.8718 20.1556 4.96285 20.1933C5.05389 20.2311 5.15149 20.2505 5.25005 20.2505C5.34861 20.2505 5.44621 20.2311 5.53726 20.1933C5.6283 20.1556 5.71102 20.1003 5.78068 20.0306L8.78068 17.0306C8.92141 16.8898 9.00047 16.699 9.00047 16.4999C9.00047 16.3009 8.92141 16.11 8.78068 15.9693C8.63995 15.8286 8.44907 15.7495 8.25005 15.7495C8.05103 15.7495 7.86016 15.8286 7.71943 15.9693Z" fill="currentColor"/></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M12 1.5C9.81273 1.50248 7.71575 2.37247 6.16911 3.91911C4.62247 5.46575 3.75248 7.56273 3.75 9.75C3.75 16.8094 11.25 22.1409 11.5697 22.3641C11.6958 22.4524 11.846 22.4998 12 22.4998C12.154 22.4998 12.3042 22.4524 12.4303 22.3641C12.75 22.1409 20.25 16.8094 20.25 9.75C20.2475 7.56273 19.3775 5.46575 17.8309 3.91911C16.2843 2.37247 14.1873 1.50248 12 1.5ZM12 6.75C12.5933 6.75 13.1734 6.92595 13.6667 7.25559C14.1601 7.58524 14.5446 8.05377 14.7716 8.60195C14.9987 9.15013 15.0581 9.75333 14.9424 10.3353C14.8266 10.9172 14.5409 11.4518 14.1213 11.8713C13.7018 12.2909 13.1672 12.5766 12.5853 12.6924C12.0033 12.8081 11.4001 12.7487 10.8519 12.5216C10.3038 12.2946 9.83524 11.9101 9.50559 11.4167C9.17595 10.9234 9 10.3433 9 9.75C9 8.95435 9.31607 8.19129 9.87868 7.62868C10.4413 7.06607 11.2044 6.75 12 6.75Z" fill="currentColor"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><path d="M11.25 3.75V1.5C11.25 1.30109 11.329 1.11032 11.4697 0.96967C11.6103 0.829018 11.8011 0.75 12 0.75C12.1989 0.75 12.3897 0.829018 12.5303 0.96967C12.671 1.11032 12.75 1.30109 12.75 1.5V3.75C12.75 3.94891 12.671 4.13968 12.5303 4.28033C12.3897 4.42098 12.1989 4.5 12 4.5C11.8011 4.5 11.6103 4.42098 11.4697 4.28033C11.329 4.13968 11.25 3.94891 11.25 3.75ZM12 6C10.8133 6 9.65327 6.35189 8.66658 7.01118C7.67988 7.67047 6.91085 8.60754 6.45672 9.7039C6.0026 10.8003 5.88378 12.0067 6.11529 13.1705C6.3468 14.3344 6.91824 15.4035 7.75736 16.2426C8.59647 17.0818 9.66557 17.6532 10.8295 17.8847C11.9933 18.1162 13.1997 17.9974 14.2961 17.5433C15.3925 17.0892 16.3295 16.3201 16.9888 15.3334C17.6481 14.3467 18 13.1867 18 12C17.9983 10.4092 17.3656 8.88412 16.2407 7.75928C15.1159 6.63444 13.5908 6.00174 12 6ZM5.46938 6.53063C5.61011 6.67136 5.80098 6.75042 6 6.75042C6.19902 6.75042 6.38989 6.67136 6.53063 6.53063C6.67136 6.38989 6.75042 6.19902 6.75042 6C6.75042 5.80098 6.67136 5.61011 6.53063 5.46938L5.03062 3.96938C4.88989 3.82864 4.69902 3.74958 4.5 3.74958C4.30098 3.74958 4.11011 3.82864 3.96938 3.96938C3.82864 4.11011 3.74958 4.30098 3.74958 4.5C3.74958 4.69902 3.82864 4.88989 3.96938 5.03062L5.46938 6.53063ZM5.46938 17.4694L3.96938 18.9694C3.82864 19.1101 3.74958 19.301 3.74958 19.5C3.74958 19.699 3.82864 19.8899 3.96938 20.0306C4.11011 20.1714 4.30098 20.2504 4.5 20.2504C4.69902 20.2504 4.88989 20.1714 5.03062 20.0306L6.53063 18.5306C6.60031 18.4609 6.65558 18.3782 6.6933 18.2872C6.73101 18.1961 6.75042 18.0985 6.75042 18C6.75042 17.9015 6.73101 17.8039 6.6933 17.7128C6.65558 17.6218 6.60031 17.5391 6.53063 17.4694C6.46094 17.3997 6.37822 17.3444 6.28717 17.3067C6.19613 17.269 6.09855 17.2496 6 17.2496C5.90145 17.2496 5.80387 17.269 5.71283 17.3067C5.62178 17.3444 5.53906 17.3997 5.46938 17.4694ZM18 6.75C18.0985 6.75008 18.1961 6.73074 18.2871 6.6931C18.3782 6.65546 18.4609 6.60025 18.5306 6.53063L20.0306 5.03062C20.1714 4.88989 20.2504 4.69902 20.2504 4.5C20.2504 4.30098 20.1714 4.11011 20.0306 3.96938C19.8899 3.82864 19.699 3.74958 19.5 3.74958C19.301 3.74958 19.1101 3.82864 18.9694 3.96938L17.4694 5.46938C17.3644 5.57427 17.2928 5.70796 17.2639 5.85352C17.2349 5.99908 17.2497 6.14998 17.3065 6.28709C17.3633 6.42421 17.4596 6.54139 17.583 6.62379C17.7065 6.70619 17.8516 6.75012 18 6.75ZM18.5306 17.4694C18.3899 17.3286 18.199 17.2496 18 17.2496C17.801 17.2496 17.6101 17.3286 17.4694 17.4694C17.3286 17.6101 17.2496 17.801 17.2496 18C17.2496 18.199 17.3286 18.3899 17.4694 18.5306L18.9694 20.0306C19.0391 20.1003 19.1218 20.1556 19.2128 20.1933C19.3039 20.231 19.4015 20.2504 19.5 20.2504C19.5985 20.2504 19.6961 20.231 19.7872 20.1933C19.8782 20.1556 19.9609 20.1003 20.0306 20.0306C20.1003 19.9609 20.1556 19.8782 20.1933 19.7872C20.231 19.6961 20.2504 19.5985 20.2504 19.5C20.2504 19.4015 20.231 19.3039 20.1933 19.2128C20.1556 19.1218 20.1003 19.0391 20.0306 18.9694L18.5306 17.4694ZM4.5 12C4.5 11.8011 4.42098 11.6103 4.28033 11.4697C4.13968 11.329 3.94891 11.25 3.75 11.25H1.5C1.30109 11.25 1.11032 11.329 0.96967 11.4697C0.829018 11.6103 0.75 11.8011 0.75 12C0.75 12.1989 0.829018 12.3897 0.96967 12.5303C1.11032 12.671 1.30109 12.75 1.5 12.75H3.75C3.94891 12.75 4.13968 12.671 4.28033 12.5303C4.42098 12.3897 4.5 12.1989 4.5 12ZM12 19.5C11.8011 19.5 11.6103 19.579 11.4697 19.7197C11.329 19.8603 11.25 20.0511 11.25 20.25V22.5C11.25 22.6989 11.329 22.8897 11.4697 23.0303C11.6103 23.171 11.8011 23.25 12 23.25C12.1989 23.25 12.3897 23.171 12.5303 23.0303C12.671 22.8897 12.75 22.6989 12.75 22.5V20.25C12.75 20.0511 12.671 19.8603 12.5303 19.7197C12.3897 19.579 12.1989 19.5 12 19.5ZM22.5 11.25H20.25C20.0511 11.25 19.8603 11.329 19.7197 11.4697C19.579 11.6103 19.5 11.8011 19.5 12C19.5 12.1989 19.579 12.3897 19.7197 12.5303C19.8603 12.671 20.0511 12.75 20.25 12.75H22.5C22.6989 12.75 22.8897 12.671 23.0303 12.5303C23.171 12.3897 23.25 12.1989 23.25 12C23.25 11.8011 23.171 11.6103 23.0303 11.4697C22.8897 11.329 22.6989 11.25 22.5 11.25Z" fill="currentColor"/></symbol><symbol id="i-sun-horizon" viewBox="0 0 24 24"><path d="M23.25 15C23.25 15.1989 23.171 15.3897 23.0303 15.5303C22.8897 15.671 22.6989 15.75 22.5 15.75H1.5C1.30109 15.75 1.11032 15.671 0.96967 15.5303C0.829018 15.3897 0.75 15.1989 0.75 15C0.75 14.8011 0.829018 14.6103 0.96967 14.4697C1.11032 14.329 1.30109 14.25 1.5 14.25H5.29219C5.26451 14.0009 5.25042 13.7506 5.25 13.5C5.25 11.7098 5.96116 9.99289 7.22703 8.72702C8.4929 7.46115 10.2098 6.74999 12 6.74999C13.7902 6.74999 15.5071 7.46115 16.773 8.72702C18.0388 9.99289 18.75 11.7098 18.75 13.5C18.7496 13.7506 18.7355 14.0009 18.7078 14.25H22.5C22.6989 14.25 22.8897 14.329 23.0303 14.4697C23.171 14.6103 23.25 14.8011 23.25 15ZM19.5 18H4.5C4.30109 18 4.11032 18.079 3.96967 18.2197C3.82902 18.3603 3.75 18.5511 3.75 18.75C3.75 18.9489 3.82902 19.1397 3.96967 19.2803C4.11032 19.421 4.30109 19.5 4.5 19.5H19.5C19.6989 19.5 19.8897 19.421 20.0303 19.2803C20.171 19.1397 20.25 18.9489 20.25 18.75C20.25 18.5511 20.171 18.3603 20.0303 18.2197C19.8897 18.079 19.6989 18 19.5 18ZM7.57875 5.58562C7.62282 5.67377 7.68383 5.75237 7.75828 5.81695C7.83274 5.88152 7.91918 5.9308 8.01268 5.96196C8.10617 5.99313 8.20489 6.00557 8.3032 5.99859C8.40151 5.9916 8.49748 5.96532 8.58563 5.92124C8.67378 5.87717 8.75238 5.81616 8.81695 5.74171C8.88153 5.66726 8.9308 5.58081 8.96197 5.48732C8.99313 5.39382 9.00558 5.2951 8.99859 5.19679C8.99161 5.09849 8.96533 5.00252 8.92125 4.91437L8.17125 3.41437C8.08224 3.23634 7.92615 3.10097 7.73732 3.03802C7.5485 2.97508 7.3424 2.98973 7.16437 3.07874C6.98635 3.16776 6.85097 3.32384 6.78803 3.51267C6.72509 3.7015 6.73974 3.90759 6.82875 4.08562L7.57875 5.58562ZM1.91438 9.67124L3.41437 10.4212C3.59228 10.5103 3.79825 10.525 3.98699 10.4621C4.17573 10.3992 4.33177 10.264 4.42078 10.0861C4.50979 9.90818 4.52449 9.70221 4.46164 9.51347C4.39878 9.32473 4.26353 9.16869 4.08563 9.07968L2.58562 8.32968C2.49754 8.2856 2.40163 8.25931 2.30338 8.2523C2.20513 8.24529 2.10646 8.2577 2.01301 8.28882C1.91956 8.31995 1.83315 8.36917 1.75872 8.43369C1.68429 8.4982 1.62329 8.57675 1.57922 8.66484C1.53514 8.75292 1.50885 8.84883 1.50184 8.94708C1.49483 9.04533 1.50724 9.144 1.53836 9.23745C1.56949 9.33091 1.61871 9.41731 1.68323 9.49174C1.74774 9.56617 1.82629 9.62717 1.91438 9.67124ZM20.25 10.5C20.3662 10.5 20.4807 10.4731 20.5847 10.4212L22.0847 9.67124C22.1728 9.62717 22.2513 9.56617 22.3158 9.49174C22.3804 9.41731 22.4296 9.33091 22.4607 9.23745C22.4918 9.144 22.5042 9.04533 22.4972 8.94708C22.4902 8.84883 22.4639 8.75292 22.4198 8.66484C22.3758 8.57675 22.3148 8.4982 22.2403 8.43369C22.1659 8.36917 22.0795 8.31995 21.9861 8.28882C21.8926 8.2577 21.7939 8.24529 21.6957 8.2523C21.5974 8.25931 21.5015 8.2856 21.4134 8.32968L19.9134 9.07968C19.7625 9.15543 19.6416 9.27989 19.5702 9.43293C19.4988 9.58596 19.4811 9.75861 19.5201 9.92293C19.559 10.0872 19.6523 10.2336 19.7847 10.3383C19.9172 10.4431 20.0811 10.5 20.25 10.5ZM15.4144 5.92124C15.5025 5.96538 15.5985 5.99171 15.6968 5.99873C15.7951 6.00575 15.8939 5.99332 15.9874 5.96215C16.0809 5.93098 16.1674 5.88168 16.2418 5.81707C16.3162 5.75246 16.3772 5.67381 16.4213 5.58562L17.1712 4.08562C17.2603 3.90759 17.2749 3.7015 17.212 3.51267C17.149 3.32384 17.0137 3.16776 16.8356 3.07874C16.6576 2.98973 16.4515 2.97508 16.2627 3.03802C16.0739 3.10097 15.9178 3.23634 15.8287 3.41437L15.0787 4.91437C15.0346 5.00251 15.0083 5.09848 15.0013 5.1968C14.9942 5.29512 15.0067 5.39386 15.0378 5.48738C15.069 5.58089 15.1183 5.66734 15.1829 5.74179C15.2475 5.81624 15.3262 5.87722 15.4144 5.92124Z" fill="currentColor"/></symbol><symbol id="i-credit-card" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M2 11H22V15.0658C22.0001 15.9523 22.0001 16.7161 21.9179 17.3278C21.8297 17.9833 21.631 18.6117 21.1213 19.1213C20.6117 19.631 19.9833 19.8297 19.3278 19.9179C18.7161 20.0001 17.9523 20.0001 17.0658 20H6.93414C6.04767 20.0001 5.28387 20.0001 4.67221 19.9179C4.0167 19.8297 3.38835 19.631 2.87869 19.1213C2.36902 18.6117 2.17028 17.9833 2.08215 17.3278C1.99991 16.7161 1.99995 15.9523 2 15.0658V11ZM5 14C5 13.4477 5.44772 13 6 13H8C8.55228 13 9 13.4477 9 14C9 14.5523 8.55228 15 8 15H6C5.44772 15 5 14.5523 5 14ZM10 14C10 13.4477 10.4477 13 11 13H13C13.5523 13 14 13.4477 14 14C14 14.5523 13.5523 15 13 15H11C10.4477 15 10 14.5523 10 14Z" fill="currentColor"/>
+<path d="M22 9.00001V8.93418C22.0001 8.04769 22.0001 7.28387 21.9179 6.67221C21.8297 6.0167 21.631 5.38835 21.1213 4.87869C20.6117 4.36902 19.9833 4.17028 19.3278 4.08215C18.7161 3.99991 17.9523 3.99995 17.0658 4H6.93418C6.04769 3.99995 5.28388 3.99991 4.67222 4.08215C4.0167 4.17028 3.38835 4.36902 2.87869 4.87868C2.36902 5.38835 2.17028 6.0167 2.08215 6.67221C1.99991 7.28388 1.99995 8.0477 2 8.9342V9L22 9.00001Z" fill="currentColor"/></symbol><symbol id="i-ui-list" viewBox="0 0 18 17"><path d="M18.0004 8.25042C18.0004 8.44933 17.9214 8.6401 17.7807 8.78075C17.6401 8.9214 17.4493 9.00042 17.2504 9.00042H9.00042C8.80151 9.00042 8.61074 8.9214 8.47009 8.78075C8.32943 8.6401 8.25042 8.44933 8.25042 8.25042C8.25042 8.05151 8.32943 7.86074 8.47009 7.72009C8.61074 7.57943 8.80151 7.50042 9.00042 7.50042H17.2504C17.4493 7.50042 17.6401 7.57943 17.7807 7.72009C17.9214 7.86074 18.0004 8.05151 18.0004 8.25042ZM9.00042 3.00042H17.2504C17.4493 3.00042 17.6401 2.9214 17.7807 2.78075C17.9214 2.64009 18.0004 2.44933 18.0004 2.25042C18.0004 2.0515 17.9214 1.86074 17.7807 1.72009C17.6401 1.57943 17.4493 1.50042 17.2504 1.50042H9.00042C8.80151 1.50042 8.61074 1.57943 8.47009 1.72009C8.32943 1.86074 8.25042 2.0515 8.25042 2.25042C8.25042 2.44933 8.32943 2.64009 8.47009 2.78075C8.61074 2.9214 8.80151 3.00042 9.00042 3.00042ZM17.2504 13.5004H9.00042C8.80151 13.5004 8.61074 13.5794 8.47009 13.7201C8.32943 13.8607 8.25042 14.0515 8.25042 14.2504C8.25042 14.4493 8.32943 14.6401 8.47009 14.7807C8.61074 14.9214 8.80151 15.0004 9.00042 15.0004H17.2504C17.4493 15.0004 17.6401 14.9214 17.7807 14.7807C17.9214 14.6401 18.0004 14.4493 18.0004 14.2504C18.0004 14.0515 17.9214 13.8607 17.7807 13.7201C17.6401 13.5794 17.4493 13.5004 17.2504 13.5004ZM4.71979 0.219792L2.25042 2.6901L1.28104 1.71979C1.14031 1.57906 0.94944 1.5 0.750417 1.5C0.551394 1.5 0.360523 1.57906 0.219792 1.71979C0.0790615 1.86052 1.48284e-09 2.05139 0 2.25042C-1.48284e-09 2.44944 0.0790615 2.64031 0.219792 2.78104L1.71979 4.28104C1.78945 4.35077 1.87216 4.40609 1.96321 4.44384C2.05426 4.48158 2.15186 4.50101 2.25042 4.50101C2.34898 4.50101 2.44657 4.48158 2.53762 4.44384C2.62867 4.40609 2.71139 4.35077 2.78104 4.28104L5.78104 1.28104C5.92177 1.14031 6.00083 0.94944 6.00083 0.750417C6.00083 0.551394 5.92177 0.360523 5.78104 0.219792C5.64031 0.0790615 5.44944 0 5.25042 0C5.05139 0 4.86052 0.0790615 4.71979 0.219792ZM4.71979 6.21979L2.25042 8.6901L1.28104 7.71979C1.14031 7.57906 0.94944 7.5 0.750417 7.5C0.551394 7.5 0.360523 7.57906 0.219792 7.71979C0.0790615 7.86052 0 8.05139 0 8.25042C0 8.34896 0.0194101 8.44654 0.0571221 8.53759C0.0948341 8.62863 0.150109 8.71136 0.219792 8.78104L1.71979 10.281C1.78945 10.3508 1.87216 10.4061 1.96321 10.4438C2.05426 10.4816 2.15186 10.501 2.25042 10.501C2.34898 10.501 2.44657 10.4816 2.53762 10.4438C2.62867 10.4061 2.71139 10.3508 2.78104 10.281L5.78104 7.28104C5.92177 7.14031 6.00083 6.94944 6.00083 6.75042C6.00083 6.55139 5.92177 6.36052 5.78104 6.21979C5.64031 6.07906 5.44944 6 5.25042 6C5.05139 6 4.86052 6.07906 4.71979 6.21979ZM4.71979 12.2198L2.25042 14.6901L1.28104 13.7198C1.21136 13.6501 1.12863 13.5948 1.03759 13.5571C0.946545 13.5194 0.848963 13.5 0.750417 13.5C0.651871 13.5 0.554289 13.5194 0.463245 13.5571C0.3722 13.5948 0.289475 13.6501 0.219792 13.7198C0.150109 13.7895 0.0948341 13.8722 0.0571221 13.9632C0.0194101 14.0543 0 14.1519 0 14.2504C0 14.349 0.0194101 14.4465 0.0571221 14.5376C0.0948341 14.6286 0.150109 14.7114 0.219792 14.781L1.71979 16.281C1.78945 16.3508 1.87216 16.4061 1.96321 16.4438C2.05426 16.4816 2.15186 16.501 2.25042 16.501C2.34898 16.501 2.44657 16.4816 2.53762 16.4438C2.62867 16.4061 2.71139 16.3508 2.78104 16.281L5.78104 13.281C5.92177 13.1403 6.00083 12.9494 6.00083 12.7504C6.00083 12.5514 5.92177 12.3605 5.78104 12.2198C5.64031 12.0791 5.44944 12 5.25042 12C5.05139 12 4.86052 12.0791 4.71979 12.2198Z" fill="currentColor"/></symbol><symbol id="i-pix" viewBox="0 0 24 24"><path d="M17.8755 17.5651C17.4704 17.566 17.0691 17.4866 16.6947 17.3316C16.3204 17.1767 15.9805 16.9491 15.6945 16.6621L12.5445 13.5121C12.433 13.4061 12.2851 13.3471 12.1313 13.3471C11.9775 13.3471 11.8295 13.4061 11.718 13.5121L8.55603 16.6741C8.27019 16.9612 7.93027 17.1889 7.55591 17.3439C7.18156 17.4989 6.7802 17.5781 6.37503 17.5771H5.75403L9.74403 21.5671C10.989 22.8121 13.0095 22.8121 14.2545 21.5671L18.255 17.5651H17.8755ZM6.37503 6.42306C7.20003 6.42306 7.97403 6.74406 8.55603 7.32606L11.718 10.4881C11.7724 10.5425 11.8369 10.5857 11.9079 10.6151C11.979 10.6446 12.0551 10.6597 12.132 10.6597C12.2089 10.6597 12.2851 10.6446 12.3561 10.6151C12.4272 10.5857 12.4917 10.5425 12.546 10.4881L15.696 7.33806C15.9817 7.05108 16.3214 6.82352 16.6954 6.66854C17.0695 6.51355 17.4706 6.43419 17.8755 6.43506H18.255L14.2545 2.43456C13.6563 1.8367 12.8451 1.50085 11.9993 1.50085C11.1535 1.50085 10.3423 1.8367 9.74403 2.43456L5.75403 6.42456L6.37503 6.42306Z" fill="currentColor"/>
+<path d="M21.5655 9.74405L19.1475 7.32605C19.0932 7.34834 19.0352 7.36005 18.9765 7.36055H17.877C17.3085 7.36055 16.752 7.59155 16.3515 7.99355L13.2015 11.1436C13.0614 11.2844 12.8949 11.3961 12.7114 11.4724C12.528 11.5486 12.3314 11.5879 12.1327 11.5879C11.9341 11.5879 11.7374 11.5486 11.554 11.4724C11.3706 11.3961 11.2041 11.2844 11.064 11.1436L7.90198 7.98005C7.49631 7.57604 6.94752 7.34855 6.37498 7.34705H5.02498C4.96902 7.34661 4.91361 7.33593 4.86148 7.31555L2.43448 9.74405C1.18948 10.9891 1.18948 13.0096 2.43448 14.2561L4.86148 16.6831C4.91303 16.6623 4.96793 16.6511 5.02348 16.6501H6.37498C6.94498 16.6501 7.49998 16.4206 7.90198 16.0186L11.0625 12.8551C11.3509 12.5805 11.7338 12.4273 12.132 12.4273C12.5302 12.4273 12.9131 12.5805 13.2015 12.8551L16.3515 16.0051C16.752 16.4071 17.3085 16.6366 17.877 16.6366H18.9765C19.0365 16.6366 19.095 16.6516 19.1475 16.6726L21.5655 14.2546C22.8105 13.0096 22.8105 10.9891 21.5655 9.74405Z" fill="currentColor"/></symbol></svg><!--/ICONES-->
 
 <!-- ================== HOME ================== -->
 <main class="tela ativa" id="tela-home">
@@ -398,8 +477,8 @@ button{border:0; padding:0; background:none; cursor:pointer}
     </div>
   </header>
 
-  <div class="wrap home">
-    <div class="home__topo">
+  <div class="home">
+    <div class="wrap home__topo">
       <section class="hero">
         <img src="assets/home/hero.webp" alt="Nega Nagô no estúdio" onerror="this.hidden=true">
         <div class="hero__txt">
@@ -410,31 +489,33 @@ button{border:0; padding:0; background:none; cursor:pointer}
 
       <div class="promo">
         <button class="promo__card marca-sup" onclick="abrirSheet('sheet-como')">
-          <span class="promo__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.1-.2-1-1.4-1-2.6 0-1.2.6-1.8.9-2 .2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.1.1.3 0 .5l-.3.4-.4.4c-.1.1-.3.3-.1.5.1.3.6 1.1 1.4 1.8 1 .8 1.7 1.1 2 1.2.2.1.4.1.5-.1l.8-.9c.2-.2.3-.2.5-.1l1.8.9c.2.1.4.2.4.3.1.1.1.6-.1 1.2Z"/></svg></span>
+          <span class="promo__ic"><svg class="ic ic--22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .1-1.6-.1-.4-.1-.9-.3-1.5-.6-2.6-1.1-4.3-3.8-4.4-4-.1-.2-1-1.4-1-2.6 0-1.2.6-1.8.9-2 .2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.1.1.3 0 .5l-.3.4-.4.4c-.1.1-.3.3-.1.5.1.3.6 1.1 1.4 1.8 1 .8 1.7 1.1 2 1.2.2.1.4.1.5-.1l.8-.9c.2-.2.3-.2.5-.1l1.8.9c.2.1.4.2.4.3.1.1.1.6-.1 1.2Z"/></svg></span>
           <b><span class="so-mob">Como agendar<br>pelo Zap</span><span class="so-desk">Como agendar no Zap</span></b>
         </button>
         <button class="promo__card marca-sup" onclick="abrirSheet('sheet-regras')">
-          <span class="promo__ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5h2v2H3V5Zm4 0h14v2H7V5ZM3 11h2v2H3v-2Zm4 0h14v2H7v-2Zm-4 6h2v2H3v-2Zm4 0h14v2H7v-2Z"/></svg></span>
+          <span class="promo__ic"><svg class="ic ic--22"><use href="#i-list-checks"/></svg></span>
           <b><span class="so-mob">Regrinhas de<br>agendamento</span><span class="so-desk">Regrinhas de agendamento</span></b>
         </button>
       </div>
     </div>
 
-    <section class="grade">
+    <section class="wrap grade">
       <div class="secao__cab">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="#592812" aria-hidden="true"><path d="M5 16 3 6l5.5 4L12 4l3.5 6L21 6l-2 10H5Zm0 2h14v2H5v-2Z"/></svg>
+        <svg class="ic" style="color:#592812"><use href="#i-crown"/></svg>
         <h2 class="t-secao">Qual vai ser a coroa da vez?</h2>
       </div>
       <div id="grade"></div>
     </section>
 
     <section class="galeria marca-sup">
-      <div class="secao__cab">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ebb69d" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.5-.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z"/></svg>
-        <h2 class="t-secao">Coroas que já saíram daqui</h2>
+      <div class="galeria__in">
+        <div class="secao__cab">
+          <svg class="ic" style="color:#ebb69d"><use href="#i-instagram"/></svg>
+          <h2 class="t-secao">Coroas que já saíram daqui</h2>
+        </div>
+        <div class="carrossel" id="carrossel"><div class="trilho anima" id="trilho"></div></div>
+        <div class="pontos" id="pontos"></div>
       </div>
-      <div class="carrossel" id="carrossel"><div class="trilho" id="trilho"></div></div>
-      <div class="pontos" id="pontos"></div>
     </section>
   </div>
 </main>
@@ -442,9 +523,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
 <!-- ================== PRODUTO ================== -->
 <main class="tela" id="tela-produto">
   <header class="barra">
-    <div class="barra__in">
-      <button class="voltar" onclick="irPara('home')">‹ Voltar</button>
-    </div>
+    <div class="barra__in"><button class="voltar" onclick="irPara('home')">‹ Voltar</button></div>
   </header>
 
   <div class="wrap">
@@ -489,9 +568,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
 <!-- ================== AGENDAMENTO ================== -->
 <main class="tela" id="tela-agendamento">
   <header class="barra">
-    <div class="barra__in">
-      <button class="voltar" onclick="irPara('produto')">‹ Voltar</button>
-    </div>
+    <div class="barra__in"><button class="voltar" onclick="irPara('produto')">‹ Voltar</button></div>
   </header>
 
   <div class="wrap">
@@ -499,7 +576,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
       <div class="booking__col">
         <div class="bloco bloco--campo">
           <div class="secao__cab">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#592812" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 5.3-7 13-7 13S5 14.3 5 9a7 7 0 0 1 7-7Zm0 4.5A2.5 2.5 0 1 0 12 11a2.5 2.5 0 0 0 0-4.5Z"/></svg>
+            <svg class="ic" style="color:#592812"><use href="#i-map-pin"/></svg>
             <h2 class="t-bloco">Bora agendar a coroa!</h2>
           </div>
           <p class="t-corpo">Pra começar, como podemos te chamar?</p>
@@ -510,30 +587,57 @@ button{border:0; padding:0; background:none; cursor:pointer}
 
         <div class="bloco">
           <div class="secao__cab">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#592812" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 5.3-7 13-7 13S5 14.3 5 9a7 7 0 0 1 7-7Zm0 4.5A2.5 2.5 0 1 0 12 11a2.5 2.5 0 0 0 0-4.5Z"/></svg>
+            <svg class="ic" style="color:#592812"><use href="#i-map-pin"/></svg>
             <h2 class="t-bloco">Onde vai ser?</h2>
           </div>
           <div class="opt-lista">
             <button class="opt" id="local-estudio" aria-pressed="false" onclick="escolherLocal('estudio')">
-              <span class="opt__ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 4h16l1 5a3 3 0 0 1-5.2 2A3 3 0 0 1 12 12a3 3 0 0 1-3.8-1A3 3 0 0 1 3 9l1-5Zm1 8.9V20h5v-4h4v4h5v-7.1a4.9 4.9 0 0 1-3.8-.7A4.9 4.9 0 0 1 12 13a4.9 4.9 0 0 1-3.2-.8 4.9 4.9 0 0 1-3.8.7Z"/></svg></span>
+              <svg class="ic ic--48"><use href="#i-local-estudio"/></svg>
               <span class="opt__info"><span class="opt__nome">Estúdio</span><span class="opt__sub">Bairro Americanópolis</span></span>
             </button>
             <button class="opt" id="local-casa" aria-pressed="false" onclick="escolherLocal('casa')">
-              <span class="opt__ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3L12 3Z"/></svg></span>
+              <svg class="ic ic--48"><use href="#i-local-domicilio"/></svg>
               <span class="opt__info"><span class="opt__nome">A domicílio</span><span class="opt__sub">Taxa de deslocamento a combinar</span></span>
             </button>
           </div>
-          <div id="a-bairro-bloco" hidden>
-            <p class="t-corpo" style="margin-bottom:4px">Me fala, qual é o seu bairro?</p>
-            <label class="campo"><span>Bairro</span>
-              <input id="a-bairro" type="text" placeholder="Nome do bairro" oninput="validar()">
+
+          <!-- endereço: busca por CEP ou rua, depois número e complemento -->
+          <div class="end" id="a-end-bloco" hidden>
+            <p class="t-corpo">Me fala onde fica? Pode ser o CEP ou o nome da rua.</p>
+            <label class="campo"><span>CEP ou rua</span>
+              <input id="a-busca" type="text" autocomplete="off" spellcheck="false"
+                     placeholder="Ex.: 04455-000 ou Rua das Palmeiras, São Paulo">
             </label>
+            <p class="end__estado" id="a-end-estado"></p>
+            <div class="sugestoes" id="a-sugestoes" hidden></div>
+
+            <div class="end" id="a-end-detalhe" hidden>
+              <div class="end__card">
+                <svg class="ic"><use href="#i-map-pin"/></svg>
+                <div id="a-end-achado"></div>
+              </div>
+              <div class="end__par">
+                <label class="campo"><span>Número</span>
+                  <input id="a-numero" type="text" inputmode="numeric" placeholder="123" oninput="validarEndereco()">
+                </label>
+                <label class="campo"><span>Complemento</span>
+                  <input id="a-compl" type="text" placeholder="Apto, bloco, referência">
+                </label>
+              </div>
+              <button class="btn btn--sec" id="a-confirmar" disabled onclick="confirmarEndereco()">Confirmar endereço</button>
+            </div>
+
+            <div class="end__card" id="a-end-ok" hidden>
+              <svg class="ic"><use href="#i-check-square"/></svg>
+              <div id="a-end-final"></div>
+              <button class="end__trocar" onclick="trocarEndereco()">Trocar</button>
+            </div>
           </div>
         </div>
 
         <div class="bloco bloco--campo">
           <div class="secao__cab">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#592812" aria-hidden="true"><path d="M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V2ZM5 9v11h14V9H5Z"/></svg>
+            <svg class="ic" style="color:#592812"><use href="#i-calendar"/></svg>
             <h2 class="t-bloco">Escolha o dia</h2>
           </div>
           <p class="t-corpo">Qual dia você gostaria de fazer a coroa?</p>
@@ -556,48 +660,44 @@ button{border:0; padding:0; background:none; cursor:pointer}
       <div class="booking__col booking__dir">
         <div class="bloco bloco--campo">
           <div class="secao__cab">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#592812" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 10.6 4 2.3-1 1.7-5-2.9V6h2v6.6Z"/></svg>
+            <svg class="ic" style="color:#592812"><use href="#i-clock"/></svg>
             <h2 class="t-bloco">Período</h2>
           </div>
           <p class="t-corpo">Me conta sua preferência que a gente alinha o horário certinho no WhatsApp!</p>
           <div class="chip-par">
             <button class="chip" id="per-manha" aria-pressed="false" onclick="escolherPeriodo('Manhã')">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-14 1.8 2.6h-3.6L12 3Zm0 18-1.8-2.6h3.6L12 21ZM3 12l2.6-1.8v3.6L3 12Zm18 0-2.6 1.8v-3.6L21 12ZM5.6 5.6l3.1.5-2.6 1.8-.5-2.3Zm12.8 12.8-3.1-.5 2.6-1.8.5 2.3ZM18.4 5.6l-.5 2.3-2.6-1.8 3.1-.5ZM5.6 18.4l.5-2.3 2.6 1.8-3.1.5Z"/></svg>
-              Manhã
+              <svg class="ic"><use href="#i-sun"/></svg> Manhã
             </button>
             <button class="chip" id="per-tarde" aria-pressed="false" onclick="escolherPeriodo('Tarde')">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 8a5 5 0 0 1 5 5H7a5 5 0 0 1 5-5Zm-9 7h18v2H3v-2Zm9-13 1.6 2.4h-3.2L12 2ZM4.2 6.4l2.8.9-1.6 1.7-1.2-2.6Zm15.6 0-1.2 2.6-1.6-1.7 2.8-.9Z"/></svg>
-              Tarde
+              <svg class="ic"><use href="#i-sun-horizon"/></svg> Tarde
             </button>
           </div>
         </div>
 
         <div class="aviso">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-2h2v2Zm0-4h-2V7h2v6Z"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15h-2v-2h2v2Zm0-4h-2V7h2v6Z"/></svg>
           <span>Para garantir sua vaga e material, pedimos um sinal de 30% (<span id="a-sinal-aviso">R$ 90,00</span>). O restante você acerta no dia da beleza.</span>
         </div>
 
         <div class="bloco bloco--campo">
           <div class="secao__cab">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#592812" aria-hidden="true"><path d="M2 13h4l3 3h4a1 1 0 0 1 0 2H9v2h5l7-4.5a1.5 1.5 0 0 1 1.6 2.5L15 23H2V13Zm14-11a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></svg>
+            <svg class="ic" style="color:#592812"><use href="#i-hand-coins"/></svg>
             <h2 class="t-bloco">Forma de pagamento (sinal 30%)</h2>
           </div>
           <p class="t-corpo">Como você prefere pagar o sinal de <b class="t-forte" id="a-sinal-txt">R$ 90,00</b>?</p>
           <div class="chip-par">
             <button class="chip" id="pag-pix" aria-pressed="false" onclick="escolherPagamento('PIX')">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.6 22.4 12 12 22.4 1.6 12 12 1.6Zm0 3.3L4.9 12l7.1 7.1L19.1 12 12 4.9Z"/></svg>
-              PIX
+              <svg class="ic"><use href="#i-pix"/></svg> PIX
             </button>
             <button class="chip" id="pag-cartao" aria-pressed="false" onclick="escolherPagamento('Cartão de Crédito')">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 4H3V7h18v2ZM4 13h5v2H4v-2Z"/></svg>
-              Cartão de Crédito
+              <svg class="ic"><use href="#i-credit-card"/></svg> Cartão de Crédito
             </button>
           </div>
         </div>
 
         <div class="bloco">
           <div class="secao__cab">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#d3602a" aria-hidden="true"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm6.5 13.5 7-7-1.4-1.4-5.6 5.6-2.6-2.6L6.5 13l4 3.5Z"/></svg>
+            <svg class="ic" style="color:#d3602a"><use href="#i-check-square"/></svg>
             <h2 class="t-bloco">Resumo do agendamento</h2>
           </div>
           <div class="resumo">
@@ -607,7 +707,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
         </div>
 
         <div class="aviso">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9Zm3 5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9Zm3 5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg>
           <span>Só mais um detalhe: ao abrir o WhatsApp, mande uma foto do seu cabelo solto pra gente preparar tudo sob medida!</span>
         </div>
 
@@ -635,9 +735,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
         <h2 id="t-como">Como agendar</h2>
         <p class="t-corpo">São três passos, do catálogo até a mensagem pronta no Zap.</p>
       </div>
-      <button class="fechar" aria-label="Fechar" onclick="fecharSheet('sheet-como')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m19 6.4-1.4-1.4-5.6 5.6-5.6-5.6L5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4Z"/></svg>
-      </button>
+      <button class="fechar" aria-label="Fechar" onclick="fecharSheet('sheet-como')">✕</button>
     </div>
     <div class="passos">
       <div class="passo"><span class="passo__n">1</span><div><b>Escolha seu estilo</b><p class="t-corpo">Navegue pelo catálogo e defina a trança, o tamanho e adicionais de cachos.</p></div></div>
@@ -661,9 +759,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
         <h2 id="t-regras">Regrinhas do nosso agendamento</h2>
         <p class="t-corpo">Para garantir pontualidade e a melhor experiência no seu dia da beleza!</p>
       </div>
-      <button class="fechar" aria-label="Fechar" onclick="fecharSheet('sheet-regras')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m19 6.4-1.4-1.4-5.6 5.6-5.6-5.6L5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6L19 6.4Z"/></svg>
-      </button>
+      <button class="fechar" aria-label="Fechar" onclick="fecharSheet('sheet-regras')">✕</button>
     </div>
     <div class="passos">
       <div class="passo"><span class="passo__n">1</span><div><b>Preparo do cabelo</b><p class="t-corpo">Venha com os fios lavados, 100% secos e bem desembaraçados.</p></div></div>
@@ -733,7 +829,29 @@ var OCUPADOS = [3,4,10,11,17,18,24,25];   /* no piloto vem da Google Agenda da M
 var AUTOPLAY_MS = 3800, RETOMAR_MS = 3000;
 var COLUNAS_MOBILE = 3, COLUNAS_DESKTOP = 5;
 
-var st = { styleId:null, opt:null, cachos:false, nome:'', local:null, bairro:'',
+/* comprimento -> ícone da Biblioteca; o que não casa cai na escala por posição */
+var ESCALA = ['tamanho-chanel','tamanho-long-bob','tamanho-meio-das-costas','tamanho-quadril','tamanho-abaixo-do-quadril'];
+var POR_ROTULO = {
+  'Chanel':'tamanho-chanel', 'Long Bob':'tamanho-long-bob', 'Meio das costas':'tamanho-meio-das-costas',
+  'Quadril':'tamanho-quadril', 'Até o quadril':'tamanho-quadril', 'Abaixo do quadril':'tamanho-abaixo-do-quadril',
+  'Cintura':'tamanho-meio-das-costas', 'Até a cintura':'tamanho-quadril', 'Abaixo da cintura':'tamanho-abaixo-do-quadril'
+};
+function iconeOpcao(id, rotulo, i, total){
+  if(id==='crochet-braids')
+    return 'modelo-' + ({'Tranças':'trancas','Dreads':'dreads','Twist':'twist','Cabelo orgânico':'cabelo-organico'}[rotulo] || 'trancas');
+  if(id==='remocao') return 'remocao-' + (rotulo==='Remoção Nagô' ? 'nago' : 'box-braids');
+  if(id==='masculino'){
+    if(rotulo.indexOf('Box braids') === 0)
+      return POR_ROTULO[rotulo.replace('Box braids — ','')] || 'tamanho-chanel';
+    return 'masculino-' + ({'Nagô':'nago','Twist':'twist','Barrel twist':'barrel-twist'}[rotulo] || 'nago');
+  }
+  if(POR_ROTULO[rotulo]) return POR_ROTULO[rotulo];
+  var pos = total > 1 ? Math.round(i/(total-1)*(ESCALA.length-1)) : 0;
+  return ESCALA[Math.min(ESCALA.length-1, pos)];
+}
+
+var st = { styleId:null, opt:null, cachos:false, nome:'', local:null,
+           endereco:null, achado:null,
            data:null, periodo:null, pagamento:null, mes:new Date() };
 
 function $(id){ return document.getElementById(id); }
@@ -747,8 +865,9 @@ function tempoDe(e,o){ return (o && o.time) || e.time || e.short; }
 function press(el,on){ if(el) el.setAttribute('aria-pressed', on?'true':'false'); }
 function ehDesktop(){ return window.matchMedia('(min-width:900px)').matches; }
 
-/* ---------- HOME ---------- */
-/* a grade é montada em fileiras, como no Figma: 3 colunas no mobile, 5 no desktop */
+/* ============================================================
+   HOME — grade
+   ============================================================ */
 function montarGrade(){
   var g = $('grade'); if(!g) return;
   var cols = ehDesktop() ? COLUNAS_DESKTOP : COLUNAS_MOBILE;
@@ -769,13 +888,30 @@ function montarGrade(){
   g.dataset.cols = cols;
 }
 
-var idx=0, timer=null, retomar=null;
+/* ============================================================
+   CARROSSEL — rolagem infinita e arraste com dedo ou mouse
+
+   Três cópias da lista lado a lado; a pessoa navega sempre pela do
+   meio. Ao chegar numa das pontas, o trilho salta de volta para a
+   cópia central sem animar — visualmente não há começo nem fim.
+   ============================================================ */
+var COPIAS = 3;
+var n = FOTOS.length;
+var idx = n;                                  /* começa na cópia do meio */
+var passo = 0, timer = null, retomar = null;
+var arrastando = false, x0 = 0, dx = 0, moveu = false, pid = null;
+
 function montarCarrossel(){
-  var t=$('trilho'), p=$('pontos'); if(!t) return;
-  t.innerHTML = FOTOS.map(function(n,i){
-    return '<div class="slide"><img src="assets/galeria/' + n + '.webp" alt="Trabalho ' + (i+1) + '" fetchpriority="low"></div>';
-  }).join('');
+  var t = $('trilho'), p = $('pontos'); if(!t) return;
+  var html = '';
+  for(var c=0;c<COPIAS;c++)
+    for(var i=0;i<n;i++)
+      html += '<div class="slide"><img src="assets/galeria/' + FOTOS[i] + '.webp"' +
+              ' alt="Trabalho ' + (i+1) + '" draggable="false" fetchpriority="low"></div>';
+  t.innerHTML = html;
   p.innerHTML = FOTOS.map(function(_,i){ return '<span class="ponto' + (i?'':' on') + '"></span>'; }).join('');
+
+  /* sem nenhuma foto, a seção some em vez de mostrar caixas vazias */
   var imgs = t.querySelectorAll('img'), falhas = 0;
   Array.prototype.forEach.call(imgs, function(img){
     img.addEventListener('error', function(){
@@ -783,38 +919,94 @@ function montarCarrossel(){
       if(++falhas === imgs.length){ var g=document.querySelector('.galeria'); if(g) g.hidden=true; parar(); }
     });
   });
-  posicionar(); iniciar();
-  var c=$('carrossel');
-  ['touchstart','pointerdown'].forEach(function(ev){ c.addEventListener(ev, pausar, {passive:true}); });
+
+  medir();
+  posicionar(false);
+  iniciar();
+  ligarArraste();
+  t.addEventListener('transitionend', normalizar);
+  window.addEventListener('resize', function(){ medir(); posicionar(false); });
   document.addEventListener('visibilitychange', function(){ document.hidden ? parar() : iniciar(); });
 }
-function posicionar(){
-  var t=$('trilho'); if(!t || !t.children.length) return;
-  var gap = parseFloat(getComputedStyle(t).gap) || 10;
-  var passo = t.children[0].getBoundingClientRect().width + gap;
-  t.style.transform = 'translateX(' + (-idx*passo) + 'px)';
-  var ps = $('pontos').children;
-  for(var i=0;i<ps.length;i++) ps[i].className = 'ponto' + (i===idx?' on':'');
-}
-function iniciar(){ parar(); timer = setInterval(function(){ idx=(idx+1)%FOTOS.length; posicionar(); }, AUTOPLAY_MS); }
-function parar(){ if(timer){ clearInterval(timer); timer=null; } }
-function pausar(){ parar(); clearTimeout(retomar); retomar = setTimeout(iniciar, RETOMAR_MS); }
 
-/* a grade e o carrossel mudam de forma na virada de breakpoint */
-var largura = window.innerWidth;
+function medir(){
+  var t = $('trilho');
+  if(!t || !t.children.length) return;
+  var gap = parseFloat(getComputedStyle(t).gap) || 0;
+  passo = t.children[0].getBoundingClientRect().width + gap;
+}
+
+function posicionar(anima){
+  var t = $('trilho'); if(!t) return;
+  t.classList.toggle('anima', !!anima);
+  t.style.transform = 'translate3d(' + (-idx*passo + dx) + 'px,0,0)';
+  if(!anima) void t.offsetWidth;              /* aplica o salto sem animar */
+  var ps = $('pontos').children, ativo = ((idx % n) + n) % n;
+  for(var i=0;i<ps.length;i++) ps[i].className = 'ponto' + (i===ativo ? ' on' : '');
+}
+
+/* volta para a cópia do meio quando encosta numa ponta */
+function normalizar(){
+  if(idx >= 2*n){ idx -= n; posicionar(false); }
+  else if(idx < n){ idx += n; posicionar(false); }
+}
+
+function irPara_(delta){ idx += delta; posicionar(true); }
+function iniciar(){ parar(); timer = setInterval(function(){ irPara_(1); }, AUTOPLAY_MS); }
+function parar(){ if(timer){ clearInterval(timer); timer=null; } }
+function adiar(){ parar(); clearTimeout(retomar); retomar = setTimeout(iniciar, RETOMAR_MS); }
+
+function ligarArraste(){
+  /* na área visível, e não no trilho: a caixa do trilho fica deslocada
+     para fora da tela, então o vão entre as fotos não pegava o arraste */
+  var t = $('carrossel');
+  t.addEventListener('pointerdown', function(e){
+    if(e.button && e.button !== 0) return;
+    arrastando = true; moveu = false; x0 = e.clientX; dx = 0; pid = e.pointerId;
+    parar(); t.classList.add('arrastando'); t.classList.remove('anima');
+    try{ t.setPointerCapture(pid); }catch(err){}
+  });
+  t.addEventListener('pointermove', function(e){
+    if(!arrastando) return;
+    dx = e.clientX - x0;
+    if(Math.abs(dx) > 4) moveu = true;
+    posicionar(false);
+  });
+  var soltar = function(){
+    if(!arrastando) return;
+    arrastando = false;
+    t.classList.remove('arrastando');
+    /* um empurrãozinho já troca de foto; arrasto longo pula várias */
+    var salto = Math.round(-dx / passo);
+    if(salto === 0 && Math.abs(dx) > passo*0.18) salto = dx < 0 ? 1 : -1;
+    dx = 0;
+    idx += salto;
+    posicionar(true);
+    if(salto === 0) normalizar();
+    adiar();
+  };
+  t.addEventListener('pointerup', soltar);
+  t.addEventListener('pointercancel', soltar);
+  t.addEventListener('lostpointercapture', soltar);
+  /* depois de arrastar, o clique que vem junto não deve abrir nada */
+  t.addEventListener('click', function(e){ if(moveu){ e.preventDefault(); e.stopPropagation(); } }, true);
+}
+
+/* a grade muda de forma na virada de breakpoint */
 window.addEventListener('resize', function(){
   var cols = ehDesktop() ? COLUNAS_DESKTOP : COLUNAS_MOBILE;
   if(String(cols) !== $('grade').dataset.cols) montarGrade();
-  posicionar();
-  largura = window.innerWidth;
 });
 
-/* ---------- NAVEGAÇÃO ---------- */
+/* ============================================================
+   NAVEGAÇÃO
+   ============================================================ */
 window.irPara = function(tela){
   ['home','produto','agendamento'].forEach(function(t){
     $('tela-'+t).classList.toggle('ativa', t===tela);
   });
   window.scrollTo(0,0);
+  if(tela==='home'){ medir(); posicionar(false); }
   if(tela==='agendamento') pintarAgendamento();
 };
 
@@ -833,23 +1025,11 @@ window.abrirProduto = function(id){
   irPara('produto');
 };
 
-/* pictograma de comprimento: as mechas crescem conforme o tamanho escolhido,
-   como no catálogo do Figma — cinco desenhos, não cinco vezes o mesmo ícone */
-function iconeTamanho(i,total){
-  var t = total > 1 ? i/(total-1) : 0;
-  var h = (5.5 + t*11).toFixed(1);          /* 5,5 -> 16,5 de mecha */
-  return '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
-           '<circle cx="12" cy="7.4" r="4.1"/>' +
-           '<rect x="4.6" y="4.6" width="3" height="' + h + '" rx="1.5"/>' +
-           '<rect x="16.4" y="4.6" width="3" height="' + h + '" rx="1.5"/>' +
-         '</svg>';
-}
-
 function montarOpcoes(){
-  var e=estilo(), n=e.options.length;
+  var e=estilo(), t=e.options.length;
   $('p-opcoes').innerHTML = e.options.map(function(o,i){
     return '<button class="opt" aria-pressed="false" onclick="escolherOpcao(' + i + ')">' +
-             '<span class="opt__ic">' + iconeTamanho(i,n) + '</span>' +
+             '<svg class="ic ic--48"><use href="#i-' + iconeOpcao(e.id,o.label,i,t) + '"/></svg>' +
              '<span class="opt__info"><span class="opt__nome">' + esc(o.label) + '</span>' +
              '<span class="opt__sub">Cerca de ' + esc(tempoDe(e,o)) + '</span></span>' +
              '<span class="opt__preco">' + brl(o.price) + '</span>' +
@@ -872,12 +1052,141 @@ function pintarProduto(){
   $('p-nota').textContent = ok ? 'Você confere tudo antes de enviar' : 'Escolha um tamanho para continuar';
 }
 
-/* ---------- AGENDAMENTO ---------- */
+/* ============================================================
+   ENDEREÇO — CEP pelo ViaCEP, rua pelo Nominatim (OpenStreetMap)
+
+   As duas APIs são públicas e sem chave. Se alguma estiver fora do ar
+   ou a pessoa estiver sem rede, o que ela digitou vale como endereço:
+   o fluxo nunca trava.
+   ============================================================ */
+var buscaTimer = null, buscaSeq = 0;
+
+function estadoBusca(txt, erro){
+  var el = $('a-end-estado');
+  el.textContent = txt || '';
+  if(erro) el.setAttribute('data-erro',''); else el.removeAttribute('data-erro');
+}
+
+function soDigitos(s){ return (s||'').replace(/\D/g,''); }
+
+function montarSugestoes(lista){
+  var box = $('a-sugestoes');
+  if(!lista.length){ box.hidden = true; box.innerHTML = ''; return; }
+  box.innerHTML = lista.map(function(s,i){
+    return '<button class="sugestao" data-i="' + i + '">' +
+             '<svg class="ic"><use href="#i-map-pin"/></svg>' +
+             '<span><b>' + esc(s.titulo) + '</b><span>' + esc(s.detalhe) + '</span></span>' +
+           '</button>';
+  }).join('');
+  box.hidden = false;
+  Array.prototype.forEach.call(box.querySelectorAll('.sugestao'), function(b){
+    b.onclick = function(){ escolherSugestao(lista[+b.dataset.i]); };
+  });
+}
+
+function escolherSugestao(s){
+  st.achado = s;
+  $('a-sugestoes').hidden = true;
+  $('a-end-detalhe').hidden = false;
+  $('a-end-achado').innerHTML = '<b>' + esc(s.titulo) + '</b><span>' + esc(s.detalhe) + '</span>';
+  estadoBusca('');
+  validarEndereco();
+  $('a-numero').focus();
+}
+
+async function buscar(q){
+  var seq = ++buscaSeq;
+  var cep = soDigitos(q);
+  try{
+    if(cep.length === 8){
+      estadoBusca('Procurando o CEP…');
+      var r = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
+      var d = await r.json();
+      if(seq !== buscaSeq) return;
+      if(d.erro){ estadoBusca('Não achei esse CEP. Confere os números ou digita o nome da rua.', true); montarSugestoes([]); return; }
+      estadoBusca('');
+      montarSugestoes([{
+        titulo: d.logradouro || d.bairro || d.localidade,
+        detalhe: [d.bairro, d.localidade, d.uf].filter(Boolean).join(' · ') + ' · CEP ' + (d.cep||''),
+        rua:d.logradouro||'', bairro:d.bairro||'', cidade:d.localidade||'', uf:d.uf||'', cep:d.cep||''
+      }]);
+      return;
+    }
+    if(q.trim().length < 5){ montarSugestoes([]); estadoBusca(''); return; }
+    estadoBusca('Procurando o endereço…');
+    var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=br&addressdetails=1&limit=5&q='
+              + encodeURIComponent(q);
+    var res = await fetch(url, { headers:{ 'Accept':'application/json' } });
+    var arr = await res.json();
+    if(seq !== buscaSeq) return;
+    if(!Array.isArray(arr) || !arr.length){
+      estadoBusca('Não achei. Pode digitar o endereço do seu jeito que a gente confirma no Zap.', true);
+      montarSugestoes([manual(q)]);
+      return;
+    }
+    estadoBusca('');
+    montarSugestoes(arr.map(function(a){
+      var e = a.address || {};
+      var rua = e.road || e.pedestrian || e.neighbourhood || a.name || '';
+      var cidade = e.city || e.town || e.village || e.municipality || '';
+      return {
+        titulo: rua || a.display_name.split(',')[0],
+        detalhe: [e.suburb || e.neighbourhood, cidade, e.state].filter(Boolean).join(' · '),
+        rua:rua, bairro:e.suburb || e.neighbourhood || '', cidade:cidade, uf:e.state || '', cep:e.postcode || ''
+      };
+    }));
+  }catch(err){
+    if(seq !== buscaSeq) return;
+    /* sem rede ou API fora: o que foi digitado vale */
+    estadoBusca('Não consegui consultar agora. Pode seguir com o que você digitou.', true);
+    montarSugestoes([manual(q)]);
+  }
+}
+
+function manual(q){
+  return { titulo:q.trim(), detalhe:'Endereço digitado por você', rua:q.trim(), bairro:'', cidade:'', uf:'', cep:'' };
+}
+
+window.validarEndereco = function(){
+  $('a-confirmar').disabled = !(st.achado && $('a-numero').value.trim());
+};
+
+window.confirmarEndereco = function(){
+  var num = $('a-numero').value.trim(), comp = $('a-compl').value.trim();
+  var a = st.achado;
+  st.endereco = {
+    linha1: a.rua + (num ? ', ' + num : '') + (comp ? ' — ' + comp : ''),
+    linha2: [a.bairro, a.cidade, a.uf].filter(Boolean).join(' · ') + (a.cep ? ' · CEP ' + a.cep : ''),
+    numero:num, complemento:comp
+  };
+  $('a-end-detalhe').hidden = true;
+  $('a-busca').parentElement.hidden = true;
+  $('a-end-bloco').querySelector('.t-corpo').hidden = true;
+  $('a-end-ok').hidden = false;
+  $('a-end-final').innerHTML = '<b>' + esc(st.endereco.linha1) + '</b><span>' + esc(st.endereco.linha2) + '</span>';
+  pintarAgendamento();
+};
+
+window.trocarEndereco = function(){
+  st.endereco = null; st.achado = null;
+  $('a-end-ok').hidden = true;
+  $('a-busca').parentElement.hidden = false;
+  $('a-end-bloco').querySelector('.t-corpo').hidden = false;
+  $('a-end-detalhe').hidden = true;
+  $('a-numero').value = ''; $('a-compl').value = '';
+  estadoBusca('');
+  pintarAgendamento();
+  $('a-busca').focus();
+};
+
+/* ============================================================
+   AGENDAMENTO
+   ============================================================ */
 window.escolherLocal = function(l){
   st.local = (st.local===l) ? null : l;
   press($('local-estudio'), st.local==='estudio');
   press($('local-casa'), st.local==='casa');
-  $('a-bairro-bloco').hidden = (st.local!=='casa');
+  $('a-end-bloco').hidden = (st.local!=='casa');
   pintarAgendamento();
 };
 window.escolherPeriodo = function(p){
@@ -904,9 +1213,9 @@ window.escolherDia = function(iso){
 
 function vagasNoMes(d){
   var hoje = new Date(); hoje.setHours(0,0,0,0);
-  var ano=d.getFullYear(), mes=d.getMonth(), dias=new Date(ano,mes+1,0).getDate(), n=0;
-  for(var i=1;i<=dias;i++) if(new Date(ano,mes,i)>=hoje && OCUPADOS.indexOf(i)===-1) n++;
-  return n;
+  var ano=d.getFullYear(), mes=d.getMonth(), dias=new Date(ano,mes+1,0).getDate(), c=0;
+  for(var i=1;i<=dias;i++) if(new Date(ano,mes,i)>=hoje && OCUPADOS.indexOf(i)===-1) c++;
+  return c;
 }
 function montarCalendario(){
   var hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -933,12 +1242,16 @@ function dataCurta(iso){
   var p = iso.split('-');
   return p[2] + '/' + p[1] + '/' + p[0];
 }
+function ondeTexto(){
+  if(st.local==='estudio') return 'Estúdio - Americanópolis';
+  if(st.local==='casa') return st.endereco ? 'A domicílio - ' + st.endereco.linha1 : 'A domicílio';
+  return '—';
+}
 
 function pintarAgendamento(){
   if(!$('tela-agendamento').classList.contains('ativa')) return;
   montarCalendario();
   st.nome = $('a-nome').value.trim();
-  st.bairro = $('a-bairro').value.trim();
 
   var s = brl(sinal());
   $('a-sinal-aviso').textContent = s;
@@ -952,8 +1265,7 @@ function pintarAgendamento(){
     ['Coroa escolhida', e ? e.name : '—'],
     ['Tamanho', o ? o.label + ' - ' + brl(o.price) : '—'],
     ['Adicional de cachos', st.cachos ? 'Sim - ' + brl(ADICIONAL_CACHOS) : 'Não - 0'],
-    ['Onde', st.local==='casa' ? 'A domicílio' + (st.bairro ? ' - ' + st.bairro : '')
-           : st.local==='estudio' ? 'Estúdio - Americanópolis' : '—'],
+    ['Onde', ondeTexto()],
     ['Quando', dataCurta(st.data)],
     ['Período', st.periodo || '—'],
     ['Forma de pagamento', st.pagamento || '—']
@@ -975,11 +1287,10 @@ function pintarAgendamento(){
 
 window.validar = function(){
   st.nome = $('a-nome').value.trim();
-  st.bairro = $('a-bairro').value.trim();
   var falta = [];
   if(!st.nome) falta.push('seu nome');
   if(!st.local) falta.push('o local');
-  if(st.local==='casa' && !st.bairro) falta.push('o bairro');
+  if(st.local==='casa' && !st.endereco) falta.push('confirmar o endereço');
   if(!st.data) falta.push('o dia');
   if(!st.periodo) falta.push('o período');
   if(!st.pagamento) falta.push('a forma de pagamento');
@@ -990,15 +1301,14 @@ window.validar = function(){
     : 'Nada é cobrado aqui — você acerta o sinal direto com a Maiara';
 
   var linhas = $('a-lista').querySelectorAll('.linha');
-  for(var i=0;i<linhas.length;i++){
-    var rot = linhas[i].firstElementChild.textContent;
-    if(rot==='Nome') linhas[i].lastElementChild.textContent = st.nome || '—';
-    if(rot==='Onde' && st.local==='casa')
-      linhas[i].lastElementChild.textContent = 'A domicílio' + (st.bairro ? ' - ' + st.bairro : '');
-  }
+  for(var i=0;i<linhas.length;i++)
+    if(linhas[i].firstElementChild.textContent === 'Nome')
+      linhas[i].lastElementChild.textContent = st.nome || '—';
 };
 
-/* ---------- WHATSAPP ---------- */
+/* ============================================================
+   WHATSAPP
+   ============================================================ */
 window.enviarZap = function(){
   var e = estilo(), o = opcao();
   var m = 'Oi, Nega Nagô! Vim pelo site e quero agendar 💛\n\n';
@@ -1007,7 +1317,13 @@ window.enviarZap = function(){
   if(st.cachos) m += 'Adicional de cachos: sim (+ ' + brl(ADICIONAL_CACHOS) + ')\n';
   m += '\n*Meus dados*\n';
   m += 'Nome: ' + st.nome + '\n';
-  m += 'Local: ' + (st.local==='casa' ? 'A domicílio — ' + st.bairro : 'Estúdio (Americanópolis)') + '\n';
+  if(st.local==='casa' && st.endereco){
+    m += 'Local: A domicílio\n';
+    m += 'Endereço: ' + st.endereco.linha1 + '\n';
+    if(st.endereco.linha2) m += '           ' + st.endereco.linha2 + '\n';
+  } else {
+    m += 'Local: Estúdio (Americanópolis)\n';
+  }
   m += 'Dia: ' + dataCurta(st.data) + '\n';
   m += 'Período: ' + st.periodo + '\n';
   m += '\n*Valores*\n';
@@ -1018,7 +1334,9 @@ window.enviarZap = function(){
   window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(m), '_blank', 'noopener');
 };
 
-/* ---------- OVERLAYS ---------- */
+/* ============================================================
+   OVERLAYS
+   ============================================================ */
 var ultimoFoco = null;
 window.abrirSheet = function(id){
   ultimoFoco = document.activeElement;
@@ -1038,11 +1356,20 @@ document.addEventListener('keydown', function(ev){
   });
 });
 
-/* ---------- START ---------- */
+/* ============================================================
+   START
+   ============================================================ */
 montarGrade();
 montarCarrossel();
 if(vagasNoMes(st.mes) === 0) st.mes = new Date(st.mes.getFullYear(), st.mes.getMonth()+1, 1);
 montarCalendario();
+
+$('a-busca').addEventListener('input', function(){
+  clearTimeout(buscaTimer);
+  var q = this.value;
+  if(!q.trim()){ montarSugestoes([]); estadoBusca(''); return; }
+  buscaTimer = setTimeout(function(){ buscar(q); }, 450);
+});
 })();
 </script>
 </body>

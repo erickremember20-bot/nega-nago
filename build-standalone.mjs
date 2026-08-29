@@ -48,7 +48,7 @@ html = html.replace(/'assets\/produto\/' \+ e\.id \+ '-desktop\.webp'/g, "A('pro
 html = html.replace(/'assets\/produto\/' \+ e\.id \+ '-mobile\.webp'/g, "A('produto/'+e.id+'-mobile')");
 // dentro de template de string HTML: src="assets/estilos/' + e.id + '.webp"
 html = html.replace(/src="assets\/estilos\/' \+ e\.id \+ '\.webp"/g, `src="' + A('estilos/'+e.id) + '"`);
-html = html.replace(/src="assets\/galeria\/' \+ n \+ '\.webp"/g, `src="' + A('galeria/'+n) + '"`);
+html = html.replace(/src="assets\/galeria\/' \+ FOTOS\[i\] \+ '\.webp"/g, `src="' + A('galeria/'+FOTOS[i]) + '"`);
 
 const sobrou = html.match(/assets\//g);
 if (sobrou) console.warn(`  ! ${sobrou.length} referência(s) a assets/ ainda no arquivo`);
