@@ -555,7 +555,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
         <div id="p-cachos-bloco">
           <button class="check" id="p-cachos" aria-pressed="false" onclick="alternarCachos()">
             <span class="check__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg></span>
-            <span class="check__txt">Adicional de cachos</span>
+            <span class="check__txt" id="p-cachos-nome">Adicional de cachos</span>
             <span class="check__preco" id="p-cachos-preco">+ R$ 120,00</span>
           </button>
         </div>
@@ -747,7 +747,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
       <button class="fechar" aria-label="Fechar" onclick="fecharSheet('sheet-como')">✕</button>
     </div>
     <div class="passos">
-      <div class="passo"><span class="passo__n">1</span><div><b>Escolha seu estilo</b><p class="t-corpo">Navegue pelo catálogo e defina a trança, o tamanho e adicionais de cachos.</p></div></div>
+      <div class="passo"><span class="passo__n">1</span><div><b>Escolha seu estilo</b><p class="t-corpo">Navegue pelo catálogo e defina a trança, o tamanho e os adicionais.</p></div></div>
       <div class="passo"><span class="passo__n">2</span><div><b>Preencha os detalhes do dia</b><p class="t-corpo">Escolha o local (estúdio ou casa), a data, o período e seus dados de contato.</p></div></div>
       <div class="passo"><span class="passo__n">3</span><div><b>Envie o resumo detalhado no Zap</b><p class="t-corpo">Ao clicar no botão, o site gera a mensagem pronta para a Nega Nagô com a divisão exata dos valores: os 30% do sinal (para a compra do seu material) e o restante no dia da beleza.</p></div></div>
     </div>
@@ -788,9 +788,10 @@ button{border:0; padding:0; background:none; cursor:pointer}
 
 var WHATSAPP = '5511958974251';
 var PCT_SINAL = 0.30;
-/* o adicional de cachos varia com o tipo de trança:
-   R$80 nas nagô (ghanna, rabo de cavalo, boxeadora, nagô desenhada)
-   R$120 nas box braids (box, twist, fulani, knotless, twist braids, mohawk)
+/* o adicional varia com o tipo de trança:
+   R$80 de cachos nas nagô (ghanna, rabo de cavalo, boxeadora, nagô desenhada)
+   R$120 de cachos nas box braids (box, twist, fulani, knotless, twist braids, mohawk)
+   R$80 de jumbo no masculino (addon:'jumbo' troca o rótulo)
    as demais não têm a opção */
 
 var STYLES = [
@@ -820,7 +821,7 @@ var STYLES = [
   { id:'mohawk-braids', cachos:120, name:'Mohawk Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
     {label:'Chanel',price:350},{label:'Meio das costas',price:380},
     {label:'Até a cintura',price:420},{label:'Abaixo da cintura',price:460}]},
-  { id:'masculino', cachos:null, name:'Masculino', unit:'MODELO', short:'3–8h', options:[
+  { id:'masculino', cachos:80, addon:'jumbo', name:'Masculino', unit:'MODELO', short:'3–8h', options:[
     {label:'Nagô',price:180,time:'3 horas'},
     {label:'Twist',price:250,time:'4 horas'},
     {label:'Barrel twist',price:300,time:'5 horas'},
@@ -872,6 +873,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 function estilo(){ for(var i=0;i<STYLES.length;i++) if(STYLES[i].id===st.styleId) return STYLES[i]; return null; }
 function opcao(){ var e=estilo(); return (e && st.opt!==null) ? e.options[st.opt] : null; }
 function cachosValor(){ var e=estilo(); return (e && e.cachos) || 0; }
+function cachosNome(){ var e=estilo(); return 'Adicional de ' + ((e && e.addon) || 'cachos'); }
 function total(){ var o=opcao(); return o ? o.price + (st.cachos?cachosValor():0) : 0; }
 function sinal(){ return Math.round(total()*PCT_SINAL); }
 function tempoDe(e,o){ return (o && o.time) || e.time || e.short; }
@@ -1033,7 +1035,10 @@ window.abrirProduto = function(id){
   if(f){ f.hidden=false; f.src = 'assets/produto/' + e.id + '-mobile.webp'; f.alt = e.name; }
   press($('p-cachos'), false);
   $('p-cachos-bloco').hidden = !e.cachos;          /* só quem tem a opção mostra */
-  if(e.cachos) $('p-cachos-preco').textContent = '+ ' + brl(e.cachos);
+  if(e.cachos){
+    $('p-cachos-preco').textContent = '+ ' + brl(e.cachos);
+    $('p-cachos-nome').textContent = cachosNome();
+  }
   montarOpcoes();
   pintarProduto();
   irPara('produto');
@@ -1278,7 +1283,7 @@ function pintarAgendamento(){
     ['Nome', st.nome || '—'],
     ['Coroa escolhida', e ? e.name : '—'],
     ['Tamanho', o ? o.label + ' - ' + brl(o.price) : '—'],
-    ['Adicional de cachos', st.cachos ? 'Sim - ' + brl(cachosValor()) : 'Não - 0'],
+    [cachosNome(), st.cachos ? 'Sim - ' + brl(cachosValor()) : 'Não - 0'],
     ['Onde', ondeTexto()],
     ['Quando', dataCurta(st.data)],
     ['Período', st.periodo || '—'],
@@ -1328,7 +1333,7 @@ window.enviarZap = function(){
   var m = 'Oi, Nega Nagô! Vim pelo site e quero agendar 💛\n\n';
   m += '*' + e.name + '* — ' + o.label + '\n';
   m += 'Duração estimada: cerca de ' + tempoDe(e,o) + '\n';
-  if(st.cachos) m += 'Adicional de cachos: sim (+ ' + brl(cachosValor()) + ')\n';
+  if(st.cachos) m += cachosNome() + ': sim (+ ' + brl(cachosValor()) + ')\n';
   m += '\n*Meus dados*\n';
   m += 'Nome: ' + st.nome + '\n';
   if(st.local==='casa' && st.endereco){
