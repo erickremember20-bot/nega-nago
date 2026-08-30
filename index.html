@@ -821,15 +821,10 @@ var STYLES = [
   { id:'mohawk-braids', cachos:120, name:'Mohawk Braids', unit:'TAMANHO', time:'6 a 8 horas', short:'6–8h', options:[
     {label:'Chanel',price:350},{label:'Meio das costas',price:380},
     {label:'Até a cintura',price:420},{label:'Abaixo da cintura',price:460}]},
-  { id:'masculino', cachos:80, addon:'jumbo', name:'Masculino', unit:'MODELO', short:'3–8h', options:[
+  { id:'masculino', cachos:80, addon:'jumbo', name:'Masculino', unit:'MODELO', short:'3–5h', options:[
     {label:'Nagô',price:180,time:'3 horas'},
     {label:'Twist',price:250,time:'4 horas'},
-    {label:'Barrel twist',price:300,time:'5 horas'},
-    {label:'Box braids — Chanel',price:300,time:'6 a 8 horas'},
-    {label:'Box braids — Long Bob',price:340,time:'6 a 8 horas'},
-    {label:'Box braids — Meio das costas',price:380,time:'6 a 8 horas'},
-    {label:'Box braids — Quadril',price:400,time:'6 a 8 horas'},
-    {label:'Box braids — Abaixo do quadril',price:480,time:'6 a 8 horas'}]},
+    {label:'Barrel twist',price:300,time:'5 horas'}]},
   { id:'crochet-braids', cachos:null, name:'Crochet Braids', unit:'MODELO', time:'3 horas', short:'3h', options:[
     {label:'Tranças',price:480},{label:'Dreads',price:480},{label:'Twist',price:480},{label:'Cabelo orgânico',price:480}]},
   { id:'remocao', cachos:null, name:'Remoção', unit:'SERVIÇO', time:'3 a 5 horas', short:'3–5h', options:[
@@ -853,11 +848,8 @@ function iconeOpcao(id, rotulo, i, total){
   if(id==='crochet-braids')
     return 'modelo-' + ({'Tranças':'trancas','Dreads':'dreads','Twist':'twist','Cabelo orgânico':'cabelo-organico'}[rotulo] || 'trancas');
   if(id==='remocao') return 'remocao-' + (rotulo==='Remoção Nagô' ? 'nago' : 'box-braids');
-  if(id==='masculino'){
-    if(rotulo.indexOf('Box braids') === 0)
-      return POR_ROTULO[rotulo.replace('Box braids — ','')] || 'tamanho-chanel';
+  if(id==='masculino')
     return 'masculino-' + ({'Nagô':'nago','Twist':'twist','Barrel twist':'barrel-twist'}[rotulo] || 'nago');
-  }
   if(POR_ROTULO[rotulo]) return POR_ROTULO[rotulo];
   var pos = total > 1 ? Math.round(i/(total-1)*(ESCALA.length-1)) : 0;
   return ESCALA[Math.min(ESCALA.length-1, pos)];
