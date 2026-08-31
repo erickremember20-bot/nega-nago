@@ -218,6 +218,64 @@ code{background:var(--sup2);padding:.14em .38em;border-radius:5px;color:var(--ti
 .ad__col--antes .passos li::before{background:var(--papel);border:1px solid var(--linha-forte)}
 .ad__nota{margin-top:20px;font-size:14px;line-height:1.5;color:var(--mudo);padding-top:16px;border-top:1px solid var(--linha)}
 
+/* método — o ciclo Claude <-> Figma */
+.ciclo{
+  display:grid;gap:12px;margin-top:clamp(28px,4vw,42px);
+  grid-template-columns:1fr;
+}
+@media (min-width:900px){.ciclo{grid-template-columns:1.15fr .8fr 1.35fr .8fr 1.15fr;gap:10px}}
+.etapa{
+  background:var(--sup);border:1px solid var(--linha);border-radius:var(--r);
+  padding:22px 20px 20px;display:flex;flex-direction:column;
+}
+.etapa--ponte{background:var(--sup2);border-style:dashed}
+.etapa--nucleo{background:var(--ac-suave);border-color:var(--ac-borda)}
+.etapa__topo{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.etapa__n{
+  flex:none;width:23px;height:23px;border-radius:50%;background:var(--tinta);color:var(--papel);
+  font:700 12px/23px var(--f);text-align:center;
+}
+.etapa--nucleo .etapa__n{background:var(--ac);color:#fff}
+.etapa__fer{
+  font-family:var(--m);font-size:11.5px;letter-spacing:.02em;color:var(--corpo);
+  background:var(--sup2);border:1px solid var(--linha);border-radius:6px;padding:4px 8px;
+}
+.etapa--nucleo .etapa__fer{background:var(--sup);border-color:var(--ac-borda);color:var(--ac-tx)}
+.etapa__fer--mcp{background:transparent;border-style:dashed;color:var(--mudo)}
+.etapa h3{font-size:17px;margin-bottom:8px}
+.etapa--nucleo h3{color:var(--ac-tx)}
+.etapa p{font-size:14.5px;line-height:1.5;color:var(--mudo)}
+.etapa--nucleo p{color:var(--ac-tx);opacity:.86}
+.etapa__quem{
+  display:block;margin-top:auto;padding-top:14px;font-size:12.5px;line-height:1.4;
+  color:var(--corpo);font-weight:500;
+}
+.etapa--nucleo .etapa__quem{color:var(--ac-tx)}
+
+.metodo-nota{
+  display:grid;gap:20px;margin-top:clamp(24px,3vw,32px);
+  border-radius:var(--r-g);background:var(--tinta);padding:clamp(26px,3.4vw,38px);
+}
+@media (min-width:820px){.metodo-nota{grid-template-columns:1fr 1fr;gap:44px}}
+.metodo-nota h3{color:var(--papel);font-size:18px;margin-bottom:10px}
+.metodo-nota p{color:color-mix(in srgb,var(--papel) 66%,transparent);font-size:15.5px;line-height:1.55}
+.metodo-nota b{color:var(--papel);font-weight:650}
+
+.ramo{
+  margin-top:clamp(24px,3vw,32px);border:1px solid var(--linha);
+  border-radius:var(--r-g);background:var(--sup);padding:clamp(26px,3.4vw,36px);
+}
+.ramo__cab{max-width:80ch}
+.ramo__cab h3{margin-bottom:10px}
+.ramo__cab p{font-size:15.5px;line-height:1.55}
+.ramo__passos{display:grid;gap:12px;margin:22px 0 16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.ramo__p{background:var(--sup2);border:1px solid var(--linha);border-radius:12px;padding:16px 18px}
+.ramo__p span{
+  display:block;font-family:var(--m);font-size:11.5px;color:var(--ac-tx);margin-bottom:7px;
+}
+.ramo__p b{display:block;font-size:15px;font-weight:600;color:var(--tinta)}
+.ramo__pe{font-size:14px;color:var(--mudo)}
+
 /* pesquisa — as duas rodadas */
 .rodadas{display:grid;gap:16px;margin-top:clamp(28px,4vw,42px);
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
@@ -459,6 +517,7 @@ code{background:var(--sup2);padding:.14em .38em;border-radius:5px;color:var(--ti
       <a class="esconde" href="#problema" lang="pt">Problema</a><a class="esconde" href="#problema" lang="en">Problem</a>
       <a class="esconde" href="#restricoes" lang="pt">Restrições</a><a class="esconde" href="#restricoes" lang="en">Constraints</a>
       <a class="esconde" href="#pesquisa" lang="pt">Pesquisa</a><a class="esconde" href="#pesquisa" lang="en">Research</a>
+      <a class="esconde" href="#metodo" lang="pt">Método</a><a class="esconde" href="#metodo" lang="en">Method</a>
       <a class="esconde" href="#engenharia" lang="pt">Engenharia</a><a class="esconde" href="#engenharia" lang="en">Engineering</a>
       <a class="esconde" href="#numeros" lang="pt">Números</a><a class="esconde" href="#numeros" lang="en">Numbers</a>
       <a href="#contato" lang="pt">Contato</a><a href="#contato" lang="en">Contact</a>
@@ -505,7 +564,7 @@ code{background:var(--sup2);padding:.14em .38em;border-radius:5px;color:var(--ti
       <dd lang="pt">Pesquisa · UI · design system · front-end · handoff</dd>
       <dd lang="en">Research · UI · design system · front-end · handoff</dd></div>
     <div><dt lang="pt">Feito com</dt><dt lang="en">Built with</dt>
-      <dd>HTML, CSS e JS<br>Figma · Playwright</dd></div>
+      <dd>Claude ⇄ Figma via MCP<br>HTML, CSS e JS · Playwright<br>Higgsfield · Nano Banana 2</dd></div>
     <div><dt lang="pt">Período</dt><dt lang="en">Timeline</dt>
       <dd lang="pt">2026 · entregue</dd>
       <dd lang="en">2026 · shipped</dd></div>
@@ -869,10 +928,102 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 </section>
 
 <!-- ══════════════════════════ 05 · DESIGN SYSTEM ══════════════════════════ -->
+<!-- ══════════════════════════ 06 · MÉTODO ══════════════════════════ -->
+<section class="sec" id="metodo">
+  <div class="wrap wrap--larga">
+    <div class="sec__cab rev">
+      <span class="rot">06 · <span lang="pt">Método</span><span lang="en">Method</span></span>
+      <h2 lang="pt">O ciclo fecha nos dois sentidos.<br>O Figma não é o fim da linha.</h2>
+      <h2 lang="en">The loop closes both ways.<br>Figma isn't the end of the line.</h2>
+      <p class="lead" lang="pt">Quase todo fluxo de IA em design anda numa direção só: ou gera tela a partir de prompt, ou gera código a partir do design. Aqui a estrutura sai do Claude para o Figma via MCP, evolui como design de verdade, e volta para o Claude virar o HTML que está no ar.</p>
+      <p class="lead" lang="en">Most AI design workflows run one way: either screens from a prompt, or code from a design. Here the structure goes from Claude into Figma over MCP, evolves as actual design work, and comes back to Claude to become the HTML that's live.</p>
+    </div>
+
+    <div class="ciclo rev">
+      <div class="etapa">
+        <div class="etapa__topo"><span class="etapa__n">1</span><span class="etapa__fer">Claude</span></div>
+        <h3 lang="pt">Estratégia e UX</h3>
+        <h3 lang="en">Strategy and UX</h3>
+        <p lang="pt">Antes de qualquer tela: o problema, o fluxo, o vocabulário da trancista, a tabela de preços inteira e as restrições do negócio. Sai escrito, não desenhado.</p>
+        <p lang="en">Before any screen: the problem, the flow, the braider's vocabulary, the full price table and the business constraints. It comes out written, not drawn.</p>
+        <span class="etapa__quem" lang="pt">Decisão minha · o que entra e o que fica de fora</span>
+        <span class="etapa__quem" lang="en">My call · what's in and what's out</span>
+      </div>
+
+      <div class="etapa etapa--ponte">
+        <div class="etapa__topo"><span class="etapa__n">2</span><span class="etapa__fer etapa__fer--mcp">MCP</span></div>
+        <h3 lang="pt">Claude → Figma</h3>
+        <h3 lang="en">Claude → Figma</h3>
+        <p lang="pt">A estrutura vira frame, componente e token dentro do arquivo, sem eu redesenhar à mão o que já estava decidido.</p>
+        <p lang="en">The structure becomes frames, components and tokens inside the file, without me redrawing by hand what was already decided.</p>
+      </div>
+
+      <div class="etapa etapa--nucleo">
+        <div class="etapa__topo"><span class="etapa__n">3</span><span class="etapa__fer">Figma</span></div>
+        <h3 lang="pt">Baixa → média → alta → protótipo</h3>
+        <h3 lang="en">Low → mid → high → prototype</h3>
+        <p lang="pt">É aqui que o design acontece. Quatro níveis de fidelidade, cada um resolvendo uma pergunta diferente — e é a versão de baixa, em cinza, que foi para a primeira rodada de teste.</p>
+        <p lang="en">This is where the design happens. Four fidelity levels, each answering a different question — and it's the low-fidelity grey version that went into the first round of testing.</p>
+        <span class="etapa__quem" lang="pt">Decisão minha · hierarquia, ritmo, estados, identidade</span>
+        <span class="etapa__quem" lang="en">My call · hierarchy, rhythm, states, identity</span>
+      </div>
+
+      <div class="etapa etapa--ponte">
+        <div class="etapa__topo"><span class="etapa__n">4</span><span class="etapa__fer etapa__fer--mcp">MCP</span></div>
+        <h3 lang="pt">Figma → Claude</h3>
+        <h3 lang="en">Figma → Claude</h3>
+        <p lang="pt">O protótipo final volta como fonte da verdade — geometria, cor e texto lidos do arquivo, não descritos de memória.</p>
+        <p lang="en">The final prototype comes back as the source of truth — geometry, colour and copy read from the file, not described from memory.</p>
+      </div>
+
+      <div class="etapa">
+        <div class="etapa__topo"><span class="etapa__n">5</span><span class="etapa__fer">Claude</span></div>
+        <h3 lang="pt">HTML publicado</h3>
+        <h3 lang="en">Published HTML</h3>
+        <p lang="pt">O código que está no ar. E, depois dele, a suíte que compara o resultado de volta contra o Figma por medição — o mesmo ciclo, agora como controle de qualidade.</p>
+        <p lang="en">The code that's live. And after it, the suite that measures the result back against Figma — the same loop, now as quality control.</p>
+        <span class="etapa__quem" lang="pt">Decisão minha · o que é fiel e o que precisa ceder</span>
+        <span class="etapa__quem" lang="en">My call · what stays faithful and what has to give</span>
+      </div>
+    </div>
+
+    <div class="metodo-nota rev">
+      <div class="metodo-nota__col">
+        <h3 lang="pt">Por que a volta importa</h3>
+        <h3 lang="en">Why the return trip matters</h3>
+        <p lang="pt">Num fluxo de mão única, o arquivo do Figma morre no handoff: vira imagem de referência que desatualiza no primeiro ajuste de código. Fechando o ciclo, ele continua sendo a fonte — e a suíte de medição prova, número a número, que o que está no ar é o que está no arquivo.</p>
+        <p lang="en">In a one-way flow the Figma file dies at handoff: it becomes a reference image that goes stale on the first code tweak. Closing the loop keeps it as the source — and the measurement suite proves, number by number, that what's live is what's in the file.</p>
+      </div>
+      <div class="metodo-nota__col">
+        <h3 lang="pt">Onde a IA não decide</h3>
+        <h3 lang="en">Where the AI doesn't decide</h3>
+        <p lang="pt">Ela move artefato entre etapas e executa o que já foi definido. As três decisões que sustentam este projeto — o sinal na tela, o fim dentro do WhatsApp, o vocabulário da trancista — saíram de conversa com a Maiara e de teste com quatro pessoas, não de prompt.</p>
+        <p lang="en">It moves artefacts between stages and executes what's already been decided. The three decisions this project rests on — the deposit on screen, ending inside WhatsApp, the braider's vocabulary — came from talking to Maiara and testing with four people, not from a prompt.</p>
+      </div>
+    </div>
+
+    <div class="ramo rev">
+      <div class="ramo__cab">
+        <h3 lang="pt">O mesmo método, no ramo das imagens</h3>
+        <h3 lang="en">Same method, on the image branch</h3>
+        <p lang="pt">Nenhuma foto existia. A direção criativa saiu no Claude, a partir de referências reais, e virou um contrato visual escrito — manequim, ângulo, fundo, luz, matiz alvo. Cada prompt é esse contrato com uma linha trocada. A geração foi no <b>Higgsfield com o Nano Banana 2</b>.</p>
+        <p lang="en">No photos existed. The art direction came out of Claude, from real references, as a written visual contract — mannequin, angle, backdrop, light, target hue. Each prompt is that contract with one line swapped. Generation ran in <b>Higgsfield with Nano Banana 2</b>.</p>
+      </div>
+      <div class="ramo__passos">
+        <div class="ramo__p"><span>Claude</span><b lang="pt">Direção criativa e prompts</b><b lang="en">Art direction and prompts</b></div>
+        <div class="ramo__p"><span>Higgsfield · Nano Banana 2</span><b lang="pt">Geração das 46 imagens</b><b lang="en">Generating all 46 images</b></div>
+        <div class="ramo__p"><span>Pillow · WebP</span><b lang="pt">Três recortes por estilo</b><b lang="en">Three crops per style</b></div>
+      </div>
+      <p class="ramo__pe" lang="pt">A seção 09 mostra o resultado e a medição que prova a coerência entre as treze fotos.</p>
+      <p class="ramo__pe" lang="en">Section 09 shows the result and the measurement that proves consistency across the thirteen photos.</p>
+    </div>
+  </div>
+</section>
+
 <section class="sec" id="sistema">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">06 · <span lang="pt">Design system</span><span lang="en">Design system</span></span>
+      <span class="rot">07 · <span lang="pt">Design system</span><span lang="en">Design system</span></span>
       <h2 lang="pt">Um sistema pequeno, documentado inteiro</h2>
       <h2 lang="en">A small system, documented end to end</h2>
       <p class="lead" lang="pt">Nove conjuntos de componentes, 36 variantes, 29 ícones e dois breakpoints. Os nomes das variáveis no Figma são os mesmos nomes das custom properties no CSS.</p>
@@ -919,7 +1070,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="engenharia">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">07 · <span lang="pt">Engenharia</span><span lang="en">Engineering</span></span>
+      <span class="rot">08 · <span lang="pt">Engenharia</span><span lang="en">Engineering</span></span>
       <h2 lang="pt">Comparei o código contra o Figma por medição, não a olho</h2>
       <h2 lang="en">I compared code against Figma by measurement, not by eye</h2>
       <p class="lead" lang="pt">Escrevi uma suíte em Playwright que abre o protótipo nos dois breakpoints e lê o valor computado de cada gap, largura e altura. Quatro erros que pareciam certos na tela apareceram assim.</p>
@@ -991,7 +1142,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="catalogo">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">08 · <span lang="pt">Catálogo de imagens</span><span lang="en">Image catalogue</span></span>
+      <span class="rot">09 · <span lang="pt">Catálogo de imagens</span><span lang="en">Image catalogue</span></span>
       <h2 lang="pt">Nenhuma foto existia. Dirigi e gerei as 46.</h2>
       <h2 lang="en">No photos existed. I art-directed and generated all 46.</h2>
       <p class="lead" lang="pt">Não havia sessão, modelo nem banco de imagem que servisse. Fechei um contrato visual — manequim, ângulo, fundo, luz, matiz — usei o Claude para escrever os prompts a partir dele e gerei no Higgsfield com o Nano Banana 2.</p>
@@ -1031,7 +1182,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="numeros">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">09 · <span lang="pt">Números</span><span lang="en">Numbers</span></span>
+      <span class="rot">10 · <span lang="pt">Números</span><span lang="en">Numbers</span></span>
       <h2 lang="pt">O que o projeto mudou, e como cada número foi apurado</h2>
       <h2 lang="en">What the project changed, and how each number was obtained</h2>
       <p class="lead" lang="pt">Os números do produto qualquer pessoa reproduz rodando a suíte. Os da operação vieram da agenda da Maiara, comparando o antes e o depois do lançamento.</p>
@@ -1081,7 +1232,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="falta">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">10 · <span lang="pt">Em aberto</span><span lang="en">Still open</span></span>
+      <span class="rot">11 · <span lang="pt">Em aberto</span><span lang="en">Still open</span></span>
       <h2 lang="pt">O que eu não resolvi</h2>
       <h2 lang="en">What I didn't solve</h2>
     </div>
