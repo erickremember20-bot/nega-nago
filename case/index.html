@@ -218,6 +218,38 @@ code{background:var(--sup2);padding:.14em .38em;border-radius:5px;color:var(--ti
 .ad__col--antes .passos li::before{background:var(--papel);border:1px solid var(--linha-forte)}
 .ad__nota{margin-top:20px;font-size:14px;line-height:1.5;color:var(--mudo);padding-top:16px;border-top:1px solid var(--linha)}
 
+/* pesquisa — as duas rodadas */
+.rodadas{display:grid;gap:16px;margin-top:clamp(28px,4vw,42px);
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.rodada{background:var(--sup);border:1px solid var(--linha);border-radius:var(--r);padding:26px 24px}
+.rodada--nota{background:var(--sup2);border-style:dashed}
+.rodada__n{display:block;font:700 11px/1 var(--f);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ac-tx);margin-bottom:12px}
+.rodada--nota .rodada__n{color:var(--mudo)}
+.rodada h3{margin-bottom:9px}
+.rodada p{font-size:15px;line-height:1.55}
+.rodada p+p{margin-top:10px}
+
+/* o achado principal da pesquisa */
+.achado-forte{
+  margin-top:clamp(28px,4vw,42px);border-radius:var(--r-g);
+  padding:clamp(28px,4vw,44px);background:var(--tinta);color:var(--papel);
+}
+.achado-forte__tag{font:700 11.5px/1 var(--f);letter-spacing:.15em;text-transform:uppercase;
+  color:var(--ac);margin-bottom:16px}
+.achado-forte h3{
+  color:var(--papel);font-size:clamp(22px,2.9vw,32px);line-height:1.22;
+  letter-spacing:-.025em;max-width:22ch;margin-bottom:20px;
+}
+.achado-forte>p{color:color-mix(in srgb,var(--papel) 72%,transparent);max-width:64ch;font-size:16px}
+.achado-forte>p+p{margin-top:13px}
+.achado-forte__liga{
+  margin-top:26px;padding-top:22px;
+  border-top:1px solid color-mix(in srgb,var(--papel) 16%,transparent);
+}
+.achado-forte__liga p{color:color-mix(in srgb,var(--papel) 66%,transparent);max-width:76ch;font-size:15.5px}
+.achado-forte__liga b{color:var(--papel);font-weight:650}
+
 /* pesquisa — os quatro perfis testados */
 .pesquisa{margin-top:clamp(28px,4vw,42px)}
 .pesquisa__cab{max-width:70ch;margin-bottom:20px}
@@ -426,6 +458,7 @@ code{background:var(--sup2);padding:.14em .38em;border-radius:5px;color:var(--ti
     <nav>
       <a class="esconde" href="#problema" lang="pt">Problema</a><a class="esconde" href="#problema" lang="en">Problem</a>
       <a class="esconde" href="#restricoes" lang="pt">Restrições</a><a class="esconde" href="#restricoes" lang="en">Constraints</a>
+      <a class="esconde" href="#pesquisa" lang="pt">Pesquisa</a><a class="esconde" href="#pesquisa" lang="en">Research</a>
       <a class="esconde" href="#engenharia" lang="pt">Engenharia</a><a class="esconde" href="#engenharia" lang="en">Engineering</a>
       <a class="esconde" href="#numeros" lang="pt">Números</a><a class="esconde" href="#numeros" lang="en">Numbers</a>
       <a href="#contato" lang="pt">Contato</a><a href="#contato" lang="en">Contact</a>
@@ -557,41 +590,6 @@ code{background:var(--sup2);padding:.14em .38em;border-radius:5px;color:var(--ti
       </div>
     </div>
 
-    <div class="pesquisa rev">
-      <div class="pesquisa__cab">
-        <h3 lang="pt">Quem testou o fluxo</h3>
-        <h3 lang="en">Who tested the flow</h3>
-        <p lang="pt">Quatro pessoas durante o processo, escolhidas para cobrir o funil inteiro em vez de quem estivesse à mão. Cada uma chega ao catálogo com uma bagagem diferente, e é isso que muda o que ela precisa da tela.</p>
-        <p lang="en">Four people during the process, picked to cover the whole funnel rather than whoever happened to be around. Each arrives at the catalogue with different baggage, and that changes what she needs from the screen.</p>
-      </div>
-      <div class="perfis">
-        <div class="perfil">
-          <span class="perfil__n">01</span>
-          <b lang="pt">Cliente recorrente</b><b lang="en">Recurring client</b>
-          <p lang="pt">Já agenda com a Maiara e sabe os preços de cor. Serve para ver se o fluxo atrapalha quem já tem o caminho na cabeça.</p>
-          <p lang="en">Already books with Maiara and knows the prices by heart. Tests whether the flow gets in the way of someone who knows the path already.</p>
-        </div>
-        <div class="perfil perfil--alvo">
-          <span class="perfil__n">02</span>
-          <b lang="pt">Consultou e não fechou</b><b lang="en">Asked, never booked</b>
-          <p lang="pt">Pediu preço e não voltou. É exatamente o perfil que o projeto existe para recuperar.</p>
-          <p lang="en">Asked for a price and never came back. Exactly the profile this project exists to win back.</p>
-        </div>
-        <div class="perfil">
-          <span class="perfil__n">03</span>
-          <b lang="pt">Contratou uma vez</b><b lang="en">Booked once</b>
-          <p lang="pt">Conhece o serviço mas não virou hábito. Mostra o que falta para a segunda vez acontecer sozinha.</p>
-          <p lang="en">Knows the service but never made it a habit. Shows what's missing for a second booking to happen on its own.</p>
-        </div>
-        <div class="perfil">
-          <span class="perfil__n">04</span>
-          <b lang="pt">Nunca contratou</b><b lang="en">Never booked</b>
-          <p lang="pt">Chega sem referência nenhuma — nem de preço, nem de vocabulário. É quem revela o que a tela precisa explicar sozinha.</p>
-          <p lang="en">Arrives with no reference at all — not price, not vocabulary. She reveals what the screen has to explain by itself.</p>
-        </div>
-      </div>
-    </div>
-
     <div class="midia duo rev">
       <div>
         <div class="fone fone--corta"><img src="midia/tela-produto-mob.webp" width="585" height="1320" alt="Tela de produto no celular, com preço e sinal calculados"></div>
@@ -718,10 +716,102 @@ code{background:var(--sup2);padding:.14em .38em;border-radius:5px;color:var(--ti
 </section>
 
 <!-- ══════════════════════════ 04 · A MENSAGEM ══════════════════════════ -->
+<!-- ══════════════════════════ 04 · PESQUISA ══════════════════════════ -->
+<section class="sec" id="pesquisa">
+  <div class="wrap wrap--larga">
+    <div class="sec__cab rev">
+      <span class="rot">04 · <span lang="pt">Pesquisa</span><span lang="en">Research</span></span>
+      <h2 lang="pt">Quatro pessoas, duas rodadas.<br>A primeira sem cor nenhuma.</h2>
+      <h2 lang="en">Four people, two rounds.<br>The first one with no colour at all.</h2>
+      <p class="lead" lang="pt">Testei em dois momentos separados de propósito. Primeiro um HTML de rascunho em tons de cinza — sem cor, sem logo, sem foto. Só o caminho. Depois o protótipo com a identidade inteira.</p>
+      <p class="lead" lang="en">I ran two rounds, deliberately apart. First a grey-scale draft in raw HTML — no colour, no logo, no photography. Just the path. Then the prototype with the full identity.</p>
+    </div>
+
+    <div class="rodadas rev">
+      <div class="rodada">
+        <span class="rodada__n" lang="pt">Rodada 1</span><span class="rodada__n" lang="en">Round 1</span>
+        <h3 lang="pt">Cinza, só o fluxo</h3>
+        <h3 lang="en">Grey, flow only</h3>
+        <p lang="pt">Dá para chegar ao fim? A informação aparece na hora que a pessoa precisa dela? Sem identidade visual, o que sobra na tela é a estrutura — e é ela que está sendo testada.</p>
+        <p lang="en">Can she get to the end? Does the information show up when she needs it? With no visual identity on screen, what's left is the structure — and that's what's under test.</p>
+      </div>
+      <div class="rodada">
+        <span class="rodada__n" lang="pt">Rodada 2</span><span class="rodada__n" lang="en">Round 2</span>
+        <h3 lang="pt">Protótipo completo</h3>
+        <h3 lang="en">Full prototype</h3>
+        <p lang="pt">O encantamento veio aqui, como era de esperar. A diferença é que ele estava sentado em cima de um fluxo que já tinha andado sozinho, sem cor para carregar.</p>
+        <p lang="en">Delight showed up here, as expected. The difference is that it was sitting on top of a flow that had already walked on its own, with no colour to carry it.</p>
+      </div>
+      <div class="rodada rodada--nota">
+        <span class="rodada__n" lang="pt">Por que separar</span><span class="rodada__n" lang="en">Why split them</span>
+        <p lang="pt">Testar tudo junto mistura duas perguntas. Se a pessoa gostou, foi do fluxo ou da marca? Em cinza a resposta não tem para onde fugir.</p>
+        <p lang="en">Testing it all at once blends two questions. If she liked it, was it the flow or the brand? In grey the answer has nowhere to hide.</p>
+      </div>
+    </div>
+
+    <div class="pesquisa rev">
+      <div class="pesquisa__cab">
+        <h3 lang="pt">Quem testou</h3>
+        <h3 lang="en">Who tested it</h3>
+        <p lang="pt">Escolhi quatro perfis para cobrir o funil inteiro, em vez de quem estivesse à mão. As quatro fazem ou já fizeram tranças em outros lugares e passaram por vários jeitos de agendar — link, tabela em PDF, conversa solta no direct. Não estavam comparando com nada: estavam comparando com o que já usaram.</p>
+        <p lang="en">I picked four profiles to cover the whole funnel, rather than whoever was around. All four get their hair braided elsewhere too, and have been through several ways of booking — links, PDF price lists, loose DM threads. They weren't comparing this to nothing: they were comparing it to what they already use.</p>
+      </div>
+      <div class="perfis">
+        <div class="perfil">
+          <span class="perfil__n">01</span>
+          <b lang="pt">Cliente recorrente</b><b lang="en">Recurring client</b>
+          <p lang="pt">Já agenda com a Maiara e sabe os preços de cor. Serve para ver se o fluxo atrapalha quem já tem o caminho na cabeça.</p>
+          <p lang="en">Already books with Maiara and knows the prices by heart. Tests whether the flow gets in the way of someone who knows the path already.</p>
+        </div>
+        <div class="perfil perfil--alvo">
+          <span class="perfil__n">02</span>
+          <b lang="pt">Consultou e não fechou</b><b lang="en">Asked, never booked</b>
+          <p lang="pt">Pediu preço e não voltou. É exatamente o perfil que o projeto existe para recuperar.</p>
+          <p lang="en">Asked for a price and never came back. Exactly the profile this project exists to win back.</p>
+        </div>
+        <div class="perfil">
+          <span class="perfil__n">03</span>
+          <b lang="pt">Contratou uma vez</b><b lang="en">Booked once</b>
+          <p lang="pt">Conhece o serviço mas não virou hábito. Mostra o que falta para a segunda vez acontecer sozinha.</p>
+          <p lang="en">Knows the service but never made it a habit. Shows what's missing for a second booking to happen on its own.</p>
+        </div>
+        <div class="perfil">
+          <span class="perfil__n">04</span>
+          <b lang="pt">Nunca contratou</b><b lang="en">Never booked</b>
+          <p lang="pt">Chega sem referência nenhuma — nem de preço, nem de vocabulário. É quem revela o que a tela precisa explicar sozinha.</p>
+          <p lang="en">Arrives with no reference at all — not price, not vocabulary. She reveals what the screen has to explain by itself.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="numeros rev">
+      <div class="nbox"><div class="v num">4/4</div><div class="r"><span lang="pt">chegaram ao fim do agendamento sem que eu explicasse como funciona</span><span lang="en">reached the end of the booking without me explaining how it works</span></div></div>
+      <div class="nbox"><div class="v num">4/4</div><div class="r"><span lang="pt">escolheram exatamente o que queriam, sem hesitar no meio</span><span lang="en">picked exactly what they wanted, with no hesitation midway</span></div></div>
+      <div class="nbox nbox--ac"><div class="v num">4/4</div><div class="r"><span lang="pt">apontaram como a melhor experiência de compra entre as que já usaram</span><span lang="en">named it the best buying experience among the ones they've used</span></div></div>
+      <div class="nbox"><div class="v num">2</div><div class="r"><span lang="pt">rodadas: rascunho em cinza e protótipo completo</span><span lang="en">rounds: grey draft, then full prototype</span></div></div>
+    </div>
+
+    <div class="achado-forte rev">
+      <div class="achado-forte__tag" lang="pt">O elogio que mais se repetiu</div>
+      <div class="achado-forte__tag" lang="en">The most repeated piece of praise</div>
+      <h3 lang="pt">Não foi sobre beleza. Foi sobre saber quanto ia custar.</h3>
+      <h3 lang="en">It wasn't about looks. It was about knowing what it would cost.</h3>
+      <p lang="pt">A conta recalcula a cada toque. Muda o tamanho, muda o adicional, muda o local — o total e o sinal mudam junto, na mesma tela, sem precisar avançar para descobrir. A cliente sai sabendo quanto vai adiantar agora e quanto sobra para o dia.</p>
+      <p lang="en">The maths recalculates on every tap. Change the length, the add-on, the location — the total and the deposit move with it, on the same screen, with nothing to advance through to find out. She leaves knowing what she pays now and what's left for the day.</p>
+      <p lang="pt">Quando ela chega para fechar, nada daquilo é novidade. E o que não é novidade não vira objeção.</p>
+      <p lang="en">By the time she's closing, none of it is news. And what isn't news doesn't turn into an objection.</p>
+      <div class="achado-forte__liga">
+        <p lang="pt"><b>É a primeira restrição da seção anterior fechando o ciclo.</b> A Maiara compra o material antes, então precisa dos 30% adiantados. Essa trava do negócio é o que virou o elogio mais repetido da pesquisa — a limitação virou o argumento.</p>
+        <p lang="en"><b>This is the first constraint from the previous section closing the loop.</b> Maiara buys the hair up front, so she needs the 30% deposit. That business constraint is what turned into the most repeated compliment in the research — the limitation became the argument.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="sec" id="mensagem">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">04 · <span lang="pt">A entrega</span><span lang="en">The handoff</span></span>
+      <span class="rot">05 · <span lang="pt">A entrega</span><span lang="en">The handoff</span></span>
       <h2 lang="pt">O botão final não abre um checkout.<br>Abre a conversa já escrita.</h2>
       <h2 lang="en">The final button doesn't open a checkout.<br>It opens the conversation, already written.</h2>
       <p class="lead" lang="pt">Esta é a saída real do produto — o texto que a cliente envia, gerado a partir do que ela escolheu. É o único artefato que sai do site e chega na Maiara.</p>
@@ -782,7 +872,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="sistema">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">05 · <span lang="pt">Design system</span><span lang="en">Design system</span></span>
+      <span class="rot">06 · <span lang="pt">Design system</span><span lang="en">Design system</span></span>
       <h2 lang="pt">Um sistema pequeno, documentado inteiro</h2>
       <h2 lang="en">A small system, documented end to end</h2>
       <p class="lead" lang="pt">Nove conjuntos de componentes, 36 variantes, 29 ícones e dois breakpoints. Os nomes das variáveis no Figma são os mesmos nomes das custom properties no CSS.</p>
@@ -829,7 +919,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="engenharia">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">06 · <span lang="pt">Engenharia</span><span lang="en">Engineering</span></span>
+      <span class="rot">07 · <span lang="pt">Engenharia</span><span lang="en">Engineering</span></span>
       <h2 lang="pt">Comparei o código contra o Figma por medição, não a olho</h2>
       <h2 lang="en">I compared code against Figma by measurement, not by eye</h2>
       <p class="lead" lang="pt">Escrevi uma suíte em Playwright que abre o protótipo nos dois breakpoints e lê o valor computado de cada gap, largura e altura. Quatro erros que pareciam certos na tela apareceram assim.</p>
@@ -901,7 +991,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="catalogo">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">07 · <span lang="pt">Catálogo de imagens</span><span lang="en">Image catalogue</span></span>
+      <span class="rot">08 · <span lang="pt">Catálogo de imagens</span><span lang="en">Image catalogue</span></span>
       <h2 lang="pt">Nenhuma foto existia. Dirigi e gerei as 46.</h2>
       <h2 lang="en">No photos existed. I art-directed and generated all 46.</h2>
       <p class="lead" lang="pt">Não havia sessão, modelo nem banco de imagem que servisse. Fechei um contrato visual — manequim, ângulo, fundo, luz, matiz — usei o Claude para escrever os prompts a partir dele e gerei no Higgsfield com o Nano Banana 2.</p>
@@ -941,7 +1031,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="numeros">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">08 · <span lang="pt">Números</span><span lang="en">Numbers</span></span>
+      <span class="rot">09 · <span lang="pt">Números</span><span lang="en">Numbers</span></span>
       <h2 lang="pt">O que o projeto mudou, e como cada número foi apurado</h2>
       <h2 lang="en">What the project changed, and how each number was obtained</h2>
       <p class="lead" lang="pt">Os números do produto qualquer pessoa reproduz rodando a suíte. Os da operação vieram da agenda da Maiara, comparando o antes e o depois do lançamento.</p>
@@ -991,7 +1081,7 @@ Já vou mandar a foto do meu cabelo solto!</pre>
 <section class="sec" id="falta">
   <div class="wrap wrap--larga">
     <div class="sec__cab rev">
-      <span class="rot">09 · <span lang="pt">Em aberto</span><span lang="en">Still open</span></span>
+      <span class="rot">10 · <span lang="pt">Em aberto</span><span lang="en">Still open</span></span>
       <h2 lang="pt">O que eu não resolvi</h2>
       <h2 lang="en">What I didn't solve</h2>
     </div>
@@ -1013,9 +1103,9 @@ Já vou mandar a foto do meu cabelo solto!</pre>
         <p lang="en">They're reference renders, not Maiara's portfolio. It's written on this page, but it needs to be written in the product — which is already live with clients. This is the most urgent item on the list.</p>
       </li>
       <li>
-        <b lang="pt">Quatro pessoas acham o problema grande, não o de cauda</b><b lang="en">Four people find the big problems, not the tail</b>
-        <p lang="pt">A amostra foi escolhida com cuidado, mas continua pequena. Quatro sessões pegam o que trava todo mundo; não pegam o caso raro que aparece na centésima cliente. Com o fluxo agora em operação, dá para observar uso real em vez de sessão marcada — é o próximo passo da pesquisa.</p>
-        <p lang="en">The sample was chosen carefully, but it's still small. Four sessions catch what blocks everyone; they don't catch the rare case that shows up on the hundredth client. With the flow now in operation, I can observe real use instead of scheduled sessions — that's the next research step.</p>
+        <b lang="pt">Quatro pessoas, duas rodadas — mas ainda quatro pessoas</b><b lang="en">Four people, two rounds — but still four people</b>
+        <p lang="pt">A amostra cobre o funil e as sessões foram em dois momentos, mas quatro pessoas acham o que trava todo mundo, não o caso raro que aparece na centésima cliente. Com o fluxo em operação, o próximo passo é observar uso real em vez de sessão marcada.</p>
+        <p lang="en">The sample covers the funnel and the sessions ran in two rounds, but four people find what blocks everyone, not the rare case that shows up on the hundredth client. With the flow in operation, the next step is observing real use instead of scheduled sessions.</p>
       </li>
     </ul>
   </div>
