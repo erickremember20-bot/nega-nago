@@ -841,10 +841,29 @@ var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agos
 /* disponibilidade vem da Google Agenda da Maiara (agenda/agenda.php).
    modelo invertido: tudo fechado, só abre o dia/período que tiver evento. */
 var AGENDA = { abertos:{}, ok:false, pronto:false };
+/* tenta, em ordem: PHP (Hostinger) -> Netlify Function -> navegador direto (chave de teste) */
+function lerJSON(url){
+  return fetch(url, { cache:'no-store' }).then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    return r.json();
+  }).then(function(j){ if(!j || !j.ok) throw new Error('sem ok'); return j; });
+}
+function carregarScript(src){
+  return new Promise(function(ok, falha){
+    var s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=falha; document.head.appendChild(s);
+  });
+}
+function agendaDireta(){
+  return carregarScript('agenda-web/agenda-lib.js')
+    .then(function(){ return carregarScript('agenda-web/chave-teste.js'); })
+    .then(function(){ return carregarScript('agenda-web/agenda-direta.js'); })
+    .then(function(){ return window.NNAgendaDireta(); });
+}
 function carregarAgenda(){
-  fetch('agenda/agenda.php', { cache:'no-store' })
-    .then(function(r){ return r.json(); })
-    .then(function(j){ AGENDA = { abertos:(j && j.ok && j.abertos) || {}, ok:!!(j && j.ok), pronto:true }; })
+  lerJSON('agenda/agenda.php')
+    .catch(function(){ return lerJSON('/.netlify/functions/agenda'); })
+    .catch(function(){ return agendaDireta(); })
+    .then(function(j){ AGENDA = { abertos:j.abertos || {}, ok:true, pronto:true }; })
     .catch(function(){ AGENDA = { abertos:{}, ok:false, pronto:true }; })
     .then(function(){
       /* se o mês corrente não tem nada aberto, já abre no próximo que tiver */
