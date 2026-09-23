@@ -32,6 +32,6 @@
       body:JSON.stringify({timeMin:min.toISOString(),timeMax:max.toISOString(),timeZone:tz,items:[{id:c.calendarId}]})});
     var j=await r.json(); var cal=j.calendars&&j.calendars[c.calendarId];
     if(!cal||!cal.busy) throw new Error('freebusy falhou');
-    return { ok:true, tz:tz, atualizado:new Date().toISOString(), abertos: window.NNAgendaLib.periodosAbertos(cal.busy, tz) };
+    return { ok:true, tz:tz, atualizado:new Date().toISOString(), abertos: window.NNAgendaLib.periodosAbertos(cal.busy, tz, 90) };
   };
 })();

@@ -30,7 +30,7 @@ export default async () => {
     const sa = JSON.parse(saJson);
     const token = await getAccessToken(sa);
     const busy = await freeBusy(token, calId, tz, dias);
-    const abertos = periodosAbertos(busy, tz);
+    const abertos = periodosAbertos(busy, tz, dias);
 
     const body = { ok: true, tz, atualizado: new Date().toISOString(), abertos };
     cache = { at: agora, body };
