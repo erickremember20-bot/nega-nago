@@ -1,1 +1,6 @@
 node_modules
+
+# segredo da integração com a Google Agenda — nunca versionar
+netlify/functions/.env
+agenda/private/
+agenda/agenda-config.php

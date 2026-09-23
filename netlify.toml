@@ -1,0 +1,10 @@
+[build]
+  functions = "netlify/functions"
+
+# O index.html chama sempre "agenda/agenda.php" (mesmo caminho da versão
+# PHP/Hostinger). Na Netlify isso é redirecionado pra a Function abaixo —
+# o HTML não precisa saber em qual dos dois hosts está rodando.
+[[redirects]]
+  from = "/agenda/agenda.php"
+  to = "/.netlify/functions/agenda"
+  status = 200
