@@ -4,4 +4,4 @@ node_modules
 netlify/functions/.env
 agenda/private/
 agenda/agenda-config.php
-agenda-web/chave-teste.js
+agenda-web/chave.js

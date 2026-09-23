@@ -187,7 +187,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
 .hero__n small{display:block; font:700 14px/1.5 var(--f); color:#f16020}
 .hero__sub{margin:0; font:400 12px/1.5 var(--f); color:#fff8f1}
 /* no celular o texto já vem na arte do banner */
-@media (max-width:899px){.hero__txt{display:none}}
+.hero__txt{display:none}  /* o texto já vem na arte do banner */
 .hero__sub b{font-weight:600}
 
 .promo{display:flex; gap:8px}
@@ -495,7 +495,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
       <section class="hero">
         <picture>
           <source media="(max-width:899px)" srcset="assets/home/banner-mobile.webp">
-          <img src="assets/home/hero.webp" alt="Nega Nagô: +13 anos trançando histórias. Especialista formada pela Universidade Zumbi dos Palmares" onerror="this.hidden=true">
+          <img src="assets/home/banner-desktop.webp" alt="Nega Nagô: +13 anos trançando histórias. Especialista formada pela Universidade Zumbi dos Palmares" onerror="this.hidden=true">
         </picture>
         <div class="hero__txt">
           <p class="hero__n">+13 anos<small>trançando histórias</small></p>
@@ -810,7 +810,7 @@ var STYLES = [
     {label:'Chanel',price:350},{label:'Long Bob',price:370},{label:'Meio das costas',price:400},
     {label:'Até o quadril',price:450},{label:'Abaixo do quadril',price:500}]},
   { id:'nago-desenhada', cachos:80, name:'Nagô Desenhada', unit:'TAMANHOS', time:'2 a 4 horas', short:'2–4h', options:[
-    {label:'Chanel',price:190},{label:'Meio das costas',price:210},
+    {label:'Chanel',price:180},{label:'Meio das costas',price:210},
     {label:'Cintura',price:230},{label:'Abaixo do quadril',price:250}]},
   { id:'nago-tiara', cachos:null, name:'Nagô Tiara', unit:'MODELOS', short:'40min–1h30', options:[
     {label:'Tiara',price:80,time:'1 hora e meia'},{label:'Lateral',price:45,time:'40 minutos'}]},
@@ -831,7 +831,7 @@ var STYLES = [
     {label:'Twist',price:250,time:'4 horas'},
     {label:'Barrel twist',price:300,time:'5 horas'}]},
   { id:'crochet-braids', cachos:null, name:'Crochet Braids', unit:'MODELO', time:'3 horas', short:'3h', options:[
-    {label:'Tranças',price:480},{label:'Dreads',price:480},{label:'Twist',price:480},{label:'Cabelo orgânico',price:480}]},
+    {label:'Tranças',price:500},{label:'Dreads',price:500},{label:'Twist',price:500},{label:'Cabelo orgânico',price:500}]},
   { id:'remocao', cachos:null, name:'Remoção', unit:'SERVIÇO', time:'3 a 5 horas', short:'3–5h', options:[
     {label:'Remoção Nagô',price:80},{label:'Remoção Box Braids',price:120}]}
 ];
@@ -855,7 +855,7 @@ function carregarScript(src){
 }
 function agendaDireta(){
   return carregarScript('agenda-web/agenda-lib.js')
-    .then(function(){ return carregarScript('agenda-web/chave-teste.js'); })
+    .then(function(){ return carregarScript('agenda-web/chave.js'); })
     .then(function(){ return carregarScript('agenda-web/agenda-direta.js'); })
     .then(function(){ return window.NNAgendaDireta(); });
 }
