@@ -74,6 +74,8 @@ button{border:0; padding:0; background:none; cursor:pointer}
    ============================================================ */
 .t-secao{font:700 16px/1.5 var(--f); color:var(--tx-secao); margin:0}
 .t-bloco{font:700 18px/1.5 var(--f); color:var(--tx-secao); margin:0}
+.cal__msg{margin:12px 16px 0; font:400 13px/1.45 var(--f); color:var(--tx-corpo); text-align:center}
+.t-titulo{font:700 24px/26.4px var(--f); color:#6b200f; margin:0}
 .t-corpo{font:400 14px/1.5 var(--f); color:var(--tx-corpo); margin:0}
 .t-forte{font-weight:700; color:var(--tx-item)}
 
@@ -181,9 +183,11 @@ button{border:0; padding:0; background:none; cursor:pointer}
 .hero__txt{position:relative; display:flex; flex-direction:column; align-items:flex-end;
   justify-content:center; gap:12px; text-align:right;
   width:50.9%; margin-right:8.54%; min-height:104px}
-.hero__n{margin:0; font:900 32px/1.1 var(--f); color:var(--hero-1)}
-.hero__n small{display:block; font:700 14px/1.5 var(--f); color:var(--hero-2)}
-.hero__sub{margin:0; font:400 12px/1.5 var(--f); color:var(--tx-pessego)}
+.hero__n{margin:0; font:900 32px/1.1 var(--f); color:#f16020; text-transform:uppercase}
+.hero__n small{display:block; font:700 14px/1.5 var(--f); color:#f16020}
+.hero__sub{margin:0; font:400 12px/1.5 var(--f); color:#fff8f1}
+/* no celular o texto já vem na arte do banner */
+@media (max-width:899px){.hero__txt{display:none}}
 .hero__sub b{font-weight:600}
 
 .promo{display:flex; gap:8px}
@@ -489,7 +493,10 @@ button{border:0; padding:0; background:none; cursor:pointer}
   <div class="home">
     <div class="wrap home__topo">
       <section class="hero">
-        <img src="assets/home/hero.webp" alt="Nega Nagô no estúdio" onerror="this.hidden=true">
+        <picture>
+          <source media="(max-width:899px)" srcset="assets/home/banner-mobile.webp">
+          <img src="assets/home/hero.webp" alt="Nega Nagô: +13 anos trançando histórias. Especialista formada pela Universidade Zumbi dos Palmares" onerror="this.hidden=true">
+        </picture>
         <div class="hero__txt">
           <p class="hero__n">+13 anos<small>trançando histórias</small></p>
           <p class="hero__sub">Especialista formada pela<br><b>Universidade Zumbi dos Palmares</b></p>
@@ -584,10 +591,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
     <div class="booking">
       <div class="booking__col">
         <div class="bloco bloco--campo">
-          <div class="secao__cab">
-            <svg class="ic" style="color:#592812"><use href="#i-map-pin"/></svg>
-            <h2 class="t-bloco">Bora agendar a coroa!</h2>
-          </div>
+          <h2 class="t-titulo">Bora agendar a coroa!</h2>
           <p class="t-corpo">Pra começar, como podemos te chamar?</p>
           <label class="campo"><span>Nome</span>
             <input id="a-nome" type="text" autocomplete="name" placeholder="Seu nome" oninput="validar()">
@@ -662,6 +666,7 @@ button{border:0; padding:0; background:none; cursor:pointer}
             </div>
             <div class="cal__semana"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
             <div class="cal__dias" id="cal-dias"></div>
+            <p class="cal__msg" id="cal-msg" hidden></p>
           </div>
         </div>
       </div>
@@ -833,7 +838,29 @@ var STYLES = [
 
 var FOTOS = ['01','02','03','04','05','06'];
 var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-var OCUPADOS = [3,4,10,11,17,18,24,25];   /* no piloto vem da Google Agenda da Maiara */
+/* disponibilidade vem da Google Agenda da Maiara (agenda/agenda.php).
+   modelo invertido: tudo fechado, só abre o dia/período que tiver evento. */
+var AGENDA = { abertos:{}, ok:false, pronto:false };
+function carregarAgenda(){
+  fetch('agenda/agenda.php', { cache:'no-store' })
+    .then(function(r){ return r.json(); })
+    .then(function(j){ AGENDA = { abertos:(j && j.ok && j.abertos) || {}, ok:!!(j && j.ok), pronto:true }; })
+    .catch(function(){ AGENDA = { abertos:{}, ok:false, pronto:true }; })
+    .then(function(){
+      /* se o mês corrente não tem nada aberto, já abre no próximo que tiver */
+      for(var k=0; k<3 && vagasNoMes(st.mes)===0; k++){
+        var prox = new Date(st.mes.getFullYear(), st.mes.getMonth()+1, 1);
+        if(vagasNoMes(prox)===0 && k===2) break;
+        if(vagasNoMes(prox)>0){ st.mes = prox; break; }
+        st.mes = prox;
+      }
+      if(vagasNoMes(st.mes)===0) st.mes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      montarCalendario();
+      if($('tela-agendamento').classList.contains('ativa')) pintarAgendamento();
+    });
+}
+function periodosDe(iso){ var p = AGENDA.abertos[iso]; return Array.isArray(p) ? p : []; }
+function diaAberto(iso){ return periodosDe(iso).length > 0; }
 var AUTOPLAY_MS = 3800, RETOMAR_MS = 3000;
 var COLUNAS_MOBILE = 3, COLUNAS_DESKTOP = 5;
 
@@ -1225,7 +1252,8 @@ window.escolherDia = function(iso){
 function vagasNoMes(d){
   var hoje = new Date(); hoje.setHours(0,0,0,0);
   var ano=d.getFullYear(), mes=d.getMonth(), dias=new Date(ano,mes+1,0).getDate(), c=0;
-  for(var i=1;i<=dias;i++) if(new Date(ano,mes,i)>=hoje && OCUPADOS.indexOf(i)===-1) c++;
+  for(var i=1;i<=dias;i++){ var iso=ano+'-'+('0'+(mes+1)).slice(-2)+'-'+('0'+i).slice(-2);
+    if(new Date(ano,mes,i)>=hoje && diaAberto(iso)) c++; }
   return c;
 }
 function montarCalendario(){
@@ -1239,13 +1267,28 @@ function montarCalendario(){
   for(var v=0; v<primeiro; v++) out += '<span class="dia dia--vazio"></span>';
   for(var d=1; d<=dias; d++){
     var passou = new Date(ano,mes,d) < hoje;
-    var cheio = OCUPADOS.indexOf(d) !== -1;
     var iso = ano + '-' + ('0'+(mes+1)).slice(-2) + '-' + ('0'+d).slice(-2);
+    var cheio = !diaAberto(iso);
     out += '<button class="dia" ' + ((passou||cheio) ? 'disabled ' : '') +
            'aria-pressed="' + (st.data===iso ? 'true' : 'false') + '" ' +
            'onclick="escolherDia(\'' + iso + '\')">' + d + '</button>';
   }
   $('cal-dias').innerHTML = out;
+  var msg = $('cal-msg');
+  if(msg){
+    msg.hidden = AGENDA.pronto && AGENDA.ok && vagasNoMes(st.mes) > 0;
+    msg.textContent = !AGENDA.pronto ? 'Carregando a agenda…'
+      : !AGENDA.ok ? 'Não conseguimos carregar a agenda agora. Chama a gente no WhatsApp que a gente encaixa você!'
+      : 'Nenhum horário aberto neste mês. Tenta o próximo ou chama no WhatsApp.';
+  }
+  /* períodos: só habilita o que estiver aberto no dia escolhido */
+  var per = st.data ? periodosDe(st.data) : ['manha','tarde'];
+  var m = $('per-manha'), t = $('per-tarde');
+  if(m) m.disabled = per.indexOf('manha') === -1;
+  if(t) t.disabled = per.indexOf('tarde') === -1;
+  if(st.data && st.periodo === 'Manhã' && m.disabled) st.periodo = null;
+  if(st.data && st.periodo === 'Tarde' && t.disabled) st.periodo = null;
+  press(m, st.periodo === 'Manhã'); press(t, st.periodo === 'Tarde');
 }
 
 function dataCurta(iso){
@@ -1371,8 +1414,8 @@ document.addEventListener('keydown', function(ev){
    START
    ============================================================ */
 montarGrade();
+carregarAgenda();
 montarCarrossel();
-if(vagasNoMes(st.mes) === 0) st.mes = new Date(st.mes.getFullYear(), st.mes.getMonth()+1, 1);
 montarCalendario();
 
 $('a-busca').addEventListener('input', function(){
